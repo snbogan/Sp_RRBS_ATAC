@@ -4,6 +4,12 @@ This repository is work in process, and will contain all code and data used by S
 In the table of contents below, each lettered entry represents a folder in this repo with an R markdown file, its knitted report, and the data that it imports.
 
 Table of Contents:
-A. Estimations of differential expression, differential splicing, and differential methylation.
+
+A. A_Differential_Exp_Splicing_Meth (estimations of differential expression, differential splicing, and differential methylation)
         
-        1. Presently, the repo contains a matrix of RNA-seq read counts and an R markdown (edgeR_DE_Sp_RRBS_ATAC) for modeling and reporting differential expression            of these reads.
+        1. A1_edgeR_DE_Sp_RRBS.Rmd/.html(differential expression)
+                i. Input data: matrix of RNA-seq read counts and an R markdown (edgeR_DE_Sp_RRBS_ATAC) for modeling and reporting differential expression           
+                of these reads.
+                ii. Code: R markdown documenting edgeR differential expression analysis
+                iii. html knit of A1_edgeR_DE_Sp_RRBS.Rmd
+                iv. Outut data: two csvs for differential expression data for contrasts between maternal and developmental treatment groups
