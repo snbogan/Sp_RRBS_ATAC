@@ -305,8 +305,13 @@ plotBCV( DGEList )
 #Fit a robust, multifactorial quasi-likelihood glm to normalized read counts
 fit_gc <- glmQLFit( DGEList, 
                     design_multi_gc, 
-                    robust = TRUE ) 
+                    robust = TRUE )
+
+# Plot shrinkage of Bayesian quasi-likelihood dispersion to visualize stastical power of DE analysis
+plotQLDisp( fit_gc ) # High shrinkage / high statistical power across DE tests
 ```
+
+![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-4-2.png)
 
 # Perform differential expression analyses
 
@@ -413,6 +418,8 @@ nrow( dev_QLFT_fc_cutoff_df ) # With logFC cutoff = 309 DEGs
 ```
 
     ## [1] 309
+
+# Export DE data from maternal and developmental contrasts
 
 ``` r
 # Export maternal and developmental glm table as .csv files
