@@ -2,7 +2,7 @@
 title: "edgeR_DE_Sp_RRBS_ATAC"
 author: "Sam Bogan"
 date: "5/14/2021"
-output: html_document
+output: rmarkdown::github_document
 ---
 This is an R markdown document detailing edgeR analysis of differential expression for the Sp_RRBS_ATAC repo, a documentation of analyses by Sam Bogan, Marie Strader, and Gretchen Hofmann that aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in the purple sea urchin Strongylocentrotus purpuratus and how these effects are regulated by other epigenomic and genomic states.
 
@@ -39,8 +39,6 @@ gene_counts <- gene_counts[ ! gene_counts$Geneid %in% n_occur_gc, ]
 
 #Make gene id matrix rowname
 row.names( gene_counts ) <- gene_counts$Geneid
-
-head( gene_counts )
 
 gene_counts <- subset( gene_counts, 
                        select = -c( Geneid, Chr, Start, End, Strand, Length ) )
@@ -136,7 +134,7 @@ plotBCV ( DGEList )
 
 ```{r}
 
-## What does this step do???
+## Use GLM tagwise and common dispersion instead of estimateDisp
 
 # Filter and normalize count matrix input
 gene_counts_matrix <- as.matrix(gene_counts)
