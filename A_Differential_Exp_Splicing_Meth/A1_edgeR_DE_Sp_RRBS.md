@@ -9,7 +9,7 @@ The code below reads in and filters an RNAseq count matrix, performs a PCA of ea
 
 This markdown finishes by outputing two dataframes containing logCPM, logFC, and p-values for differential expression produced by contrasts between developmental and maternal treatments.
 
-Prior to this analysis, reads were mapped to the Spur\_3.1.42 assembly and annotation using HiSat2 and counted using \_\_\_\_\_\_ as detailed in Strader et al. 2020: <https://www.frontiersin.org/articles/10.3389/fmars.2020.00205/full>. Relevant scripts for alignment and read counting can be found at: <https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019>.
+Prior to this analysis, reads were mapped to the Spur\_3.1.42 assembly and annotation using HiSat2 and counted using featureCounts in the subread package as detailed in Strader et al. 2020: <https://www.frontiersin.org/articles/10.3389/fmars.2020.00205/full>. Relevant scripts for alignment and read counting can be found at: <https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019>.
 
 # Read in, filter, and multiQC data
 
@@ -271,20 +271,6 @@ design_multi_gc <- model.matrix( ~0 + Mat + Dev )
 # Add column names to model matrix
 colnames( design_multi_gc ) <- c( "MatN", "MatU", "DevU" ) 
 
-# Calculate dispersal/coefficients of variation for expression per gene and across all genes
-DGEList <- estimateDisp( DGEList, 
-                         design_multi_gc, 
-                         robust = TRUE )
-
-# Plot gene-wise and average dispersal/CV
-plotBCV ( DGEList )
-```
-
-![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-4-1.png)
-
-``` r
-## Use GLM tagwise and common dispersion instead of estimateDisp
-
 # Filter and normalize count matrix input
 gene_counts_matrix <- as.matrix(gene_counts)
 
@@ -297,28 +283,29 @@ DGEList <- DGEList( counts = gene_counts_matrix,
 
 ``` r
 DGEList <- DGEList[ DGEList_keep, 
-                    keep.lib.sizes=FALSE ]
+                    keep.lib.sizes = FALSE ]
 
 DGEList <- calcNormFactors( DGEList )
 
-# Estimate mean dispersal
-DGEList_1 <- estimateGLMCommonDisp( DGEList, 
-                                    design_multi_gc )
+# Estmate mean dispersal for use in plotting common dispersal against tagwise dispersal
+DGEList <- estimateGLMCommonDisp( DGEList, 
+                                  design_multi_gc )
 
-# Estmate dispersal per gene
-DGEList_1 <- estimateGLMTagwiseDisp( DGEList_1, 
-                                     design_multi_gc ) 
+# Estmate robust, Bayesian dispersal per gene for estimating regression parameters for glmQL and differential expression
+DGEList <- estimateGLMRobustDisp( DGEList, 
+                                  design_multi_gc ) 
 
 # Plot tagwise dispersal impose w/mean dispersal and trendline
-plotBCV( DGEList_1 ) 
+plotBCV( DGEList ) 
 ```
 
-![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
 #Fit a robust, multifactorial quasi-likelihood glm to normalized read counts
-fit_gc <- glmQLFit( DGEList_1, 
-                        design_multi_gc, robust = TRUE ) 
+fit_gc <- glmQLFit( DGEList, 
+                    design_multi_gc, 
+                    robust = TRUE ) 
 ```
 
 # Perform differential expression analyses
@@ -330,50 +317,50 @@ fit_gc <- glmQLFit( DGEList_1,
 con_Maternal <- makeContrasts( con_Maternal_cons = MatU - MatN,
                                levels = design_multi_gc )
 
-# Run likelihood ratio tests of differential expression due to maternal effect
-maternal_LRT <- glmLRT( fit_gc, 
+# Apply quasi-likelihood F test to incorporate Bayesian tagwise dispersion estimates as parameter for DEG analysis
+maternal_QLFT <- glmQLFTest( fit_gc, 
                            contrast = con_Maternal )
 
 # Plot maternal logFC across logCPM (fdr < 0.05)
-plotMD( maternal_LRT )
+plotMD( maternal_QLFT )
 ```
 
-![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 ``` r
-# How many significant DEGs? 2051
-summary( decideTestsDGE( maternal_LRT, 
+# How many significant DEGs? 2405
+summary( decideTestsDGE( maternal_QLFT, 
                          adjust.method = "fdr",
                          p.value = 0.05 ) )
 ```
 
     ##        -1*MatN 1*MatU
-    ## Down             1008
-    ## NotSig          14252
-    ## Up               1043
+    ## Down             1025
+    ## NotSig          13898
+    ## Up               1380
 
 ``` r
 # Filter for significance and logFC cutoff (doubling of fold change or logFC of 1)
-maternal_LRT_cutoff <- topTags( maternal_LRT, 
-                                   n = 2051, 
+maternal_QLFT_cutoff <- topTags( maternal_QLFT, 
+                                   n = ( 1025 + 1380 ), 
                                    adjust.method = "fdr",
                                    p.value = 0.05 )
 
 # Create df of logFC and sign cutoff DEGs
-maternal_LRT_cutoff_df <- data.frame( maternal_LRT_cutoff$table )
-maternal_LRT_fc_cutoff_df <- maternal_LRT_cutoff_df[ !( abs( maternal_LRT_cutoff_df$logFC ) < 1 ), ]
+maternal_QLFT_cutoff_df <- data.frame( maternal_QLFT_cutoff$table )
+maternal_QLFT_fc_cutoff_df <- maternal_QLFT_cutoff_df[ !( abs( maternal_QLFT_cutoff_df$logFC ) < 1 ), ]
 
 # Count total DEGs with logFC cutoff
-nrow( maternal_LRT_cutoff_df ) # Without logFC cutoff
+nrow( maternal_QLFT_cutoff_df ) # Without logFC cutoff = 2405 DEGs
 ```
 
-    ## [1] 2051
+    ## [1] 2405
 
 ``` r
-nrow( maternal_LRT_fc_cutoff_df ) # With logFC cutoff
+nrow( maternal_QLFT_fc_cutoff_df ) # With logFC cutoff = 245 DEGs
 ```
 
-    ## [1] 244
+    ## [1] 245
 
 ``` r
 ## Pairwise comparison of developmental differential expression
@@ -382,55 +369,56 @@ nrow( maternal_LRT_fc_cutoff_df ) # With logFC cutoff
 con_Dev <- makeContrasts( con_Dev_cons = DevU, 
                           levels = design_multi_gc)
 
-dev_LRT <- glmLRT( fit_gc, 
+# Apply quasi-likelihood F test to incorporate Bayesian tagwise dispersion estimates as parameter for DEG analysis
+dev_QLFT <- glmQLFTest( fit_gc, 
                    contrast = con_Dev )
 
 # Plot maternal logFC across logCPM (fdr < 0.05)
-plotMD( dev_LRT )
+plotMD( dev_QLFT )
 ```
 
-![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](A1_edgeR_DE_Sp_RRBS_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ``` r
-# How many significant DEGs? 4234
-summary( decideTestsDGE( dev_LRT, 
+# How many significant DEGs? 4722
+summary( decideTestsDGE( dev_QLFT, 
                          adjust.method = "fdr",
                          p.value = 0.05 ) )
 ```
 
     ##        1*DevU
-    ## Down     2288
-    ## NotSig  12069
-    ## Up       1946
+    ## Down     2459
+    ## NotSig  11581
+    ## Up       2263
 
 ``` r
 # Filter for significance and logFC cutoff
-dev_LRT_cutoff <- topTags( dev_LRT, 
-                                n = 4234, 
+dev_QLFT_cutoff <- topTags( dev_QLFT, 
+                                n = ( 2459 + 2263 ), 
                                 adjust.method = "fdr",
                                 p.value = 0.05 )
 
 # Create df of logFC and sig cutoff DEGs (doubling of fold change or logFC of 1)
-dev_LRT_cutoff_df <- data.frame( dev_LRT_cutoff$table )
-dev_LRT_fc_cutoff_df <- dev_LRT_cutoff_df[ !( abs( dev_LRT_cutoff_df$logFC ) < 1 ), ]
+dev_QLFT_cutoff_df <- data.frame( dev_QLFT_cutoff$table )
+dev_QLFT_fc_cutoff_df <- dev_QLFT_cutoff_df[ !( abs( dev_QLFT_cutoff_df$logFC ) < 1 ), ]
 
 # Count total DEGs with logFC cutoff
-nrow( dev_LRT_cutoff_df ) # Without logFC cutoff
+nrow( dev_QLFT_cutoff_df ) # Without logFC cutoff = 4722 DEGs
 ```
 
-    ## [1] 4234
+    ## [1] 4722
 
 ``` r
-nrow( dev_LRT_fc_cutoff_df ) # With logFC cutoff
+nrow( dev_QLFT_fc_cutoff_df ) # With logFC cutoff = 309 DEGs
 ```
 
-    ## [1] 298
+    ## [1] 309
 
 ``` r
 # Export maternal and developmental glm table as .csv files
-write.csv( maternal_LRT$table, 
+write.csv( maternal_QLFT$table, 
            "Output_data/maternal_edgeR_GE_table_filt.csv")
 
-write.csv( dev_LRT$table, 
+write.csv( dev_QLFT$table, 
           "Output_data/dev_edgeR_GE_table_filt.csv" )
 ```
