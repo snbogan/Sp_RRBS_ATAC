@@ -10,5 +10,5 @@ A. A_Differential_Exp_Splicing_Meth (estimations of differential expression, dif
         1. A1_edgeR_DE_Sp_RRBS.Rmd/.html(differential expression)
                 i. Input data: matrix of RNA-seq read counts and an R markdown
                 ii. Code: R markdown documenting edgeR differential expression analysis (A1_edgeR_DE_Sp_RRBS.Rmd)
-                iii. html knit of A1_edgeR_DE_Sp_RRBS.Rmd
+                iii. Markdown: knit of A1_edgeR_DE_Sp_RRBS.Rmd
                 iv. Outut data: two .csv's of differential expression data derived from contrasts between maternal and developmental treatment groups
