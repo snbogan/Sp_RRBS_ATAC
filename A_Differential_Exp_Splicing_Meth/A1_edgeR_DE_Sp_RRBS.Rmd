@@ -4,7 +4,7 @@ author: "Sam Bogan"
 date: "5/14/2021"
 output: rmarkdown::github_document
 ---
-This is an R markdown document detailing edgeR analysis of differential expression for the Sp_RRBS_ATAC repo, a documentation of analyses by Sam Bogan, Marie Strader, and Gretchen Hofmann that aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in the purple sea urchin Strongylocentrotus purpuratus and how these effects are regulated by other epigenomic and genomic states.
+This is an R markdown document detailing edgeR analysis of differential expression for the Sp_RRBS_ATAC repo, a documentation of analyses by Sam Bogan, Marie Strader, and Gretchen Hofmann that aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in the purple sea urchin *Strongylocentrotus purpuratus* and how these effects are regulated by other epigenomic and genomic states.
 
 The code below reads in and filters an RNAseq count matrix, performs a PCA of each sample, and then fits a multifactorial glm from which pariwise contrasts are made to estimate differential expression between treatment groups. Developmental treatment: larval S. purpuratus reared in experimental upwelling or non-upwelling conditions. Maternal treatment:  larval S. purpuratus spawned from mothers exposed to experimental upwelling or non-upwelling conditions.
 
@@ -43,7 +43,12 @@ gene_counts <- gene_counts[ ! gene_counts$Geneid %in% n_occur_gc, ]
 row.names( gene_counts ) <- gene_counts$Geneid
 
 gene_counts <- subset( gene_counts, 
-                       select = -c( Geneid, Chr, Start, End, Strand, Length ) )
+                       select = -c( Geneid, 
+                                    Chr, 
+                                    Start, 
+                                    End, 
+                                    Strand, 
+                                    Length ) )
 
 ```
 
@@ -69,7 +74,7 @@ targets_gc$grouping <- paste( targets_gc$Mat,
                              targets_gc$Dev,
                              sep="_" )
 
-#Round counts if necessary for use in edgeR
+# Round counts (if necessary() for use in edgeR
 data_input_gc <- round( gene_counts )
 
 ```
@@ -81,13 +86,13 @@ DGEList <- DGEList( counts = data_input_gc,
                     group = targets_gc$grouping, 
                     remove.zeros = T )
 
-# Let's remove samples with less then 0.5 cpm (this is ~10 counts in the count file) in no fewer then 9 samples
+# Let's remove genes with less then 0.5 cpm (this is ~10 counts in the count file) in no fewer then 9 samples
 DGEList_keep <- rowSums( cpm( DGEList ) > 0.5 ) >= 9
 
 # How many genes are removed by read count filter?
 table( DGEList_keep )
 
-# Set keep.lib.sizes = F to have R recalculate library sizes after filtering
+# Filter and set keep.lib.sizes = F to have R recalculate library sizes after filtering
 DGEList <- DGEList[ DGEList_keep, 
                     keep.lib.sizes = FALSE ]
 
@@ -100,13 +105,13 @@ DGEList_log <- cpm( DGEList,
                     log = TRUE, 
                     prior.count = 2 )
 
-# MDS of normalized exon read counts
+# MDS of normalized gene read counts
 MDS <- plotMDS( DGEList_log )
 
 # Print MDS plot
 MDS
 
-# Run pcoa on read counts
+# Run pcoa on gene read counts
 pcoa_gc <- pcoa( vegdist( t( DGEList_log <- cpm ( DGEList, 
                                                   log = TRUE, 
                                                   prior.count = 2 ) ), 
@@ -115,6 +120,9 @@ pcoa_gc <- pcoa( vegdist( t( DGEList_log <- cpm ( DGEList,
 # Print sample scores across vectors
 head( pcoa_gc$vectors )
 
+# Export DGEList_keep
+save( DGEList_keep,
+      file = "Output_data/DGEList_keep.Rdata" )
 ```
 
 ```{r}
@@ -145,10 +153,10 @@ DGEList <- estimateGLMCommonDisp( DGEList,
 DGEList <- estimateGLMRobustDisp( DGEList, 
                                   design_multi_gc ) 
 
-# Plot tagwise dispersal impose w/mean dispersal and trendline
+# Plot tagwise dispersal and impose w/mean dispersal and trendline
 plotBCV( DGEList ) 
 
-#Fit a robust, multifactorial quasi-likelihood glm to normalized read counts
+# Fit a robust, multifactorial quasi-likelihood glm to normalized read counts
 fit_gc <- glmQLFit( DGEList, 
                     design_multi_gc, 
                     robust = TRUE )
@@ -242,5 +250,9 @@ write.csv( maternal_QLFT$table,
 
 write.csv( dev_QLFT$table, 
           "Output_data/dev_edgeR_GE_table_filt.csv" )
+
+# Export list of maternal and developmental DEGs
+write.csv(  )
+
 
 ```

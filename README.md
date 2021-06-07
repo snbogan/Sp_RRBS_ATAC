@@ -7,8 +7,15 @@ Table of Contents:
 
 A. A_Differential_Exp_Splicing_Meth (estimations of differential expression, differential splicing, and differential methylation)
         
-        1. A1_edgeR_DE_Sp_RRBS.Rmd/.html(differential expression)
-                i. Input data: matrix of RNA-seq read counts and an R markdown
+        1. A1_edgeR_DE_Sp_RRBS.Rmd/.md(differential expression)
+                i. Input data: matrix of RNA-seq read counts
                 ii. Code: R markdown documenting edgeR differential expression analysis (A1_edgeR_DE_Sp_RRBS.Rmd)
                 iii. Markdown: knit of A1_edgeR_DE_Sp_RRBS.Rmd
-                iv. Outut data: two .csv's of differential expression data derived from contrasts between maternal and developmental treatment groups
+                iv. Outut data: two CSVs of diff expression from contrasts between maternal and developmental treatment groups
+                
+        2. A2_edgeR_DS_Sp_RRBS.Rmd/.md(differential expression)
+                i. Input data: matrix of RNA-seq exon read counts
+                ii. Code: R markdown documenting edgeR differential exon use analysis (A2_edgeR_DS_Sp_RRBS.Rmd)
+                iii. Markdown: knit of A2_edgeR_DS_Sp_RRBS.Rmd
+                iv. Outut data: two CSVs of diff exon use from contrasts between maternal and developmental treatment groups and
+                    two dfs of -log p-vals with geneids for GO-term Mann Whitney U tests
