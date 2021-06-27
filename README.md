@@ -7,7 +7,7 @@
 ## Description
 This repository is a work in process, and will contain all code and data used by Sam Bogan, Marie Strader, and Gretchen Hofmann for analyzing the effect of differential methylation on expression and splicing in the purple urchin during transgenerational plasticity. Analyses also include multifactorial models of transcription as a function of methylation and chromatin state (i.e., ATAC-seq data).
 
-All R scripts were run using R version 3.6.1. Input files for Section A (see table of contents) were produced using scripts available at: https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019. Raw RRBS and RNA-seq read are available through the NCBI Short Read Archive under the accession PRJNA548926 and ATAC-seq Tn5 insert .bed files are available under GEO experssion emnibus Bioproject PRJNA377768.
+All R scripts were run using R version 3.6.1. Input files for Section A (see table of contents) were produced using scripts available at: https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019. Raw RRBS and RNA-seq read are available through the NCBI Short Read Archive under the accession PRJNA548926 and ATAC-seq Tn5 insert .bed files are available under GEO experssion emnibus Bioproject PRJNA377768. ATAC-seq .bed files are large and must be imported to Sp_RRBS_ATAC/B_
 
 This research was funded by a United States National Science Foundation award (IOS-1656262) to Gretchen Hofmann, UCSB.
 
@@ -38,7 +38,12 @@ This research was funded by a United States National Science Foundation award (I
                 iv. Output data: twelve CSVs of differential methylation coefficients across CpGs and genomic feature type in response
                 to maternal and developmental treatments
                 
-    B. B1_ATAC_Summary_Sp_RRBS.R (counting/summarizing ATAC-seq data from 39 hpf larvae)
-                i. Input data: 3 replicate .bed files of ATAC-seq transposase inserts from 39 hpf *S. purpuratus*
-                ii. Code: R script for summarizing ATAC-seq data (to be run on high performance cluster or system)
-                iii. Output data: .Rout file containing summarized ATAC-seq insert densities per gene and genomic feature types
+    B. B_Integr_ATAC_RRBS_RNA (integration of ATAC-seq, RRBS, and RNA-seq data)
+        
+        1. B1_ATAC_Summary_Sp_RRBS.R (counting/summarizing ATAC-seq data from 39 hpf larvae)
+                i. Input data: IMPORTED BY USER - 3 replicate .bed files of ATAC-seq transposase inserts from 39 hpf *S. purpuratus*
+                ii. Code: RUN ON HIGH PERFORMANCE SYSTEM OR CLUSTER - .bash script for concatenating ATAC-seq .bed files and .R script for
+                summarizing ATAC-seq data
+                iii. Output data: 
+                        a. .Rout file containing summarized ATAC-seq insert densities per gene and genomic feature types
+                        b. EXPORTED BY USER DURING EXECUTION - combined .bed file of all ATAC-seq replicates
