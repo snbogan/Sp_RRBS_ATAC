@@ -7,11 +7,9 @@
 ## Description
 This repository is a work in process, and will contain all code and data used by Sam Bogan, Marie Strader, and Gretchen Hofmann for analyzing the effect of differential methylation on expression and splicing in the purple urchin during transgenerational plasticity. Analyses also include multifactorial models of transcription as a function of methylation and chromatin state (i.e., ATAC-seq data).
 
-In the table of contents below, each lettered entry represents a folder in this repo with an R markdown file, its knitted report, and the data that it imports and exports.
+All R scripts were run using R version 3.6.1. Input files for Section A (see table of contents) were produced using scripts available at: https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019. 
 
-All R scripts were run using R version 3.6.1. 
-
-This research was funded by a United States National Science Foundation award (IOS-1656262) to Gretchen Hofmann, UCSB. In addition, diving and boating resources were provided by Santa Barbara Coastal Long-Term Ecological Research program (NSF award OCE-1232779; Director: Dr. Daniel Reed).
+This research was funded by a United States National Science Foundation award (IOS-1656262) to Gretchen Hofmann, UCSB.
 
 ## Table of Contents:
 
