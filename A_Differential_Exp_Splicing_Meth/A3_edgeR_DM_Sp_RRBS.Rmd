@@ -1,0 +1,748 @@
+---
+title: "A3_edgeR_DM_Sp_RRBS"
+author: "Sam Bogan"
+date: "6/26/2021"
+output: github_document
+---
+
+This is an R markdown document detailing edgeR analysis of differential methylation for the Sp_RRBS_ATAC repo, a documentation of analyses by Sam Bogan, Marie Strader, and Gretchen Hofmann that aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in the purple sea urchin *Strongylocentrotus purpuratus* and how these effects are regulated by other epigenomic and genomic states.
+
+The code below reads in and filters Bismark .cov files and methylation count files, performs a PCA of each sample, and then fits a edgeR multifactorial glm from which pariwise contrasts are made to estimate differential methylation between treatment groups. Developmental treatment: larval *S. purpuratus* reared in experimental upwelling or non-upwelling conditions. Maternal treatment:  larval *S. purpuratus* spawned from mothers exposed to experimental upwelling or non-upwelling conditions.
+
+This markdown finishes by outputing twelve dataframes containing lists of differential methylation coefficients and likelihood statistics at CpGs, promoters, single exons, genewise exons, single introns, and genewise introns corresponding to the maternal and developmental treatments.
+
+Prior to these analyses, RRBS reads were mapped to the bisulfite-converted Spur_3.1.42 assembly and annotation using Bismark.  Methylation output files were produced by running the bismark_methylation_extractor command and summary files were produced by the bismark2summary command as detailed in Strader et al. 2020: https://www.frontiersin.org/articles/10.3389/fmars.2020.00205/full. Relevant scripts for alignment and methylation calling can be found at: https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019.
+
+```{r setup, include=FALSE}
+
+knitr::opts_knit$set( root.dir = '~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/' )
+
+```
+
+```{r}
+
+# Load required packages
+library( methylKit )
+library( edgeR )
+library( genomation )
+library( GenomicRanges )
+library( reshape2 )
+library( ggplot2 )
+library( vegan )
+library( rgl )
+library( ape )
+library( adegenet )
+library( VennDiagram )
+library( dplyr )
+library( gridExtra )
+library( plyr )
+library( strex )
+
+```
+
+#Differential methylation at individual CpGs
+
+```{r}
+
+## Read in Bismark methyl count outputs
+# Set working directory containing .cov files
+setwd( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Input_data/" )
+
+# Read in delimeters of .cov files
+NN_1 <- read.delim( "NN1.cov", header = F, nrows = 6 )
+NN_2 <- read.delim( "NN2.cov", header = F, nrows = 6 )
+NN_3 <- read.delim( "NN3.cov", header = F, nrows = 6 )
+NU_1 <- read.delim( "NU1.cov", header = F, nrows = 6 )
+NU_2 <- read.delim( "NU2.cov", header = F, nrows = 6 )
+NU_3 <- read.delim( "NU3.cov", header = F, nrows = 6 )
+UN_1 <- read.delim( "UN1.cov", header = F, nrows = 6 )
+UN_2 <- read.delim( "UN2.cov", header = F, nrows = 6 )
+UN_3 <- read.delim( "UN3.cov", header = F, nrows = 6 )
+UU_1 <- read.delim( "UU1.cov", header = F, nrows = 6 )
+UU3_1 <- read.delim( "UU3_1.cov", header = F, nrows = 6 )
+UU3_2 <- read.delim( "UU3_2.cov", header = F, nrows = 6 )
+
+# Create df of sample  IDs
+targets <-
+  data.frame(
+  row.names = c(
+  "NN1",
+  "NN2",
+  "NN3",
+  "NU1",
+  "NU2",
+  "NU3",
+  "UN1",
+  "UN2",
+  "UN3",
+  "UU1",
+  "UU3_1",
+  "UU3_2"
+  )
+  )
+
+# Add maternal and developmental treatment info to df of sample IDs 
+targets$treat = substr( row.names( targets ), 1, 2 )
+targets$treat_maternal = substr( row.names( targets ), 1, 1)
+targets$treat_dev = substr( row.names( targets ), 2, 2 )
+
+# Read in Bismark .cov files
+Sample <- row.names( targets )
+files <- paste0( Sample, ".cov" )
+yall <- readBismark2DGE( files, sample.names = Sample )
+dim( yall ) #9354108      24
+
+# Call binary methylation scores across CpGs
+Methylation <- gl( 2, 1, ncol( yall ), labels = c( "Me", "Un") )
+
+# Create matrix of read coverage
+Me <- yall$counts[ , Methylation == "Me" ]
+Un <- yall$counts[ , Methylation == "Un" ]
+Coverage <- Me + Un
+
+# Filter CpGs based on read coverage: at least 10 reads across all 12 samples
+HasCoverage <- rowSums( Coverage >= 10 ) == 12
+table( HasCoverage )
+#HasCoverage
+#  FALSE    TRUE 
+#9107424  246684 
+y <- yall[ HasCoverage , keep.lib.sizes = FALSE ]
+
+# Calculate RRBS library sizes
+TotalLibSize <-
+  y$samples$lib.size[ Methylation == "Me" ] + y$samples$lib.size[ Methylation == "Un" ]
+  y$samples$lib.size <- rep( TotalLibSize, each = 2 )
+
+# Create new methylated and unmethylated count matrices post-filtering
+Me <- y$counts[ , Methylation == "Me" ]
+Un <- y$counts[ , Methylation == "Un" ]
+M <- log2( Me + 2 ) - log2( Un + 2 )
+colnames (M ) <- row.names( targets )
+
+# Multidimensional scaling plot of log2 methylation levels
+plotMDS( M, col = rep( 1:4, each = 3 ), main = "M-values" ) # Samples predominantly cluster according to maternal treatment
+
+# State exp design for diff meth analysis and create design matrix
+designSL <- model.matrix( ~ 0 + treat_maternal + treat_dev, data = targets )
+design <- modelMatrixMeth( designSL )
+
+# Estimate common and robust dispersal values
+y <- estimateDisp( y, design = design, robust = TRUE )
+
+# Plot dispersal
+plotBCV( y ) 
+
+# Fit a robust, multifactorial quasi-likelihood glm to normalized methylation counts
+fit <- glmQLFit( y, design, robust = TRUE )
+
+# Make maternal contrast
+contrM <- makeContrasts( Maternal = treat_maternalU - treat_maternalN, levels = design )
+
+# Apply likelihood ratio test of diff meth due to maternal effect
+lrtM <- glmLRT( fit, contrast = contrM )
+
+# Summarize diff meth CpGs
+summary( decideTests( lrtM ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    244
+#NotSig                               246071
+#Up                                      327
+
+# Plot relationship between read coverage and methylation fold change
+plotMD( lrtM )
+
+# List maternal diff meth CpG IDs
+topTags( lrtM )
+
+## Wrangle data for volano plot of CpG diff meth
+# Developmental diff meth test
+contrD <- makeContrasts( Dev = treat_devU, levels = design)
+lrtD <- glmLRT( fit, contrast = contrD )
+summary( decideTests( lrtD ) )
+
+# Correct p-values
+lrtM$table$FDR <- p.adjust( lrtM$table$PValue, method = "fdr" )
+lrtD$table$FDR <- p.adjust( lrtD$table$PValue, method = "fdr" )
+
+# Apply logical variable for significant DM
+lrtM$table$Sig <- ifelse( lrtM$table$FDR < 0.05, TRUE, FALSE )
+lrtD$table$Sig <- ifelse( lrtD$table$FDR < 0.05, TRUE, FALSE )
+
+# Apply binary variable for hyper/hypomethylation or "Up" vs "Down"
+lrtM$table$Dir <- ifelse( lrtM$table$logFC > 0, "Up", "Down" )
+lrtD$table$Dir <- ifelse( lrtD$table$logFC > 0, "Up", "Down" )
+
+# Create combined term for significance and fold-change direction of diff meth
+lrtM$table$Sig_Dir <- paste( lrtM$table$Sig,
+                             lrtM$table$Dir,
+                             sep = "_" )
+lrtD$table$Sig_Dir <- paste( lrtD$table$Sig,
+                             lrtD$table$Dir,
+                             sep = "_" )
+
+# Create CpG ID and treatment variables
+lrtD$table$Treat <- "Developmental"
+lrtM$table$Treat <- "Maternal"
+
+# Merge developmental and maternal coefficients
+all_CpG_dm <- rbind( lrtD$table,
+                     lrtM$table )
+
+# Developmental and maternal volcano plots
+ggplot( data = all_CpG_dm, aes(y = -log( as.numeric( FDR ) ), x = as.numeric( logFC ),
+                               color = Sig_Dir ) ) +
+    geom_point() +
+    theme_classic( base_size = 40 ) +
+    theme( legend.position = "none",
+           strip.background = element_blank() ) +
+    scale_color_manual( values = c( "black", "black", "blue", "red" ) ) +
+    facet_grid( Treat ~ . , scale = "free") +
+    labs( x = "Diff meth", y = "-log FDR" )
+
+#### Create Fig 3: facet grid volcano plot of treatment:data type ####
+
+# Output csv's of maternal and developmental CpG diff meth coefficients and likelihoods
+write.csv( lrtM$table, "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_CpG_DM_df.csv" )
+write.csv( lrtD$table, "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_CpG_DM_df.csv" )
+
+```
+
+#Promoter differential methylation
+
+```{r}
+# Read in percent/median meth .csv for CpGs within -1kb promoters of CDS
+meth_promoter_perc_meth <- read.csv( "Input_data/meth_promoter_perc_meth.csv" )
+
+# Reformat CpG IDs
+meth_promoter_perc_meth$id <- gsub( "\\.", "-", meth_promoter_perc_meth$id )
+
+# Create df of CpG IDs and geneids
+promoter_CpGs_geneID <- data.frame( id = meth_promoter_perc_meth$id, 
+                                    geneid = meth_promoter_perc_meth$V41 )
+promoter_CpGs_geneID$id <- as.character( promoter_CpGs_geneID$id )
+promoter_CpGs_geneID$id <- str_before_nth( promoter_CpGs_geneID$id, "-", 2 )
+
+# Subset unfiltered CpG methylation data for those values in promoter into yall_p
+yall_cpgs <- row.names( yall$genes )
+yip_cpgs <- yall_cpgs[ ( yall_cpgs %in% promoter_CpGs_geneID$id ) ]
+yall_p <- yall[ yip_cpgs, keep.lib.sizes = FALSE ]
+yall_p$genes$id <- row.names( yall_p$genes )
+
+# Merge geneid w/ yall_p$genes
+yall_p$genes$geneid <- promoter_CpGs_geneID$geneid[ match( yall_p$genes$id,
+                                                           promoter_CpGs_geneID$id ) ]
+
+# Rowsum of methylation and unmethylated counts of all CpGs within a given promoter
+ypr <- rowsum( yall_p, 
+               group = yall_p$genes$geneid, 
+               reorder = FALSE )
+
+# Calc methylation levels of promoters
+Methylation_pr <- gl( 2, 1, ncol( ypr ), 
+                      labels = c( "Me", "Un" ) )
+Me_pr <- ypr$counts[ , Methylation_pr == "Me" ]
+Un_pr <- ypr$counts[ , Methylation_pr == "Un" ]
+
+# Filter promoters for read coverage using same coefficients as CpGs
+Coverage_pr <- Me_pr + Un_pr
+HasCoverage_pr <- rowSums( Coverage_pr >= 10 ) == 12
+table( HasCoverage_pr )
+#  HasCoverage
+#  FALSE    TRUE 
+#  0  1954 
+y_pr <- ypr[ HasCoverage_pr , keep.lib.sizes = FALSE ]
+
+# Recalc library sizes
+TotalLibSize_pr <- y_pr$samples$lib.size[ Methylation_pr == "Me" ] + 
+  y_pr$samples$lib.size[ Methylation_pr == "Un" ]
+y_pr$samples$lib.size <- rep( TotalLibSize_pr, each = 2 )
+
+# Create new methylated and unmethylated count matrices post-filtering
+Me_pr <- y_pr$counts[ , Methylation == "Me" ]
+Un_pr <- y_pr$counts[ , Methylation == "Un" ]
+M_pr <- log2( Me_pr + 2 ) - log2( Un_pr + 2 )
+colnames( M_pr ) <- row.names( targets )
+
+# Multidimensional scaling plot of promoter methylation
+plotMDS( M_pr, col = rep( 1:4, each = 3 ), main = "M-values" ) # Samples cluster according to maternal treatment
+
+# Estimate dispersal of promoter meth
+y_pr <- estimateDisp( y_pr, design = design, robust = TRUE )
+
+# Fit multifactorial quasi-likelihood GLM to promoter meth
+fit_pr <- glmQLFit( y_pr, design, robust = TRUE )
+
+# Perform LRT test of differential methylation at promoters
+lrtM_pr <- glmLRT( fit_pr, contrast = contrM )
+
+# Summarize differential promoter methylation
+summary( decideTests( lrtM_pr ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    6
+#NotSig                               246071
+#Up                                      6
+
+# Plot relationship between read coverage and promoter diff meth
+plotMD( lrtM_pr )
+
+# Perm diff meth analysis for developmental treatment
+lrtD_pr <- glmLRT( fit_pr, contrast = contrD )
+summary( decideTests( lrtD_pr ) )
+#       1*treat_devU
+#Down              0
+#NotSig         1950
+#Up                4
+plotMD( lrtD_pr )
+
+# Output maternal and developmental promoter diff meth df's
+write.csv( lrtM_pr$table, "Output_data/mat_edgeR_1kb_promoter_DM_df.csv" )
+write.csv( lrtD_pr$table, "Output_data/dev_edgeR_1kb_promoter_DM_df.csv" )
+
+```
+
+#Exon differential methylation
+
+```{r}
+
+# Read in percent/median meth .csv for CpGs within exons of CDS
+meth_exon_perc_meth <- read.csv( "Input_data/meth_exon_perc_meth.csv" )
+meth_exon_perc_meth$id <- gsub( "\\.", "-", meth_exon_perc_meth$id )
+exon_CpGs_geneID <- data.frame( id = meth_exon_perc_meth$id, 
+                                geneid = meth_exon_perc_meth$V41 )
+exon_CpGs_geneID$id <- as.character( exon_CpGs_geneID$id )
+exon_CpGs_geneID$id <- str_before_nth( exon_CpGs_geneID$id, "-", 2 )
+
+# Filter CpG methylation data for those values in exons
+yex_cpgs <- yall_cpgs[ ( yall_cpgs %in% exon_CpGs_geneID$id ) ]
+yall_ex <- yall[ yex_cpgs, keep.lib.sizes = FALSE ]
+yall_ex$genes$id <- row.names( yall_ex$genes )
+
+# Merge geneid w/ yall_ex$genes
+yall_ex$genes$geneid = exon_CpGs_geneID$geneid[ match(yall_ex$genes$id, exon_CpGs_geneID$id ) ]
+
+# Rowsum across singular exons
+yex <- rowsum( yall_ex, group = yall_ex$genes$geneid, reorder = FALSE )
+
+# Rowsum across all exons in a gene
+yall_ex$genes$geneid <- gsub( "-tr-E.*", "", yall_ex$genes$geneid )
+yall_ex$genes$geneid <- gsub( "-E.*", "", yall_ex$genes$geneid )
+yex_gene <- rowsum( yall_ex, group = yall_ex$genes$geneid, reorder = FALSE )
+
+## Exon-specific differential methylation
+# Calc methylation levels of single exons
+Methylation_ex <- gl( 2, 1, ncol( yex ), labels =c ( "Me", "Un" ) )
+Me_ex <- yex$counts[ , Methylation_ex == "Me" ]
+Un_ex <- yex$counts[ , Methylation_ex == "Un" ]
+
+# Coverage filter of exon-specific RRBS reads
+Coverage_ex <- Me_ex + Un_ex
+HasCoverage_ex <- rowSums( Coverage_ex >= 10 ) == 12
+table( HasCoverage_ex )
+#HasCoverage
+#  FALSE    TRUE 
+#0  6335 
+y_ex <- yex[ HasCoverage_ex , keep.lib.sizes = FALSE ]
+
+# Recalc library sizes of exon-specific methylation data
+TotalLibSize_ex <- y_ex$samples$lib.size[ Methylation_ex == "Me" ] + 
+  y_ex$samples$lib.size[ Methylation_ex == "Un" ]
+y_ex$samples$lib.size <- rep( TotalLibSize_ex, each = 2 )
+
+# Create new methylated and unmethylated count matrices post-filtering
+Me_ex <- y_ex$counts[ , Methylation_ex == "Me" ]
+Un_ex <- y_ex$counts[ , Methylation_ex == "Un" ]
+M_ex <- log2( Me_ex + 2 ) - log2( Un_ex + 2 )
+colnames( M_ex ) <- row.names( targets )
+
+# Multidimensional scaling plot of exon-specific RRBS reads
+plotMDS( M_ex, col = rep( 1:4, each = 3 ), main = "M-values" )
+
+# Estimate dispersal at single exons
+y_ex <- estimateDisp( y_ex, design = design, robust = TRUE )
+
+# First quasi-likelihood GLM to exon-specific methylation counts
+fit_ex <- glmQLFit( y_ex, design, robust = TRUE)
+
+# Perform diff meth test of exon-specific methylation due to materal effect
+lrtM_ex <- glmLRT( fit_ex, contrast = contrM )
+summary( decideTests( lrtM_ex ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    25
+#NotSig                               246071
+#Up                                      32
+
+# Plot relationship between read coverage and diff meth fold changes
+plotMD( lrtM_ex )
+
+# Diff meth test of exon-specific methylation due to developmental treatment
+contrD <- makeContrasts( Dev = treat_devU, levels=design)
+lrtD_ex <- glmLRT( fit_ex, contrast = contrD )
+summary( decideTests( lrtD_ex ) )
+#       1*treat_devU
+#Down              0
+#NotSig         1950
+#Up                2
+
+# Output diff meth coefficients of specific exons for maternal and developmental treatments
+write.csv( lrtM_ex$table, "Output_data/maternal_edgeR_exon_DM_df.csv" )
+write.csv( lrtD_ex$table, "Output_data/dev_edgeR_exon_DM_df.csv" )
+
+##Genewise exon differential methylation
+# Calc methylation levels of genewise exons
+Methylation_ex_gene <- gl( 2, 1, ncol( yex_gene ), labels = c( "Me", "Un" ) )
+Me_ex_gene <- yex_gene$counts[ , Methylation_ex_gene == "Me" ]
+Un_ex_gene <- yex_gene$counts[ , Methylation_ex_gene == "Un" ]
+
+# Filter genewise exons methylation data for coverage
+Coverage_ex_gene <- Me_ex_gene + Un_ex_gene
+HasCoverage_ex_gene <- rowSums( Coverage_ex_gene >= 10 ) == 12
+table( HasCoverage_ex_gene )
+#HasCoverage
+#  FALSE    TRUE
+#0  5108
+y_ex_gene <- yex_gene[ HasCoverage_ex_gene , keep.lib.sizes = FALSE ]
+
+TotalLibSize_ex_gene <-
+  y_ex_gene$samples$lib.size[ Methylation_ex_gene == "Me" ] + 
+  y_ex_gene$samples$lib.size[ Methylation_ex_gene == "Un" ]
+
+y_ex_gene$samples$lib.size <- rep( TotalLibSize_ex_gene, each = 2 )
+
+Me_ex_gene <- y_ex_gene$counts[ , Methylation_ex_gene == "Me"]
+Un_ex_gene <- y_ex_gene$counts[ , Methylation_ex_gene == "Un"]
+M_ex_gene <- log2( Me_ex_gene + 2 ) - log2( Un_ex_gene + 2 )
+colnames( M_ex_gene ) <- row.names( targets )
+
+# Plot MDS of genewise exon methylation
+plotMDS( M_ex_gene, col = rep( 1:4, each = 3 ), main = "M-values" )
+
+# Estimate dispersal of genewise exon methylation
+y_ex_gene <- estimateDisp( y_ex_gene, design = design, robust = TRUE )
+
+# Fit quasi-likelihood GLM to genewise exon methylation counts
+fit_ex_gene <- glmQLFit( y_ex_gene, design, robust = TRUE )
+
+# Perform LRT of diff meth across exons of genes due to maternal treatment
+lrtM_ex_gene <- glmLRT( fit_ex_gene, contrast = contrM )
+summary(decideTests( lrtM_ex_gene ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    31
+#NotSig                               246071
+#Up                                      33
+plotMD( lrtM_ex_gene )
+
+# Diff meth of all exons within given genes due to developmental treatment
+lrtD_ex_gene <- glmLRT( fit_ex_gene, contrast = contrD )
+summary(decideTests( lrtD_ex_gene ) )
+#       1*treat_devU
+#Down              0
+#NotSig         1950
+#Up                0
+plotMD( lrtD_ex_gene )
+
+# Output genewise exon diff meth df's from maternal and developmental treatments
+write.csv( lrtM_ex_gene$table, "Output_data/maternal_edgeR_exon_gene_DM_df.csv" )
+write.csv( lrtD_ex_gene$table, "Output_data/dev_edgeR_exon_gene_DM_df.csv" )
+
+```
+
+#Test whether exon position affects likelihood of differential methylation
+
+```{r}
+## Quick histogram of exon numbers
+
+# Create exon number variable
+lrtM_ex$table$exon_num <- as.integer( gsub( ".*-E", "", row.names( lrtM_ex$table ) ) ) 
+
+# Plot histogram
+ggplot( data = lrtM_ex$table,
+       aes( x = exon_num ) ) +
+  geom_bar() +
+  scale_x_continuous( lim = c( 0, 25 ) ) + # Limit graph to 25th exon
+  labs( title = "Histogram of exon numbers",
+       x = "Exon number" )
+
+## Calculate and plot percent of DM exons across exon numbers
+# Count exon numbers
+all_exon_counts <- count( lrtM_ex$table$exon_num )
+
+# Output list of sig diff meth exons and create exon num variable
+lrtM_ex_toptags <- topTags( lrtM_ex, n = 57 )
+lrtM_ex_toptags$table$exon_num <- as.numeric( gsub( ".*-E", "", lrtM_ex_toptags$table$geneid ) )
+
+# Count DM exons
+DM_exon_counts <- count( lrtM_ex_toptags$table$exon_num )
+perc_exon_counts <- merge( all_exon_counts, DM_exon_counts, by = "x" )
+perc_exon_counts$x <- as.numeric( perc_exon_counts$x )
+
+# Plot proportion of DM across exon positions
+ggplot(data = perc_exon_counts, 
+       aes(x = log( x ), y = ( ( freq.y / ( freq.x ) ) *100 ), size = freq.x ) ) +
+  geom_point() +
+  geom_smooth( method = "loess", se = FALSE ) +
+  labs( x = "log(exon number)", y = "Percent DM" )
+
+## Apply logistic regression to test for enrichment of DM at 5' exons
+library( rstan )
+library( rstanarm )
+library( bayesplot )
+
+# Create binary diff meth variable for logistic regression
+lrtM_ex$table$fdr <- p.adjust( lrtM_ex$table$PValue, method = "fdr" )
+lrtM_ex$table$DM <- as.logical( ifelse( lrtM_ex$table$fdr < 0.05, "TRUE", "FALSE" ) )
+lrtM_ex$table$exon_num <- as.numeric( lrtM_ex$table$exon_num )
+
+# Fit bayesian logistic regression w/ log exon num and raw exon num
+exon_DM_glm <- stan_glm( DM ~ exon_num, 
+                         family = binomial(),  
+                         data = lrtM_ex$table,
+                         iter = 10000,
+                         cores = 2 ) # Cores set to 2
+
+exon_DM_glm_log <- stan_glm( DM ~ log( exon_num ), 
+                             family = binomial(),  
+                             data = lrtM_ex$table,
+                             iter = 10000,
+                             cores = 2 ) # Cores set to 2
+
+# Posterior predictive checks
+pp_check( exon_DM_glm )
+pp_check( exon_DM_glm_log )
+
+# Plot posterior correlations
+mcmc_pairs( exon_DM_glm )
+mcmc_pairs( exon_DM_glm_log )
+
+# Plot MCMC chains
+mcmc_trace( exon_DM_glm )
+mcmc_trace( exon_DM_glm_log )
+
+# Plot posteriors of exon_num effect using alpha = 0.89/95: both effects of exon num are insignificant or narrowly significant
+plot( exon_DM_glm, pars = "exon_num", prob = 0.89,  prob_outer = 0.95 )
+plot( exon_DM_glm_log, pars = "log(exon_num)", prob = 0.89,  prob_outer = 0.95 )
+```
+
+#Intron differential methylation
+
+```{r} 
+
+# Read in percent/median meth .csv for CpGs within exons of CDS
+meth_intron_perc_meth <- read.table( "Input_data/meth_CpGs_loaded_annotated_introns.tab" )
+
+# Create df associating CpGs w/ intron IDs
+CpGID_intronID <- data.frame( CpG_ID = paste( meth_intron_perc_meth$V1,
+                                              "-",
+                                              meth_intron_perc_meth$V2,
+                                              sep = "" ),
+                              intron_ID = as.character( meth_intron_perc_meth$V41 ) )
+
+# Filter CpG methylation data for those values in introns
+yint_cpgs <- yall_cpgs[ ( yall_cpgs %in% CpGID_intronID$CpG_ID ) ]
+yall_int <- yall[ yint_cpgs, keep.lib.sizes = FALSE ]
+yall_int$genes$id <- row.names( yall_int$genes ) # Scaffold ID
+yall_int$genes$geneid = CpGID_intronID$CpG_ID[ match( yall_int$genes$id, CpGID_intronID$CpG_ID ) ] # CpG ID
+ 
+# Make data frame w/ intron ID for merging with yall_int
+to_merge_w_yall_int <- data.frame( geneid = as.character( CpGID_intronID$CpG_ID ),
+                                   intron_id = as.character( CpGID_intronID$intron_ID ) )
+
+# Add intron ID to intron CpG meth df: 'geneid' variable becomes intron ID
+yall_int$genes$geneid = to_merge_w_yall_int$intron_id[ match( yall_int$genes$id, to_merge_w_yall_int$geneid ) ] 
+
+# Rowsum across single introns
+yint <- rowsum( yall_int, group = yall_int$genes$geneid, reorder = FALSE )
+
+# Gene-level rowsums of introns
+yint_gene <- rowsum( yall_int, group = gsub( "-I*.", "", yall_int$genes$geneid ), reorder = FALSE )
+
+# Recalc methylation levels of single introns
+Methylation_int <- gl( 2, 1, ncol( yint ), labels = c( "Me", "Un" ) )
+Me_int <- yint$counts[ , Methylation_int == "Me" ]
+Un_int <- yint$counts[ , Methylation_int == "Un" ]
+
+# Filter introns for read coverage
+Coverage_int <- Me_int + Un_int
+head( Coverage_int )
+HasCoverage_int <- rowSums( Coverage_int >= 10 ) == 12
+table( HasCoverage_int )
+#HasCoverage
+#  FALSE    TRUE 
+#0  1954 
+y_int <- yint[ HasCoverage_int , keep.lib.sizes = FALSE ]
+
+# Recalc library sizes
+TotalLibSize_int <- y_int$samples$lib.size[ Methylation_int == "Me" ] + y_int$samples$lib.size[ Methylation_int == "Un" ]
+y_int$samples$lib.size <- rep( TotalLibSize_int, each = 2 )
+
+# Calculate log methylation scores
+Me_int <- y_int$counts[ , Methylation_int == "Me" ]
+Un_int <- y_int$counts[ , Methylation_int == "Un" ]
+M_int <- log2( Me_int + 2 ) - log2( Un_int + 2 )
+colnames( M_int ) <- row.names( targets )
+
+# Multidimensional scaling plot of intron methylation
+plotMDS( M_int, col = rep( 1:4, each = 3 ), main = "M-values" )
+
+# Estimate dispersal of intron-level methylation
+y_int <- estimateDisp( y_int, design = design, robust = TRUE )
+
+# Fit quasi-likelihood GLM to intron-level methylation data
+fit_int <- glmQLFit( y_int, design, robust = TRUE )
+
+# Apply likelihood ratio test of differential methylation at single introns due to maternal treatment
+lrtM_int <- glmLRT( fit_int, contrast = contrM )
+summary( decideTests( lrtM_int ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    57
+#NotSig                               246071
+#Up                                      75
+
+# Plot read coverage vs. logFC of differential intron methylation
+plotMD( lrtM_int )
+
+# Differential methylation of single introns due to developmental tratment
+lrtD_int <- glmLRT( fit_int, contrast = contrD )
+summary( decideTests( lrtD_int ) )
+#       1*treat_devU
+#Down              4
+#NotSig         1950
+#Up                19
+plotMD( lrtD_int )
+
+# Output csv's of intron-level diff meth corresponding to maternal and developmental treatments
+write.csv( lrtM_int$table, "Output_Data/mat_edgeR_intron_diff_meth_df.csv" )
+write.csv( lrtD_int$table, "Output_Data/dev_edgeR_intron_diff_meth_df.csv" )
+
+## Differential methylation of all introns across given genes
+
+# Recalc methylation levels of genewise introns
+Methylation_int_gene <- gl( 2, 1, ncol( yint_gene ), labels = c( "Me", "Un" ) )
+Me_int_gene <- yint_gene$counts[ , Methylation_int_gene == "Me" ]
+Un_int_gene <- yint_gene$counts[ , Methylation_int_gene == "Un" ]
+
+# Filter genewise intron methylation data for read coverage
+Coverage_int_gene <- Me_int_gene + Un_int_gene
+HasCoverage_int_gene <- rowSums( Coverage_int_gene >= 10 ) == 12
+table( HasCoverage_int_gene )
+#HasCoverage
+#  FALSE    TRUE 
+#0  1954 
+y_int_gene <- yint_gene[ HasCoverage_int_gene, keep.lib.sizes = FALSE ]
+
+# Recalc library sizes
+TotalLibSize_int_gene <- y_int_gene$samples$lib.size[ Methylation_int_gene=="Me"] + 
+  y_int_gene$samples$lib.size[ Methylation_int_gene == "Un" ]
+y_int_gene$samples$lib.size <- rep( TotalLibSize_int_gene, each = 2 )
+
+# Calc log methylation scores
+Me_int_gene <- y_int_gene$counts[ , Methylation_int == "Me" ]
+Un_int_gene <- y_int_gene$counts[ , Methylation_int == "Un" ]
+M_int_gene <- log2( Me_int_gene + 2 ) - log2( Un_int_gene + 2 )
+colnames( M_int_gene ) <- row.names( targets )
+
+# Multidimensional scaling plot of genewise intron methylation
+plotMDS(M_int_gene, col = rep( 1:4, each = 3 ), main = "M-values" )
+
+# Estimate dispersion of gene-level intron methylation
+y_int_gene <- estimateDisp( y_int_gene, design = design, robust = TRUE )
+
+# Fit quasi-likelihood GLM to gene-level intron meth data
+fit_int_gene <- glmQLFit(y_int_gene, design, robust = TRUE)
+
+# Apply likelihood ratio test of genewise differential methylation at introns due to maternal effect
+lrtM_int_gene <- glmLRT( fit_int_gene, contrast = contrM )
+summary( decideTests( lrtM_int_gene ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    52
+#NotSig                               246071
+#Up                                      62
+
+# Plot read coverage vs. logFC of genewise diff meth at introns
+plotMD( lrtM_int_gene )
+
+# Diff meth test of all introns per gene due to developmental treatment
+lrtD_int_gene <- glmLRT( fit_int_gene, contrast = contrD )
+summary( decideTests( lrtD_int_gene ) )
+#       1*treat_devU
+#Down              6
+#NotSig         1950
+#Up                18
+plotMD( lrtD_int_gene )
+
+# Output csv's of genewise intron diff meth due to maternal and developmental treatments
+write.csv( lrtM_int_gene$table, "Output_data/mat_edgeR_intron_gene_DM_df.csv" )
+write.csv( lrtD_int_gene$table, "Output_data/dev_edgeR_intron_gene_DM_df.csv" )
+
+```
+
+#Test whether intron position affects likelihood of differential methylation
+
+```{r}
+
+## Quick histogram of intron numbers
+
+# Create exon number variable
+lrtM_int$table$intron_num <- as.integer( gsub( ".*-I", "", row.names( lrtM_int$table ) ) ) 
+
+# Plot histogram
+ggplot( data = lrtM_int$table,
+       aes( x = intron_num ) ) +
+  geom_bar() +
+  scale_x_continuous( lim = c( 0, 25 ) ) + # Limit graph to 25th exon
+  labs( title = "Histogram of intron numbers",
+       x = "Intron number" )
+
+## Calculate and plot percent of DM introns across intron numbers
+# Count intron numbers
+all_intron_counts <- count( lrtM_int$table$intron_num )
+
+# Output list of sig diff meth introns and create intron num variable
+lrtM_int_toptags <- topTags( lrtM_int, n = ( 57 + 75 ) )
+lrtM_int_toptags$table$intron_num <- as.numeric( gsub( ".*-I", "", lrtM_int_toptags$table$geneid ) )
+
+# Count DM introns
+DM_intron_counts <- count( lrtM_int_toptags$table$intron_num )
+perc_intron_counts <- merge( all_intron_counts, DM_intron_counts, by = "x" )
+perc_intron_counts$x <- as.numeric( perc_intron_counts$x )
+
+# Plot proportion of DM across exon positions
+ggplot(data = perc_intron_counts, 
+       aes(x = log( x ), y = ( ( freq.y / ( freq.x ) ) *100 ), size = freq.x ) ) +
+  geom_point() +
+  geom_smooth( method = "loess", se = FALSE ) +
+  labs( x = "log(intron number)", y = "Percent DM" )
+
+## Apply logistic regression to test for enrichment of DM at 5' exons
+# Create binary diff meth variable for logistic regression
+lrtM_int$table$fdr <- p.adjust( lrtM_int$table$PValue, method = "fdr" )
+lrtM_int$table$DM <- as.logical( ifelse( lrtM_int$table$fdr < 0.05, "TRUE", "FALSE" ) )
+lrtM_int$table$intron_num <- as.numeric( lrtM_int$table$intron_num )
+
+# Fit bayesian logistic regression w/ log intron num and raw intron num
+intron_DM_glm <- stan_glm( DM ~ intron_num, 
+                           family = binomial(),  
+                           data = lrtM_int$table, 
+                           iter = 10000 )
+
+intron_DM_glm_log <- stan_glm( DM ~ log( intron_num ), 
+                               family = binomial(),  
+                               data = lrtM_int$table, 
+                               iter = 10000 )
+
+# Posterior predictive checks
+pp_check( intron_DM_glm )
+pp_check( intron_DM_glm_log )
+
+# Plot posterior correlations
+mcmc_pairs( intron_DM_glm )
+mcmc_pairs( intron_DM_glm_log )
+
+# Plot MCMC chains
+mcmc_trace( intron_DM_glm )
+mcmc_trace( intron_DM_glm_log )
+
+# Plot posteriors of intron_num effect using alpha = 0.89/95: both effects of intron num are insignificant
+plot( intron_DM_glm, pars = "intron_num", prob = 0.89,  prob_outer = 0.95 )
+plot( intron_DM_glm_log, pars = "log(intron_num)", prob = 0.89,  prob_outer = 0.95 )
+```
+
