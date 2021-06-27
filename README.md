@@ -9,7 +9,9 @@ This repository is a work in process, and will contain all code and data used by
 
 In the table of contents below, each lettered entry represents a folder in this repo with an R markdown file, its knitted report, and the data that it imports and exports.
 
-All R scripts were run using R version 3.6.1. This research was funded by a United States National Science Foundation award (IOS-1656262) to Gretchen Hofmann, UCSB. In addition, diving and boating resources were provided by Santa Barbara Coastal Long-Term Ecological Research program (NSF award OCE-1232779; Director: Dr. Daniel Reed).
+All R scripts were run using R version 3.6.1. 
+
+This research was funded by a United States National Science Foundation award (IOS-1656262) to Gretchen Hofmann, UCSB. In addition, diving and boating resources were provided by Santa Barbara Coastal Long-Term Ecological Research program (NSF award OCE-1232779; Director: Dr. Daniel Reed).
 
 ## Table of Contents:
 
