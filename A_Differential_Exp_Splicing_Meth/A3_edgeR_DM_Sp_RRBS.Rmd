@@ -210,6 +210,7 @@ write.csv( lrtD$table, "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splic
 #Promoter differential methylation
 
 ```{r}
+
 # Read in percent/median meth .csv for CpGs within -1kb promoters of CDS
 meth_promoter_perc_meth <- read.csv( "Input_data/meth_promoter_perc_meth.csv" )
 
@@ -384,7 +385,7 @@ summary( decideTests( lrtD_ex ) )
 #Up                2
 
 # Output diff meth coefficients of specific exons for maternal and developmental treatments
-write.csv( lrtM_ex$table, "Output_data/maternal_edgeR_exon_DM_df.csv" )
+write.csv( lrtM_ex$table, "Output_data/mat_edgeR_exon_DM_df.csv" )
 write.csv( lrtD_ex$table, "Output_data/dev_edgeR_exon_DM_df.csv" )
 
 ##Genewise exon differential methylation
@@ -441,7 +442,7 @@ summary(decideTests( lrtD_ex_gene ) )
 plotMD( lrtD_ex_gene )
 
 # Output genewise exon diff meth df's from maternal and developmental treatments
-write.csv( lrtM_ex_gene$table, "Output_data/maternal_edgeR_exon_gene_DM_df.csv" )
+write.csv( lrtM_ex_gene$table, "Output_data/mat_edgeR_exon_gene_DM_df.csv" )
 write.csv( lrtD_ex_gene$table, "Output_data/dev_edgeR_exon_gene_DM_df.csv" )
 
 ```
@@ -449,6 +450,7 @@ write.csv( lrtD_ex_gene$table, "Output_data/dev_edgeR_exon_gene_DM_df.csv" )
 #Test whether exon position affects likelihood of differential methylation
 
 ```{r}
+
 ## Quick histogram of exon numbers
 
 # Create exon number variable
@@ -744,5 +746,6 @@ mcmc_trace( intron_DM_glm_log )
 # Plot posteriors of intron_num effect using alpha = 0.89/95: both effects of intron num are insignificant
 plot( intron_DM_glm, pars = "intron_num", prob = 0.89,  prob_outer = 0.95 )
 plot( intron_DM_glm_log, pars = "log(intron_num)", prob = 0.89,  prob_outer = 0.95 )
+
 ```
 
