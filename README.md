@@ -1,8 +1,8 @@
 # Sp_RRBS_ATAC
 
 ## Authors
-Samuel Bogan, University of California, Santa Barbara, Dept. of Ecology, Evolution, and Marine Biology (UCSB)
-Marie Strader, Auburn University, Dept. of Biological Sciences
+* Samuel Bogan, University of California, Santa Barbara, Dept. of Ecology, Evolution, and Marine Biology (UCSB)
+* Marie Strader, Auburn University, Dept. of Biological Sciences
 
 ## Description
 This repository is a work in process, and will contain all code and data used by Sam Bogan, Marie Strader, and Gretchen Hofmann for analyzing the effect of differential methylation on expression and splicing in the purple urchin during transgenerational plasticity. Analyses also include multifactorial models of transcription as a function of methylation and chromatin state (i.e., ATAC-seq data).
