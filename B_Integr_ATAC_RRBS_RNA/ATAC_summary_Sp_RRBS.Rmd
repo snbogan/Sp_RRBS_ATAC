@@ -1,6 +1,6 @@
 ---
-title: "ATAC_summary_Sp_RRBS.R"
-author: "Sam Bogan"
+title: "ATAC_summary_Sp_RRBS"
+author: "Marie Strader"
 date: "6/27/2021"
 output: github_document
 ---
