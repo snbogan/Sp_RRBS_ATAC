@@ -40,12 +40,36 @@ This research was funded by a United States National Science Foundation award (I
                 
     B. B_Integr_ATAC_RRBS_RNA (integration of ATAC-seq, RRBS, and RNA-seq data)
         
-        1. B1_ATAC_Summary_Sp_RRBS.R (counting/summarizing ATAC-seq data from 39 hpf larvae)
+        1. B1_ATAC_Summary_Sp_RRBS.Rmd (counting/summarizing ATAC-seq data from 39 hpf larvae)
                 i. Input data: IMPORTED BY USER - 3 replicate .bed files of ATAC-seq transposase inserts from 39 hpf *S. purpuratus*
                 ii. Code: RUN ON HIGH PERFORMANCE SYSTEM OR CLUSTER - B1_ATAC_summary_Sp_RRBS.Rmd R and bash scripts for summarizing 
                 ATAC-seq data
                 iii. Output data: 
                         a. .Rdata file containing intermediate files that is perdiodically saved while running .R script
-                        b. .Rdata file containing summarized ATAC-seq insert densities per gene and genomic feature types
+                        b. ATAC_summary_peakSummaryALL.Rdata - summarized ATAC-seq insert densities per gene by genomic feature
                         c. .Rdata file containing annotations of ATAC-seq inserts
                         d. EXPORTED BY USER DURING EXECUTION - combined .bed file of all ATAC-seq replicates
+                        
+        2. B2_Integr_Sp_RRBS.Rmd (combinatorial integrations of ATAC-seq, RRBS, and RNA-seq data)
+              i. Input data:
+                        a. ATAC_summary_peakSummaryALL.Rdata
+                        b. Strongylocentrotus_purpuratus.Spur_3.1.42.gff3.gz
+                        c. sp3_1_GCF.gff3.gz
+                        d. GenePageGeneralInfo_AllGenes.csv
+                        e. (From section A output) A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv
+                        f. (From section A output) A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv
+                        g. (From section A output) A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_1kb_promoter_DM_df.csv
+                        h. (From section A output) A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_intron_gene_DM_df.csv
+                        i. (From section A output) A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_exon_gene_DM_df.csv
+              iv. Output data:
+                        a. ATAC_dens_by_GE.csv - df of diff and baseline exp and chromatin accessibility
+                        b. ATAC_dens_by_splicing.csv - df of constitutive/baseline splicing and chromatin accessibility
+                        c. dm_promoter_by_DE_ATAC - df of promoter diff meth, diff exp, and chromatin access
+                        d. dm_intron_by_DE_ATAC.csv - df of intron diff meth, diff exp, and chromatin access
+                        e. dm_exon_by_DE_ATAC.csv - df of exon diff meth, diff exp, and chromatin access
+                        f. dm_intron_exon_by_DE_ATAC.csv - df of intron & exon diff meth, diff exp, and chromatin access
+                        g. dm_promoter_by_ATAC.csv - df of promoter diff meth and chromatin access
+                        h. dm_intron_by_ATAC.csv - df of intron diff meth and chromatin access
+                        i. dm_exon_by_ATAC.csv - df of exon diff meth and chromatin access
+                        j. dm_intron_exon_by_ATAC.csv - df of intron & exon diff meth and chromatin access
+
