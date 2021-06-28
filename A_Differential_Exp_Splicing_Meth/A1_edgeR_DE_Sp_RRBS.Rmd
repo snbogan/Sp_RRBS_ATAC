@@ -246,13 +246,9 @@ nrow( dev_QLFT_fc_cutoff_df ) # With logFC cutoff = 309 DEGs
 
 # Export maternal and developmental glm table as .csv files
 write.csv( maternal_QLFT$table, 
-           "Output_data/maternal_edgeR_GE_table_filt.csv")
+           "Output_data/mat_edgeR_GE_table_filt.csv")
 
 write.csv( dev_QLFT$table, 
           "Output_data/dev_edgeR_GE_table_filt.csv" )
-
-# Export list of maternal and developmental DEGs
-write.csv(  )
-
 
 ```
