@@ -42,8 +42,10 @@ This research was funded by a United States National Science Foundation award (I
         
         1. B1_ATAC_Summary_Sp_RRBS.R (counting/summarizing ATAC-seq data from 39 hpf larvae)
                 i. Input data: IMPORTED BY USER - 3 replicate .bed files of ATAC-seq transposase inserts from 39 hpf *S. purpuratus*
-                ii. Code: RUN ON HIGH PERFORMANCE SYSTEM OR CLUSTER - .bash script for concatenating ATAC-seq .bed files and .R script for
-                summarizing ATAC-seq data
+                ii. Code: RUN ON HIGH PERFORMANCE SYSTEM OR CLUSTER - ATAC_summary_Sp_RRBS.Rmd R and bash scripts for summarizing 
+                ATAC-seq data
                 iii. Output data: 
-                        a. .Rout file containing summarized ATAC-seq insert densities per gene and genomic feature types
-                        b. EXPORTED BY USER DURING EXECUTION - combined .bed file of all ATAC-seq replicates
+                        a. .Rdata file containing intermediate files that is perdiodically saved while running .R script
+                        b. .Rdata file containing summarized ATAC-seq insert densities per gene and genomic feature types
+                        c. .Rdata file containing annotations of ATAC-seq inserts
+                        d. EXPORTED BY USER DURING EXECUTION - combined .bed file of all ATAC-seq replicates
