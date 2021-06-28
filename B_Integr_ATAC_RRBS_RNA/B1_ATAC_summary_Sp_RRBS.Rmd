@@ -1,5 +1,5 @@
 ---
-title: "ATAC_summary_Sp_RRBS"
+title: "B1_ATAC_summary_Sp_RRBS"
 author: "Marie Strader and Sam Bogan"
 date: "6/27/2021"
 output: github_document

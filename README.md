@@ -42,7 +42,7 @@ This research was funded by a United States National Science Foundation award (I
         
         1. B1_ATAC_Summary_Sp_RRBS.R (counting/summarizing ATAC-seq data from 39 hpf larvae)
                 i. Input data: IMPORTED BY USER - 3 replicate .bed files of ATAC-seq transposase inserts from 39 hpf *S. purpuratus*
-                ii. Code: RUN ON HIGH PERFORMANCE SYSTEM OR CLUSTER - ATAC_summary_Sp_RRBS.Rmd R and bash scripts for summarizing 
+                ii. Code: RUN ON HIGH PERFORMANCE SYSTEM OR CLUSTER - B1_ATAC_summary_Sp_RRBS.Rmd R and bash scripts for summarizing 
                 ATAC-seq data
                 iii. Output data: 
                         a. .Rdata file containing intermediate files that is perdiodically saved while running .R script
