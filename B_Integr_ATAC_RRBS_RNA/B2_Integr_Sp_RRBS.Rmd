@@ -15,7 +15,9 @@ knitr::opts_knit$set( root.dir = '~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_
 
 # Load required packages
 library( tidyverse )
+library( plyr )
 library( ape )
+library( Rmisc )
 
 ```
 
@@ -25,6 +27,8 @@ library( ape )
 
 # Read in chromatin accesibility df containg genewise Tn5 insert densities per genomic feature
 load( "Output_data/ATAC_summary_peakSummaryALL.Rdata" )
+
+SPU_000241 <- filter( peaks_summary_all, spu_id == "SPU_000241" )
 
 # Convert NA counts to 0's for each genomic feature type
 peaks_summary_all$peak_density_Introns[ is.na( peaks_summary_all$peak_density_Introns ) ] = 0
@@ -84,7 +88,7 @@ Spur_3.1_gff_gene_exon_len$intron_len <- Spur_3.1_gff_gene_exon_len$gene_len -
 peaks_summary_all_corr <- merge( peaks_summary_all, Spur_3.1_gff_gene_exon_len, by = "geneid" )
 
 # Normalize TSS, intron, and exon accessibility by length
-peaks_summary_all_corr$TSS_dens_norm <- peaks_summary_all_corr$peak_density_TSS / 1000
+peaks_summary_all_corr$TSS_dens_norm <- peaks_summary_all_corr$peak_density_TSS
 
 peaks_summary_all_corr$intron_dens_norm <- as.numeric( 
   ifelse( peaks_summary_all_corr$intron_len == "0", "0",
@@ -93,6 +97,11 @@ peaks_summary_all_corr$intron_dens_norm <- as.numeric(
 
 peaks_summary_all_corr$exon_dens_norm <- peaks_summary_all_corr$peak_density_Exons /
   peaks_summary_all_corr$exon_len
+
+#Export peaks_summary_all_corr
+write.csv( peaks_summary_all_corr,
+           "Output_data/peaks_summary_all_corr.csv",
+           row.names = FALSE )
 
 ```
 
@@ -294,6 +303,329 @@ write.csv( dm_promoter_by_ATAC, "Output_data/dm_promoter_by_ATAC.csv", row.names
 write.csv( dm_intron_by_ATAC, "Output_data/dm_intron_by_ATAC.csv", row.names = FALSE )
 write.csv( dm_exon_by_ATAC, "Output_data/dm_exon_by_ATAC.csv", row.names = FALSE )
 write.csv( dm_intron_exon_by_DE_ATAC, "Output_data/dm_intron_exon_by_ATAC.csv", row.names = FALSE )
+
+```
+
+#Integrate baseline methylation with chromatin accessibility
+
+```{r}
+
+## Read in % meth per CpG df's from Section A
+# Promoters
+meth_promoter_perc_meth <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Input_data/meth_promoter_perc_meth.csv" )
+names( meth_promoter_perc_meth )[ names( meth_promoter_perc_meth ) == "V41" ] <- "geneid"
+
+# Introns
+meth_intron_perc_meth <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Input_data/meth_intron_perc_meth.csv" )
+meth_intron_perc_meth$geneid <- gsub( "transcript:", "", meth_intron_perc_meth$V41 )
+meth_intron_perc_meth$geneid <- gsub( "-tr", "", meth_intron_perc_meth$geneid )
+
+# Exons
+meth_exon_perc_meth <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Input_data/meth_exon_perc_meth.csv" )
+meth_exon_perc_meth$geneid <- gsub( "-tr-E*.", "", meth_exon_perc_meth$V41 )
+meth_exon_perc_meth$geneid <- gsub( "-E*.", "", meth_exon_perc_meth$geneid )
+
+## Filter for genes with at least 5 CpGs across each genome feature df
+# Promoters
+tt_promoter <- table( meth_promoter_perc_meth$geneid )
+df2_pr <- subset( meth_promoter_perc_meth, geneid %in% names( tt_promoter[ tt_promoter >= 5 ] ) )
+
+# Introns
+tt_intron <- table( meth_intron_perc_meth$geneid )
+df2_int <- subset( meth_intron_perc_meth, geneid %in% names( tt_intron[ tt_intron >= 5 ] ) )
+
+# Exons
+tt_exon <- table( meth_exon_perc_meth$geneid )
+df2_ex <- subset( meth_exon_perc_meth, geneid %in% names( tt_exon[ tt_exon >= 5 ] ) )
+
+## Calculate percent methylation summed across given feature type of each gene
+# Promoters
+promoters_perc_meth <- summarySE( measurevar = "median",
+                                  groupvars = "geneid",
+                                  data = df2_pr )
+
+# Introns
+introns_perc_meth <- summarySE( measurevar = "median",
+                                  groupvars = "geneid",
+                                  data = df2_int )
+
+
+# Introns
+exons_perc_meth <- summarySE( measurevar = "median",
+                                  groupvars = "geneid",
+                                  data = df2_ex )
+
+## Merge chromatin accessibility and baseline meth
+# Promoters
+base_meth_pr_by_ATAC <- merge( promoters_perc_meth, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+base_meth_pr_by_ATAC[ is.na( base_meth_pr_by_ATAC ) ] <- 0
+
+# Introns
+base_meth_int_by_ATAC <- merge( introns_perc_meth, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+base_meth_int_by_ATAC[ is.na( base_meth_int_by_ATAC ) ] <- 0
+
+# Exons
+base_meth_ex_by_ATAC <- merge( exons_perc_meth, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+base_meth_ex_by_ATAC[ is.na( base_meth_ex_by_ATAC ) ] <- 0
+
+# Exports CSV's of baseline meth by chromatin access, without GE, for each genomic feature type
+write.csv( base_meth_pr_by_ATAC, "Output_data/base_meth_pr_by_ATAC.csv", row.names = FALSE )
+write.csv( base_meth_int_by_ATAC, "Output_data/base_meth_int_by_ATAC.csv", row.names = FALSE )
+write.csv( base_meth_ex_by_ATAC, "Output_data/base_meth_ex_by_ATAC.csv", row.names = FALSE )
+
+```
+
+#Integrate baseline methylation with gene expression and chromatin accessibility
+
+```{r}
+## Merge maternal GE df with baseline meth data
+# Promoters
+pr_meth_by_GE <- merge( promoters_perc_meth, mat_edgeR_GE, by = "geneid" )
+pr_meth_by_GE_ATAC <- merge( pr_meth_by_GE, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+pr_meth_by_GE_ATAC[ is.na( pr_meth_by_GE_ATAC ) ] <- 0
+
+# Introns
+int_meth_by_GE <- merge( introns_perc_meth, mat_edgeR_GE, by = "geneid" )
+int_meth_by_GE_ATAC <- merge( int_meth_by_GE, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+int_meth_by_GE_ATAC[ is.na( int_meth_by_GE_ATAC ) ] <- 0
+
+# Exons
+ex_meth_by_GE <- merge( exons_perc_meth, mat_edgeR_GE, by = "geneid" )
+ex_meth_by_GE_ATAC <- merge( ex_meth_by_GE, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+ex_meth_by_GE_ATAC[ is.na( ex_meth_by_GE_ATAC ) ] <- 0
+
+# Introns and exons
+int_ex_meth_by_GE <- merge( merge( data.frame( exon_meth = exons_perc_meth$median,
+                                               geneid = exons_perc_meth$geneid ),
+                                   data.frame( intron_meth = introns_perc_meth$median,
+                                               geneid = introns_perc_meth$geneid ),
+                                   by = "geneid" ),
+                            mat_edgeR_GE, by = "geneid")
+int_ex_meth_by_GE_ATAC <- merge( int_ex_meth_by_GE, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+int_ex_meth_by_GE_ATAC[ is.na( int_ex_meth_by_GE_ATAC ) ] <- 0
+
+# Exports CSV's of baseline meth by chromatin access WITH GE for each genomic feature type
+write.csv( pr_meth_by_GE_ATAC, "Output_data/pr_meth_by_GE_ATAC.csv", row.names = FALSE )
+write.csv( int_meth_by_GE_ATAC, "Output_data/int_meth_by_GE_ATAC.csv", row.names = FALSE )
+write.csv( ex_meth_by_GE_ATAC, "Output_data/ex_meth_by_GE_ATAC.csv", row.names = FALSE )
+write.csv( int_ex_meth_by_GE_ATAC, "Output_data/int_ex_meth_by_GE_ATAC.csv", row.names = FALSE )
+
+```
+
+
+#Integrate baseline methylation with constitutive splicing and chromatin accessibility
+
+```{r}
+
+## Merge baseline splicing df with baseline meth data
+# Promoters
+pr_meth_by_splicing <- merge( promoters_perc_meth, spu_mRNA_var_df, by = "geneid" ) #
+pr_meth_by_splicing_ATAC <- merge( pr_meth_by_splicing, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+pr_meth_by_splicing_ATAC[ is.na( pr_meth_by_splicing_ATAC ) ] <- 0
+
+# Introns
+int_meth_by_splicing <- merge( introns_perc_meth, spu_mRNA_var_df, by = "geneid" ) #
+int_meth_by_splicing_ATAC <- merge( int_meth_by_splicing, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+int_meth_by_splicing_ATAC[ is.na( int_meth_by_splicing_ATAC ) ] <- 0
+
+# Exons
+ex_meth_by_splicing <- merge( exons_perc_meth, spu_mRNA_var_df, by = "geneid" ) #
+ex_meth_by_splicing_ATAC <- merge( ex_meth_by_splicing, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+ex_meth_by_splicing_ATAC[ is.na( ex_meth_by_splicing_ATAC ) ] <- 0
+
+# Introns and exons
+int_ex_meth_by_splicing <- merge( merge( data.frame( exon_meth = exons_perc_meth$median,
+                                               geneid = exons_perc_meth$geneid ),
+                                         data.frame( intron_meth = introns_perc_meth$median,
+                                               geneid = introns_perc_meth$geneid ),
+                                         by = "geneid" ),
+                                  spu_mRNA_var_df, by = "geneid" )
+int_ex_meth_by_splicing_ATAC <- merge( int_ex_meth_by_splicing, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+int_ex_meth_by_splicing_ATAC[ is.na( int_ex_meth_by_splicing_ATAC ) ] <- 0
+
+# Exports CSV's of baseline meth by chromatin access WITH GE for each genomic feature type
+write.csv( pr_meth_by_splicing_ATAC, "Output_data/pr_meth_by_splicing_ATAC.csv", row.names = FALSE )
+write.csv( int_meth_by_splicing_ATAC, "Output_data/int_meth_by_splicing_ATAC.csv", row.names = FALSE )
+write.csv( ex_meth_by_splicing_ATAC, "Output_data/ex_meth_by_splicing_ATAC.csv", row.names = FALSE )
+write.csv( int_ex_meth_by_splicing_ATAC, "Output_data/int_ex_meth_by_splicing_ATAC.csv", row.names = FALSE )
+
+
+```
+
+#Integrate differential exon use and exon-level diff meth
+
+```{r}
+
+## Merge exon-level diff meth, diff exon use, and chromatin accessibility data
+# Read in data
+Mat_DEU_df <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/Mat_DEU_df.csv" )
+mat_edgeR_exon_DM_df <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_exon_DM_df.csv" )
+
+# Create exonID variable
+names( mat_edgeR_exon_DM_df )[ names( mat_edgeR_exon_DM_df ) == "X" ] <- "exonid"
+names( Mat_DEU_df )[ names( Mat_DEU_df ) == "X" ] <- "exonid"
+
+# Create geneid variable where necessary
+mat_edgeR_exon_DM_df$geneid <- gsub( "-tr-E.*", "", mat_edgeR_exon_DM_df$exonid )
+mat_edgeR_exon_DM_df$geneid <- gsub( "-E.*", "", mat_edgeR_exon_DM_df$geneid )
+
+# Merge data
+exon_DM_DEU <- merge( data.frame( exonid = Mat_DEU_df$exonid,
+                                  geneid = Mat_DEU_df$geneid,
+                                  exon_coeff = Mat_DEU_df$exon_coeff,
+                                  exon_num = Mat_DEU_df$exon_num ), 
+                      data.frame( exonid = mat_edgeR_exon_DM_df$exonid,
+                                  exon_DM_logFC = mat_edgeR_exon_DM_df$logFC ), 
+                      by = "exonid" )
+exon_DM_DEU_ATAC <- merge( exon_DM_DEU, peaks_summary_all_corr, by = "geneid", all.x = TRUE )
+exon_DM_DEU_ATAC[ is.na( exon_DM_DEU_ATAC ) ] <- 0
+
+# Output exon-level DM, DEU, and ATAC data
+write.csv( exon_DM_DEU_ATAC, "Output_data/exon_DM_DEU_ATAC.csv", col.names = FALSE )
+
+```
+
+#Create exon-level chromatin accessibility df and integrate w/ methylation data
+
+```{r}
+
+# Read in within-exon Tn5 inserts
+load( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/peakExon_all.Rdata" )
+
+# Read in annotation information for SPU_3.1
+gene_info_table_header <- read.table( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Input_data/gene_info_table_header.txt",
+                                      header = T, sep = "\t", quote = NULL )
+
+# Convert geneID to factor
+peakExon_all$geneId <- as.factor ( peakExon_all$geneId )
+
+# Create exonid variable
+peakExon_all$exon_num <- gsub( ".*exon ",
+                               "", 
+                               peakExon_all$annotation )
+
+peakExon_all$exon_num <- gsub( "of .*",
+                               "",
+                               peakExon_all$exon_num )
+
+peakExon_all$exonid <- paste( peakExon_all$geneId,
+                                peakExon_all$exon_num,
+                                sep = "_" )
+
+# Count Tn5 tags per exon
+peakCovExon_all <- count( peakExon_all$exonid )
+
+# Adjust column names of exon counts
+names( peakCovExon_all ) = c( "exon_common_name", "peak_density_ind_exons" )
+
+# Create common name variable
+peakCovExon_all$common_name <- gsub( "_.*", "", peakCovExon_all$exon_common_name )
+
+# Merge peakCovExon_all w/ SPU_IDs
+annot <- as.data.frame( gene_info_table_header[ c( 2, 7) ], )
+annot <- as.data.frame( sapply( annot, toupper ) )
+
+peakCovExon_all <- merge( peakCovExon_all, annot, by = "common_name", all.x = TRUE )
+
+# Filter peakCovExon_all for genes w/ spu_id's to be merged with methylation and GE data
+peakCovExon_all <- filter( peakCovExon_all, spu_id != "NA" )
+
+## Merge peakExon_all w/ exon length info
+peakCovExon_all$exonid <- paste( peakCovExon_all$spu_id,
+                                 gsub( ".*_", "-tr-E", peakCovExon_all$exon_common_name ),
+                                 sep = "" )
+
+# Create a dataframe to w/ exonid and exon length to be combined w/ accessibility data
+exon_df_for_merge <- data.frame( 
+  exonid = as.character(
+    gsub( ".*Name=", "",
+        gsub( ";constitutive=.*", "", Spur_3.1_gff_exons$attributes ) ) ),
+  exon_length = ( Spur_3.1_gff_exons$end - Spur_3.1_gff_exons$start ) )
+
+# Clean out spaces in exonid's
+exon_df_for_merge$exonid <- as.factor( gsub( " ",
+                                                "",
+                                                exon_df_for_merge$exonid ) )
+
+peakCovExon_all$exonid <- as.factor( gsub( " ",
+                                                "",
+                                                peakCovExon_all$exonid ) )
+
+peakCovExon_all <- base::merge( exon_df_for_merge,
+  peakCovExon_all,
+  by.x = "exonid",
+  by.y = "exonid",
+  all.x = TRUE )
+
+# Add in spu_id's where missing
+peakCovExon_all$spu_id <- as.factor( gsub( "-tr-E.*", "", peakCovExon_all$exonid ) )
+
+# Normalize exon access by length
+peakCovExon_all$peak_dens_norm_ind_exon <- peakCovExon_all$peak_density_ind_exons / peakCovExon_all$exon_length
+
+# Replace NAs w/ 0 in peak_density_ind_exons and peak_dens_norm_ind_exon
+peakCovExon_all$peak_density_ind_exons[ is.na( peakCovExon_all$peak_density_ind_exons ) ] <- 0
+peakCovExon_all$peak_dens_norm_ind_exon[ is.na( peakCovExon_all$peak_dens_norm_ind_exon ) ] <- 0
+
+# Remove common_name columns
+peakCovExon_all <- peakCovExon_all[ -c( 3, 4 ) ]
+
+# Read in exon-level methylation data
+meth_exon_perc_meth <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Input_data/meth_exon_perc_meth.csv" )
+
+# Change variable V41 to exonid
+names( meth_exon_perc_meth )[ names( meth_exon_perc_meth ) == "V41" ] <- "exonid"
+
+## Filter for exons with at least 5 CpGs across in dataset
+# Promoters
+tt_ex_lvl <- table( meth_exon_perc_meth$exonid )
+df2_ex_lvl <- subset( meth_exon_perc_meth, exonid %in% names( tt_ex_lvl[ tt_ex_lvl >= 3 ] ) )
+
+# Calculate percent methylation summed across singe exons
+ex_lvl_perc_meth <- summarySE( measurevar = "median",
+                                  groupvars = "exonid",
+                                  data = df2_ex_lvl )
+
+# Merge exon-level meth data with accessibility data
+exon_lvl_meth_ATAC <- merge( ex_lvl_perc_meth,
+                             peakCovExon_all,
+                             by = "exonid" )
+
+# Output exom-level meth x accessibility data
+write.csv( exon_lvl_meth_ATAC, "Output_data/exon_lvl_meth_ATAC.csv" )
+
+# Plot exon access across methylation
+ggplot( data = exon_lvl_meth_ATAC,
+        aes( y = median, x = peak_dens_norm_ind_exon ) ) +
+  geom_point( alpha = 0.25 ) +
+  geom_smooth( method = "glm", se = TRUE )
+
+```
+
+#Create genebody-level diff meth by diff expression df w/ ATAC data
+
+```{r}
+# Read in genebody-level maternal diff meth data
+mat_edgeR_genebody_diff_meth_df <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_genebody_diff_meth_df.csv" )
+
+# Replace 'X' variable in mat_edgeR_genebody_diff_meth_df w/ 'geneid'
+names( mat_edgeR_genebody_diff_meth_df )[ names( mat_edgeR_genebody_diff_meth_df ) == c( "X", 
+                                                                                         "logFC", 
+                                                                                         "logCPM" ) ] <- c( "geneid",
+                                                                                                            "gb_DM_logFC",
+                                                                                                            "gb_DM_logCPM" )
+
+# Merge genebody DM df w/ ATAC_dens_by_GE: results in df w/ 5,416 rows
+gb_DM_by_GE_ATAC_df <- merge( mat_edgeR_genebody_diff_meth_df, # 8,328 rows before merge
+                              ATAC_dens_by_GE, # 16,303 rows
+                              by = "geneid" )
+
+# Output .csv of gb_DM_by_GE_ATAC_df
+write.csv( gb_DM_by_GE_ATAC_df, "Output_data/gb_DM_by_GE_ATAC_df.csv", row.names = FALSE )
 
 ```
 
