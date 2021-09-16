@@ -37,6 +37,12 @@ library( dplyr )
 library( gridExtra )
 library( plyr )
 library( strex )
+library( bedr )
+library( tidyverse )
+library (rtracklayer )
+library( rstan )
+library( rstanarm )
+library( nnet )
 
 ```
 
@@ -144,9 +150,9 @@ lrtM <- glmLRT( fit, contrast = contrM )
 # Summarize diff meth CpGs
 summary( decideTests( lrtM ) )
 #       1*treat_maternalU -1*treat_maternalN
-#Down                                    244
+#Down                                    233
 #NotSig                               246071
-#Up                                      327
+#Up                                      288
 
 # Plot relationship between read coverage and methylation fold change
 plotMD( lrtM )
@@ -156,7 +162,7 @@ topTags( lrtM )
 
 ## Wrangle data for volano plot of CpG diff meth
 # Developmental diff meth test
-contrD <- makeContrasts( Dev = treat_devU, levels = design)
+contrD <- makeContrasts( Dev = treat_devU, levels = design )
 lrtD <- glmLRT( fit, contrast = contrD )
 summary( decideTests( lrtD ) )
 
@@ -202,8 +208,10 @@ ggplot( data = all_CpG_dm, aes(y = -log( as.numeric( FDR ) ), x = as.numeric( lo
 #### Create Fig 3: facet grid volcano plot of treatment:data type ####
 
 # Output csv's of maternal and developmental CpG diff meth coefficients and likelihoods
-write.csv( lrtM$table, "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_CpG_DM_df.csv" )
-write.csv( lrtD$table, "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_CpG_DM_df.csv" )
+write.csv( lrtM$table, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_CpG_DM_df.csv" )
+write.csv( lrtD$table, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_CpG_DM_df.csv" )
 
 ```
 
@@ -324,6 +332,42 @@ yall_ex$genes$geneid = exon_CpGs_geneID$geneid[ match(yall_ex$genes$id, exon_CpG
 # Rowsum across singular exons
 yex <- rowsum( yall_ex, group = yall_ex$genes$geneid, reorder = FALSE )
 
+```
+
+Before we move on to estimate differnetial methylation, let's look at the CpG coverage per intron
+
+```{r}
+# Count CpGs per exon
+ex_gene_CpG_counts <- count(  yall_ex$genes$geneid )
+
+# Calc mean CpG coverage per exon
+ex_gene_CpG_counts_sum <- summarySE( "freq",
+                                 data = ex_gene_CpG_counts )
+
+# Print mean CpG coverage per exon with variance metrics: >5 CpGs per intron on average
+ex_gene_CpG_counts_sum
+
+# Report median exon CpG coverage: 4
+median( ex_gene_CpG_counts$freq )
+
+# Plot distribution of CpG coverage per exon
+ggplot( data = ex_gene_CpG_counts,
+        aes( x = freq ) ) +
+  geom_density( fill = "grey" ) +
+  xlim( values = c( -5, 20 ) ) +
+  theme_classic() +
+  labs( x = "Exon CpG coverage", y = "Density" )
+
+# Export exon CpG coverage as df for measurement error parameter modeling
+write.csv( data.frame( exonid = ex_gene_CpG_counts$x,
+                       CpG_count = ex_gene_CpG_counts$freq ),
+           "Output_data/ex_CpG_cov.csv", row.names = FALSE )
+
+```
+
+Continue differential methylation analysis of exons
+
+```{r}
 # Rowsum across all exons in a gene
 yall_ex$genes$geneid <- gsub( "-tr-E.*", "", yall_ex$genes$geneid )
 yall_ex$genes$geneid <- gsub( "-E.*", "", yall_ex$genes$geneid )
@@ -550,7 +594,36 @@ to_merge_w_yall_int <- data.frame( geneid = as.character( CpGID_intronID$CpG_ID 
 
 # Add intron ID to intron CpG meth df: 'geneid' variable becomes intron ID
 yall_int$genes$geneid = to_merge_w_yall_int$intron_id[ match( yall_int$genes$id, to_merge_w_yall_int$geneid ) ] 
+```
 
+Before we move on to estimate differnetial methylation, let's look at the CpG coverage per intron
+
+```{r}
+# Count CpGs per intron
+int_CpG_counts <- count( yall_int$genes$geneid )
+
+# Calc mean CpG coverage per intron
+int_CpG_counts_sum <- summarySE( "freq",
+                                 data = int_CpG_counts )
+
+# Print mean CpG coverage per intron with variance metrics: >8 CpGs per intron on average
+int_CpG_counts_sum
+
+# Report median intron CpG coverage: 4
+median( int_CpG_counts$freq )
+
+# Plot distribution of CpG coverage per intron
+ggplot( data = int_CpG_counts,
+        aes( x = freq ) ) +
+  geom_histogram( fill = "grey", binwidth = 1 ) +
+  xlim( values = c( 0, 20 ) ) +
+  theme_classic()
+
+```
+
+Let's finish differential methylation analysis for singular introns
+
+```{r}
 # Rowsum across single introns
 yint <- rowsum( yall_int, group = yall_int$genes$geneid, reorder = FALSE )
 
@@ -631,6 +704,47 @@ table( HasCoverage_int_gene )
 #0  1954 
 y_int_gene <- yint_gene[ HasCoverage_int_gene, keep.lib.sizes = FALSE ]
 
+```
+
+Before we move on to estimate differnetial methylation, let's look at the CpG coverage per intron
+
+```{r}
+# Count CpGs per intron
+int_gene_CpG_counts <- count( gsub( "-I.*", "", yall_int$genes$geneid ) )
+
+# Calc mean CpG coverage per intron
+int_gene_CpG_counts_sum <- summarySE( "freq",
+                                 data = int_gene_CpG_counts )
+
+# Print mean CpG coverage per intron with variance metrics: >8 CpGs per intron on average
+int_gene_CpG_counts_sum
+
+# Report median intron CpG coverage: 6
+median( int_gene_CpG_counts$freq )
+
+# Plot distribution of CpG coverage per intron
+ggplot( data = int_gene_CpG_counts,
+        aes( x = freq ) ) +
+  geom_density( fill = "grey" ) +
+  xlim( values = c( -5, 20 ) ) +
+  labs( x = "Gene-level intron CpG coverage", y = "Density") +
+  theme_classic()
+
+ggplot( data = int_CpG_counts,
+        aes( x = freq ) ) +
+  geom_density( fill = "grey" ) +
+  xlim( values = c( -5, 20 ) ) +
+  theme_classic()
+
+# Export gene-level intron CpG coverage as df for measurement error parameter modeling
+write.csv( data.frame( geneid = int_gene_CpG_counts$x,
+                       CpG_count = int_gene_CpG_counts$freq ),
+           "Output_data/genelvl_int_CpG_cov.csv", row.names = FALSE )
+```
+
+Continue analysis of gene-level differetial methylation of introns
+
+```{r}
 # Recalc library sizes
 TotalLibSize_int_gene <- y_int_gene$samples$lib.size[ Methylation_int_gene=="Me"] + 
   y_int_gene$samples$lib.size[ Methylation_int_gene == "Un" ]
@@ -746,6 +860,99 @@ mcmc_trace( intron_DM_glm_log )
 # Plot posteriors of intron_num effect using alpha = 0.89/95: both effects of intron num are insignificant
 plot( intron_DM_glm, pars = "intron_num", prob = 0.89,  prob_outer = 0.95 )
 plot( intron_DM_glm_log, pars = "log(intron_num)", prob = 0.89,  prob_outer = 0.95 )
+
+```
+
+#Total gene body differential methylation
+
+```{r}
+
+# Combine CpGID_intronID and CpGID_exonID
+CpGID_intexID <- rbind( data.frame( CpG_ID = CpGID_intronID$CpG_ID,
+                                    feat_ID = CpGID_intronID$intron_ID ), 
+                        data.frame( CpG_ID = exon_CpGs_geneID$id,
+                                    feat_ID = exon_CpGs_geneID$geneid ) )
+
+# Filter CpG methylation data for those values in introns or exons
+yintex_cpgs <- yall_cpgs[ ( yall_cpgs %in% CpGID_intexID$CpG_ID ) ]
+yall_intex <- yall[ yintex_cpgs, keep.lib.sizes = FALSE ]
+yall_intex$genes$id <- row.names( yall_intex$genes ) # Scaffold ID
+yall_intex$genes$geneid = CpGID_intexID$CpG_ID[ match( yall_intex$genes$id, CpGID_intexID$CpG_ID ) ] # CpG_ID
+
+# Make data frame w/ genebody ID for merging with yall_intex
+to_merge_w_yall_intex <- data.frame( geneid = as.character( CpGID_intexID$CpG_ID ),
+                                     genebody_id = as.character( gsub( "-I.*",
+                                                                       "",
+                                                                       gsub( "-E.*",
+                                                                             "",
+                                                                             gsub( "-tr.*",
+                                                                             "",
+                                                                             CpGID_intexID$feat_ID ) ) ) ) )
+
+# Add genebody ID to intex CpG meth df: 'geneid' variable becomes gene body ID
+yall_intex$genes$geneid = to_merge_w_yall_intex$genebody_id[ match( yall_intex$genes$id, 
+                                                                    to_merge_w_yall_intex$geneid ) ] 
+
+# Rowsum across gene bodies
+yintex <- rowsum( yall_intex, group = yall_intex$genes$geneid, reorder = FALSE )
+
+# Recalc methylation levels of single introns
+Methylation_intex <- gl( 2, 1, ncol( yintex ), labels = c( "Me", "Un" ) )
+Me_intex <- yintex$counts[ , Methylation_intex == "Me" ]
+Un_intex <- yintex$counts[ , Methylation_intex == "Un" ]
+
+# Filter introns for read coverage
+Coverage_intex <- Me_intex + Un_intex
+head( Coverage_intex )
+HasCoverage_intex <- rowSums( Coverage_intex >= 10 ) == 12
+table( HasCoverage_intex )
+#HasCoverage
+#  FALSE    TRUE 
+#  0  10212 
+y_intex <- yintex[ HasCoverage_intex , keep.lib.sizes = FALSE ]
+
+# Recalc library sizes
+TotalLibSize_intex <- y_intex$samples$lib.size[ Methylation_intex == "Me" ] + y_intex$samples$lib.size[ Methylation_intex == "Un" ]
+y_intex$samples$lib.size <- rep( TotalLibSize_intex, each = 2 )
+
+# Calculate log methylation scores
+Me_intex <- y_intex$counts[ , Methylation_intex == "Me" ]
+Un_intex <- y_intex$counts[ , Methylation_intex == "Un" ]
+M_intex <- log2( Me_intex + 2 ) - log2( Un_intex + 2 )
+colnames( M_intex ) <- row.names( targets )
+
+# Multidimensional scaling plot of intron methylation
+plotMDS( M_intex, col = rep( 1:4, each = 3 ), main = "M-values" )
+
+# Estimate dispersal of intron-level methylation
+y_intex <- estimateDisp( y_intex, design = design, robust = TRUE )
+
+# Fit quasi-likelihood GLM to intron-level methylation data
+fit_intex <- glmQLFit( y_intex, design, robust = TRUE )
+
+# Apply likelihood ratio test of differential methylation at single introns due to maternal treatment
+lrtM_intex <- glmLRT( fit_intex, contrast = contrM )
+summary( decideTests( lrtM_intex ) )
+#       1*treat_maternalU -1*treat_maternalN
+#Down                                    80
+#NotSig                               246071
+#Up                                      81
+
+# Plot read coverage vs. logFC of differential intron methylation
+plotMD( lrtM_intex )
+
+# Differential methylation of single introns due to developmental tratment
+lrtD_intex <- glmLRT( fit_intex, contrast = contrD )
+summary( decideTests( lrtD_intex ) )
+#       1*treat_devU
+#Down              5
+#NotSig         1950
+#Up                15
+plotMD( lrtD_intex )
+
+# Output csv's of intron-level diff meth corresponding to maternal and developmental treatments
+write.csv( lrtM_intex$table, "Output_Data/mat_edgeR_genebody_diff_meth_df.csv" )
+write.csv( lrtD_intex$table, "Output_Data/dev_edgeR_genebody_diff_meth_df.csv" )
 
 ```
 

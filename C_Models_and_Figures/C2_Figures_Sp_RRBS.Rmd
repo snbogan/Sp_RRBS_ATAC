@@ -1,0 +1,3980 @@
+---
+title: "C2_Figures_Sp_RRBS.Rmd"
+author: "Sam Bogan"
+date: "6/28/2021"
+output: github_document
+---
+
+This is an R markdown document detailing analyses of differential expression and splicing as a function of DNA methylation and chromatin accessibility in the purple urchin *Strongylocentrotus purpuratus* for the Sp_RRBS_ATAC repo by Sam Bogan, Marie Strader, and Gretchen Hofmann. This project aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in an invertebrate, and how these effects are regulated by other epigenomic and genomic states.
+
+The code below fits univariate and multivariate Bayesian linear models to baseline gene expression and differential expression/splicing data. Binomial generalized linear models were fit to binary values representing presence/absence of splice variants. Models are fit using brms, an R interface to stan. These models require 3 cores and can take up to 15 minutes of run time.  
+
+This markdown also plots main-text and supplementary figures.
+
+Prior to this analysis, reads were mapped to the Spur_3.1.42 assembly and annotation using HiSat2 and counted using featureCounts in the subread package as detailed in Strader et al. 2020: https://www.frontiersin.org/articles/10.3389/fmars.2020.00205/full. Relevant scripts for alignment and read counting can be found at: https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019.
+
+```{r setup, include=FALSE}
+
+knitr::opts_knit$set( root.dir = '~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/' )
+
+```
+
+```{r}
+
+# Load required packages
+library( tidyverse )
+library( Rmisc )
+library( GenomicFeatures )
+library( GenomicRanges )
+library( plyranges )
+library( methylKit )
+library( slider )
+library( strex )
+library( magick )
+library( ggpubr)
+library( png )
+library( grid )
+library( brms )
+library( bayesplot )
+library( rstan )
+library( rstanarm )
+library( bayestestR )
+library( see )
+library( ggbreak )
+```
+
+
+#Make Figure 2
+
+Create Fig. 2A
+
+```{r}
+
+## Start with the top of Fig. 2A: baseline meth vs logCPM of expression
+# Read in integrated data w/ ATAC summaries, baseline meth per genewise feature, and logCPM of expression
+ex_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ex_meth_by_GE_ATAC.csv" )
+int_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_meth_by_GE_ATAC.csv" )
+pr_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/pr_meth_by_GE_ATAC.csv" )
+
+# Make df of exon, intron, and promoter meth x logCPM
+ex_meth_by_GE_ATAC$Feat <- "Exon"
+int_meth_by_GE_ATAC$Feat <- "Intron"
+pr_meth_by_GE_ATAC$Feat <- "Promoter"
+
+# Combine df's for all three genewise features
+avg_meth_by_GE <- rbind( data.frame( geneid = ex_meth_by_GE_ATAC$geneid,
+                                     meth = ex_meth_by_GE_ATAC$med,
+                                     logCPM = ex_meth_by_GE_ATAC$GE_logCPM,
+                                     feat = ex_meth_by_GE_ATAC$Feat ),
+                         data.frame( geneid = int_meth_by_GE_ATAC$geneid,
+                                     meth = int_meth_by_GE_ATAC$median,
+                                     logCPM = int_meth_by_GE_ATAC$GE_logCPM,
+                                     feat = int_meth_by_GE_ATAC$Feat ),
+                         data.frame( geneid = pr_meth_by_GE_ATAC$geneid,
+                                     meth = pr_meth_by_GE_ATAC$median,
+                                     logCPM = pr_meth_by_GE_ATAC$GE_logCPM,
+                                     feat = pr_meth_by_GE_ATAC$Feat ) )
+
+# Reorder "feat" variable to put facets in the correct order w/ promoters first
+avg_meth_by_GE$feat = factor( avg_meth_by_GE$feat,
+                              levels = c( 'Promoter','Exon','Intron' ) )
+
+# Create facetted plot                                    
+Fig_2A_top <- ggplot( data = avg_meth_by_GE, 
+                  aes( x = meth, y = logCPM ) ) +
+  geom_point( alpha = 0.5, size = 1 ) +
+  geom_smooth( method = "lm", se = TRUE, size = 2 ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  theme(axis.text = element_text( size = 15 ) ) +
+  labs( y = "logCPM", x = "% CpG methylation" ) +
+  facet_wrap( ~feat )
+       
+Fig_2A_top
+
+## Next, lower half of Fig. 2A: baseline meth vs. presence of transcript variants
+# Read in meth by splicing df's
+ex_meth_by_splicing_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ex_meth_by_splicing_ATAC.csv" )
+int_meth_by_splicing_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_meth_by_splicing_ATAC.csv" )
+pr_meth_by_splicing_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/pr_meth_by_splicing_ATAC.csv" )
+
+# Make df of exon, intron, and promoter meth x splicing
+ex_meth_by_splicing_ATAC$Feat <- "Exon"
+int_meth_by_splicing_ATAC$Feat <- "Intron"
+pr_meth_by_splicing_ATAC$Feat <- "Promoter"
+
+# Combine df's for all three genewise features
+avg_meth_by_splice <- rbind( data.frame( geneid = ex_meth_by_splicing_ATAC$geneid,
+                                     meth = ex_meth_by_splicing_ATAC$med,
+                                     splice = ex_meth_by_splicing_ATAC$splice,
+                                     feat = ex_meth_by_splicing_ATAC$Feat ),
+                         data.frame( geneid = int_meth_by_splicing_ATAC$geneid,
+                                     meth = int_meth_by_splicing_ATAC$median,
+                                     splice = int_meth_by_splicing_ATAC$splice,
+                                     feat = int_meth_by_splicing_ATAC$Feat ),
+                         data.frame( geneid = pr_meth_by_splicing_ATAC$geneid,
+                                     meth = pr_meth_by_splicing_ATAC$median,
+                                     splice = pr_meth_by_splicing_ATAC$splice,
+                                     feat = pr_meth_by_splicing_ATAC$Feat ) )
+
+# Change TRUE and FALSE to T and F
+avg_meth_by_splice$splice <- ifelse( avg_meth_by_splice$splice == TRUE, "T", "F" )
+
+# Summarize mean methylation for genes with and without transcript variants
+all_meth_by_splice_sum <- summarySE( measurevar = "meth",
+                                     groupvars = c( "splice", "feat" ),
+                                     data = avg_meth_by_splice )
+
+names(all_meth_by_splice_sum)[names(all_meth_by_splice_sum) == "bins"] <- "meth"
+
+# Reorder plot
+avg_meth_by_splice$feat = factor( avg_meth_by_splice$feat,
+                              levels = c( 'Promoter','Exon','Intron' ) )
+
+# Create lower half of Fig. 2A
+Fig_2A_bot <- ggplot( data = avg_meth_by_splice, 
+                      aes( x = meth, y = splice, width = 1 ) ) +
+  geom_jitter( alpha = 0.5, size = 1, width = 0, height = 0.2 ) +
+  geom_smooth( data = all_meth_by_splice_sum, method = "lm", size = 2, aes( group = feat ) ) +
+  geom_point( data = all_meth_by_splice_sum, size = 3, color = "darkblue" ) +
+  geom_errorbar( data = all_meth_by_splice_sum, 
+                 aes( xmin = meth - ci, xmax = meth + ci ), 
+                 size = 1.25, width = 0, color = "darkblue" ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  theme( axis.text = element_text( size = 15 ) ) +
+  labs( y = "Splicing", x = "% CpG methylation" ) +
+  scale_x_continuous( breaks = c( 0, 25, 50, 75, 100 ) ) +
+  facet_wrap( ~feat )
+
+Fig_2A_bot
+```
+
+Read in Fig. 2B, produced by B1_ATAC_summary_Sp_RRBS.Rmd
+
+```{r}
+
+# Read in .png of Fig. 2B output in Section
+load( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_figures/TSS_plot.Rdata" )
+
+# Print
+Fig_2B <- TSS_plot +
+  theme( axis.text.y = element_text( size = 15 ) )
+
+Fig_2B
+
+```
+
+
+Create Fig. 2C: depletion of % CpG methylation proximal to ATAC-seq peaks
+
+```{r}
+
+# Read in .Rdata containing consensus Tn5 insert sites shared across all three ATAC-seq replicates
+load( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ATAC_summary_annots_prism_cons.Rdata" )
+
+# Set working directory to read in .cov files from Section A
+setwd( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Input_data/" )
+
+# Read in Bismark .cov files from Section A
+file.list = list( "NN1.cov",
+                  "NN2.cov", 
+                  "NN3.cov", 
+                  "NU1.cov", 
+                  "NU2.cov", 
+                  "NU3.cov", 
+                  "UN1.cov", 
+                  "UN2.cov", 
+                  "UN3.cov", 
+                  "UU1.cov", 
+                  "UU3_1.cov", 
+                  "UU3_2.cov" )
+
+myobj = methRead( file.list,
+                  sample.id = list( "NN1", "NN2", "NN3", "NU1", "NU2", "NU3", "UN1", "UN2", "UN3", "UU1", "UU3_1", "UU3_2" ),
+                  assembly = "S.pur3.1",
+                  treatment = c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1),
+                  context = "CpG",
+                  pipeline = "bismarkCoverage" )
+                  
+#### filter sites for low coverage and high coverage ###
+filtered.myobj = filterByCoverage(
+  myobj,
+  lo.count = 10,
+  lo.perc = NULL,
+  hi.count = NULL,
+  hi.perc = 99.9 
+  )
+
+### get methylation and coverage stats. Keep in mind the number in [[]] refers to the sample file ###
+getMethylationStats( filtered.myobj[[ 1 ]], plot = FALSE, both.strands = FALSE )
+#methylation statistics per base
+#summary:
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#   0.00    0.00    0.00   22.69   27.27  100.00 
+#percentiles:
+#       0%       10%       20%       30%       40%       50%       60%       70%       80%       90%       95% 
+#  0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  11.53846  65.00000 100.00000 100.00000 
+#      99%     99.5%     99.9%      100% 
+#100.00000 100.00000 100.00000 100.00000 
+
+getCoverageStats( filtered.myobj[[ 1 ]], plot = FALSE, both.strands = FALSE )
+#read coverage statistics per base
+#summary:
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  10.00   13.00   18.00   27.51   29.00  684.00 
+#percentiles:
+#   0%   10%   20%   30%   40%   50%   60%   70%   80%   90%   95%   99% 99.5% 99.9%  100% 
+#   10    11    12    14    16    18    21    26    33    48    70   176   251   474   684  
+
+### unite sites across all samples ###
+meth = unite( filtered.myobj, destrand = FALSE )
+
+#####Create perc meth spreadsheet####
+
+# read annotation file for genes #
+meth.annot = read.table( "meth_CpGs_all.tab" )
+length( unique( meth.annot$V41 ) ) #9219
+meth.annot$id <- paste( meth.annot$V1, meth.annot$V2, meth.annot$V3, sep = "." )
+perc.meth=percMethylation( meth, rowids = T )
+perc.meth=as.data.frame( perc.meth )
+perc.meth$id=row.names( perc.meth )
+
+# Merge calculations of % meth per CpG with annotation info
+meth.annot.perc.meth = merge( perc.meth, meth.annot, by = "id" )
+meth.annot.perc.meth = as.data.frame( meth.annot.perc.meth[ -c( 14:53, 55 ) ] )
+dim( meth.annot.perc.meth ) #245343    17
+
+# Calculate distribution of % CpG methylation
+meth.annot.perc.meth$median = apply( meth.annot.perc.meth[ , 2:13 ], 1, median )
+summary( meth.annot.perc.meth )
+Fig_S4A <- plot( hist( meth.annot.perc.meth$median ) ) #Figure S4A
+
+# Qualify methylated CpGs as having >75% methylated reads across samples
+meth <- meth.annot.perc.meth$median > "75"  
+meth.annot.perc.meth$meth = meth
+
+# Summarize counts of methylated and non methylated CpGs
+summary( meth.annot.perc.meth$meth )
+# values for median>1
+#   Mode   FALSE    TRUE 
+#logical   220482   24861 
+
+# Compress merged peak annotations into unique peaks
+peakannot_unq <- distinct( peakannotdf_cons ) #1,390,718 unique rows
+
+# Filter for methylated CpGs
+meth_CpGs_true <- filter( meth.annot.perc.meth, meth = TRUE )
+
+## Standardize genomic positions of CpGs
+# Scaffold/chr
+meth.annot.perc.meth$chr <- gsub( "\\..*", "", meth.annot.perc.meth$id )
+meth_CpGs_true$chr <- gsub( "\\..*", "", meth_CpGs_true$id )
+
+# bp start position
+meth.annot.perc.meth$start <- str_after_nth( meth.annot.perc.meth$id, "\\.", 2 )
+meth_CpGs_true$start <- str_after_nth( meth_CpGs_true$id, "\\.", 2 )
+
+# Add variable for whether CpG falls at 39 hpf consensus peak
+CpG_pos <- GRanges( meth.annot.perc.meth$chr, IRanges( as.numeric( meth.annot.perc.meth$start ), width = 1 ) )
+
+# Non-methylated CpGs
+TRUE.annot.perc.meth <- filter( meth.annot.perc.meth, meth == TRUE )
+meth_TRUE_pos <- GRanges( TRUE.annot.perc.meth$chr, IRanges( as.numeric( TRUE.annot.perc.meth$start ), width = 1 ) )
+
+# Methylated CpGs
+FALSE.annot.perc.meth <- filter( meth.annot.perc.meth, meth == FALSE )
+meth_FALSE_pos <- GRanges( FALSE.annot.perc.meth$chr, IRanges( as.numeric( FALSE.annot.perc.meth$start ), width = 1 ) )
+
+# Crate GRanges object for consensus Tn5 inserts
+peak_ranges <- GRanges( peakannot_unq$seqnames, IRanges( start = peakannot_unq$start, end = peakannot_unq$end ) )
+
+```
+
+Plot CpG methylation depletion at ATAC peaks
+```{r}
+
+# Pair methylated CpGs with nearest consensus Tn5 insert
+TRUE_prec_CpG_ATAC_dist <- data.frame( pair_nearest( meth_TRUE_pos, peak_ranges ) )
+
+# Calc distance between mCpG and Tn5 insert
+TRUE_prec_CpG_ATAC_dist$distance <- round( TRUE_prec_CpG_ATAC_dist$granges.x.start -
+                                             ( ( TRUE_prec_CpG_ATAC_dist$granges.y.end -
+                                                   TRUE_prec_CpG_ATAC_dist$granges.y.start) * 0 +
+                                                 TRUE_prec_CpG_ATAC_dist$granges.y.start ),
+                                           digits = 0 )
+
+# Add variable indicating methylation status
+TRUE_prec_CpG_ATAC_dist$meth <- TRUE
+
+# As above, for non-methylated CpGs
+FALSE_prec_CpG_ATAC_dist <- data.frame( pair_nearest(meth_FALSE_pos, peak_ranges ) )
+FALSE_prec_CpG_ATAC_dist$distance <- round( FALSE_prec_CpG_ATAC_dist$granges.x.start -
+                                       ( ( FALSE_prec_CpG_ATAC_dist$granges.y.end -
+                                             FALSE_prec_CpG_ATAC_dist$granges.y.start ) * 0 +
+                                           FALSE_prec_CpG_ATAC_dist$granges.y.start),
+                                       digits = 0 )
+
+# Add variable indicating methylation status
+FALSE_prec_CpG_ATAC_dist$meth <- FALSE
+
+# Combine CpG -> Tn5 insert distances for mCpGs and nmCpGs
+TRUE_FALSE_updown_CpG_ATAC_dist <- rbind( TRUE_prec_CpG_ATAC_dist, FALSE_prec_CpG_ATAC_dist )
+
+# Bin distances and calculate means meth
+TRUE_FALSE_updown_CpG_ATAC_dist$bins <- ( ( .bincode( TRUE_FALSE_updown_CpG_ATAC_dist$distance,
+                                                      c( seq( from = -2000,
+                                                              to = 2000, by = 5) ), 
+                                                      right = TRUE, include.lowest = TRUE ) ) * 5 ) - 2000
+
+# Count unmethylated and methylated CpGs
+updown_binned_TRUE <- aggregate( cbind( count = meth ) ~ bins, 
+          data = filter( TRUE_FALSE_updown_CpG_ATAC_dist, meth == TRUE ), 
+          FUN = function( x ){NROW( x )})
+updown_binned_FALSE <- aggregate( cbind( count = meth ) ~ bins, 
+          data = filter( TRUE_FALSE_updown_CpG_ATAC_dist, meth == FALSE ), 
+          FUN = function( x ){NROW( x )})
+
+# Merge unmeth and meth CpG counts per distance to consensus Tn5 insert
+updown_binned_TRUE_FALSE <- merge( updown_binned_TRUE, updown_binned_FALSE, by = "bins" )
+
+# Count nrows per bin
+bin_freq <- data.frame( table(TRUE_FALSE_updown_CpG_ATAC_dist$bins ) )
+names (bin_freq )[ names( bin_freq ) == "Var1" ] <- "bins"
+updown_binned_TRUE_FALSE <- 
+      merge( updown_binned_TRUE_FALSE,
+      bin_freq,
+      by = "bins" )
+
+# Calc percent methylation per bin
+updown_binned_TRUE_FALSE$perc_meth <- updown_binned_TRUE_FALSE$count.x / ( updown_binned_TRUE_FALSE$count.x +
+                                                            updown_binned_TRUE_FALSE$count.y )
+
+# Apply sliding window mean of percent meth
+updown_binned_TRUE_FALSE$sw100_perc_meth <- slide_dbl( updown_binned_TRUE_FALSE$perc_meth, 
+                                                       ~mean( .x ), .before = 5, .after = 5 )
+
+# Sliding confience interval of mean
+updown_binned_TRUE_FALSE$sw100_perc_meth_ci <- slide_dbl( updown_binned_TRUE_FALSE$perc_meth, 
+                                                          ~sd( .x ), .before = 5, .after = 5 )
+
+updown_binned_TRUE_FALSE$sw100_perc_meth_se <- updown_binned_TRUE_FALSE$sw100_perc_meth_ci /
+  sqrt( updown_binned_TRUE_FALSE$Freq )
+
+# Create Fig. 2C
+Fig_2C <- ggplot( data = updown_binned_TRUE_FALSE, 
+                  aes( x = bins, y = ( sw100_perc_meth * 100 ) ) ) +
+  geom_smooth( method = "loess", aes (y = ( sw100_perc_meth * 100 ),
+                                    ymin = ( ( sw100_perc_meth * 100 ) - ( sw100_perc_meth_se * 100 ) ),
+                                    ymax = ( ( sw100_perc_meth *100 )+( sw100_perc_meth_se * 100 ) ) ),
+              stat = "identity", alpha = 0.15, color = "black", fill = "black", lty = 0, se = TRUE ) +
+  geom_line( size = .75 ) +
+  scale_color_viridis_c() +
+  labs( y = "% methylation", x = "ATAC peak distance (bp)" ) +
+  geom_vline( xintercept = 0, lty = "longdash", size = .5 ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  theme( legend.position = NULL, legend.text = element_text( size = 8 ) ) 
+
+# Print 2C to correct dimensions
+Fig_2C
+
+```
+
+#Create Figure 2 panel
+
+```{r}
+
+# Stack Fig. 2A top and bottom
+Fig_2_left <- ggarrange( Fig_2A_top, Fig_2A_bot, 
+                    labels = c( "A", "B" ),
+                    ncol = 1, nrow = 2,
+                    align = "hv")
+
+
+Fig_2_right <- ggarrange( Fig_2B, Fig_2C, 
+                    labels = c( "C", "D" ),
+                    ncol = 1, nrow = 2,
+                    align = "hv")
+
+Fig_2 <- ggarrange( Fig_2_left, Fig_2_right, 
+                    labels = c( "", "" ),
+                    ncol = 2, nrow = 1,
+                    align = "hv", widths = c( 0.6, 0.4 ) )
+
+
+# Export Fig 2 as tiff
+tiff( "Output_figures/Fig_2.tiff", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_2
+
+dev.off()
+
+# Export Fig 2 as png
+png( "Output_figures/Fig_2.png", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_2
+
+dev.off()
+
+```
+
+#Create Fig3: Volcano plots of differential expression, splicing, and methylation
+
+```{r}
+
+# Read in maternal and developmental coefficients for DE, DS, and DM
+mat_DE <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv" )
+dev_DE <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_GE_table_filt.csv" )
+mat_DS <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/Mat_DEU_df.csv" )
+dev_DS <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/Dev_DEU_df.csv" )
+mat_DM <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_CpG_DM_df.csv" )
+dev_DM <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_CpG_DM_df.csv" )
+
+# Add treatment variable to each df
+mat_DE$Treat <- "Maternal"
+dev_DE$Treat <- "Developmental"
+mat_DS$Treat <- "Maternal"
+dev_DS$Treat <- "Developmental"
+mat_DM$Treat <- "Maternal"
+dev_DM$Treat <- "Developmental"
+
+# Add data variable to each df
+mat_DE$Data <- "Expression"
+dev_DE$Data <- "Expression"
+mat_DS$Data <- "Exon use"
+dev_DS$Data <- "Exon use"
+mat_DM$Data <- "Methylation"
+dev_DM$Data <- "Methylation"
+
+# Add FDR adjustment to all datasheets
+mat_DE$FDR <- p.adjust( mat_DE$PValue, method = "fdr" )
+dev_DE$FDR <- p.adjust( dev_DE$PValue, method = "fdr" )
+mat_DS$FDR <- p.adjust( mat_DS$exon_pval, method = "fdr" )
+dev_DS$FDR <- p.adjust( dev_DS$exon_pval, method = "fdr" )
+mat_DM$FDR <- p.adjust( mat_DM$PValue, method = "fdr" )
+dev_DM$FDR <- p.adjust( dev_DM$PValue, method = "fdr" )
+
+# rbind subset dataframes
+all_volc_data <- rbind(
+  data.frame( id = mat_DE$X,
+              coeff = mat_DE$logFC,
+              FDR = mat_DE$FDR,
+              pval = mat_DE$PValue,
+              Treat = mat_DE$Treat,
+              Data = mat_DE$Data ),
+  data.frame( id = dev_DE$X,
+              coeff = dev_DE$logFC,
+              FDR = dev_DE$FDR,
+              pval = dev_DE$PValue,
+              Treat = dev_DE$Treat,
+              Data = dev_DE$Data ),
+  data.frame( id = mat_DS$X,
+              coeff = mat_DS$exon_coeff,
+              FDR = mat_DS$FDR,
+              pval = mat_DS$exon_pval,
+              Treat = mat_DS$Treat,
+              Data = mat_DS$Data ),
+  data.frame( id = dev_DS$X,
+              coeff = dev_DS$exon_coeff,
+              FDR = dev_DS$FDR,
+              pval = dev_DS$exon_pval,
+              Treat = dev_DS$Treat,
+              Data = dev_DS$Data ),
+  data.frame( id = mat_DM$X,
+              coeff = mat_DM$logFC,
+              FDR = mat_DM$FDR,
+              pval = mat_DM$PValue,
+              Treat = mat_DM$Treat,
+              Data = mat_DM$Data ),
+  data.frame( id = dev_DM$X,
+              coeff = dev_DM$logFC,
+              FDR = dev_DM$FDR,
+              pval = dev_DM$PValue,
+              Treat = dev_DM$Treat,
+              Data = dev_DM$Data ) )
+
+# Apply logical variable for significant DM
+all_volc_data$Sig <- ifelse( all_volc_data$FDR < 0.05, TRUE, FALSE )
+
+# Apply binary variable for hyper/hypomethylation or "Up" vs "Down"
+all_volc_data$Dir <- ifelse( all_volc_data$coeff > 0, "Up", "Down" )
+
+# Create combined term for significance and fold-change direction of diff meth
+all_volc_data$Sig_Dir <- paste( all_volc_data$Sig,
+                                all_volc_data$Dir,
+                                sep = "_" )
+
+# Create Fig 3
+Fig_2 <- ggplot( data = all_volc_data,
+                 aes( x = coeff, y = -log( pval ), 
+                      color = Sig_Dir, alpha = Sig, size = Sig ) ) +
+         geom_point( ) +
+         theme_classic( base_size = 20 ) +
+         theme( legend.position = "none",
+                strip.background = element_blank() ) +
+         scale_alpha_manual( values = c( 0.1, 1 ) ) +
+         scale_size_manual( values = c( 0.1, 1 ) ) +
+         scale_color_manual( values = c( "black", "black", "blue", "red" ) ) +
+         facet_grid( Data ~ Treat , scales = "free_y" ) +
+         labs( x = "Coefficient (logFC)", y = "-log p-value" )
+
+Fig_2
+
+# Export Fig 4 as png
+png( "Output_figures/Fig_2.png", units = "in", height = 10.08, 
+      width = 5.04, 
+      res = 600 )
+
+Fig_2
+
+dev.off()
+
+```
+
+#Modeling effect of baseline meth on expression
+
+The code chunks below work through model selection and are long and slow for this reason
+
+Intron and exon meth x logCPM
+
+```{r}
+# Read in intron + exon methylation df w/ GE and chromatin access data
+int_ex_meth_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_ex_meth_by_GE_ATAC.csv" )
+
+# Scale variables
+int_ex_meth_GE_ATAC$exon_meth_Z <- scale( int_ex_meth_GE_ATAC$exon_meth )
+int_ex_meth_GE_ATAC$intron_meth_Z <- scale( int_ex_meth_GE_ATAC$intron_meth )
+int_ex_meth_GE_ATAC$GE_logCPM_Z <- scale( int_ex_meth_GE_ATAC$GE_logCPM )
+int_ex_meth_GE_ATAC$TSS_dens_norm_Z <- scale( int_ex_meth_GE_ATAC$TSS_dens_norm )
+int_ex_meth_GE_ATAC$intron_dens_norm_Z <- scale( int_ex_meth_GE_ATAC$intron_dens_norm )
+int_ex_meth_GE_ATAC$exon_dens_norm_Z <- scale( int_ex_meth_GE_ATAC$exon_dens_norm )
+
+# Fit brm model w/ weakly informative prior assuming no effect
+const_ex_int_brm1 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
+
+const_ex_int_brm2 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + TSS_dens_norm_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
+
+const_ex_int_brm3 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + intron_dens_norm_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_ex_int_brm4 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
+
+# Calc waic and loo
+waic_ex_int1 <- waic( const_ex_int_brm1 )
+loo_ex_int1 <- loo( const_ex_int_brm1 )
+waic_ex_int2 <- waic( const_ex_int_brm2 )
+loo_ex_int2 <- loo( const_ex_int_brm2 )
+waic_ex_int3 <- waic( const_ex_int_brm3 )
+loo_ex_int3 <- loo( const_ex_int_brm3 )
+waic_ex_int4 <- waic( const_ex_int_brm4 )
+loo_ex_int4 <- loo( const_ex_int_brm4 )
+
+# Model selection
+waic_ex_int1
+waic_ex_int2
+waic_ex_int3
+waic_ex_int4 #Selected model
+loo_compare( loo_ex_int1, loo_ex_int2, loo_ex_int3, loo_ex_int4 )
+
+# Now that we know exon accessibility aid model, let's add new variables again
+const_ex_int_brm5 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z + intron_dens_norm_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_ex_int_brm6 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z + TSS_dens_norm_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_ex_int_brm7 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z +
+                            exon_dens_norm_Z : exon_meth_Z + exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+# WAIC and loo comparisons for models 4 vs 5, 6, 7
+waic( const_ex_int_brm5, const_ex_int_brm6, const_ex_int_brm7 )
+loo_ex_int5 <- loo( const_ex_int_brm5 )
+loo_ex_int6 <- loo( const_ex_int_brm6 )
+loo_ex_int7 <- loo( const_ex_int_brm7 )
+
+loo_compare( loo_ex_int4, loo_ex_int5, loo_ex_int6, loo_ex_int7 ) # Additional terms no longer helping, go with const_ex_int_brm4
+
+# Diagnostic plots
+conditional_effects( const_ex_int_brm4 )
+plot( const_ex_int_brm4 )
+pp_check( const_ex_int_brm4 )
+
+# Output 0.90 alpha posterior intervals: >95% of posterior for all effects except intron meth is below 0
+posterior_interval(
+  const_ex_int_brm4,
+  prob = 0.90,
+  type = "central" )
+
+# Use Bayes factor to test hypothesis that chromatin accessibility helps explain effects of methylation
+bayes_factor( const_ex_int_brm4,
+              const_ex_int_brm1 ) # No support for hypothesis
+
+```
+
+Promoter meth x logCPM
+
+```{r}
+# Read in intron + exon methylation df w/ GE and chromatin access data
+pr_meth_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/pr_meth_by_GE_ATAC.csv" )
+
+# Scale variables
+pr_meth_GE_ATAC$promoter_meth_Z <- scale( pr_meth_GE_ATAC$median )
+pr_meth_GE_ATAC$GE_logCPM_Z <- scale( pr_meth_GE_ATAC$GE_logCPM )
+pr_meth_GE_ATAC$TSS_dens_norm_Z <- scale( pr_meth_GE_ATAC$TSS_dens_norm )
+pr_meth_GE_ATAC$intron_dens_norm_Z <- scale( pr_meth_GE_ATAC$intron_dens_norm )
+pr_meth_GE_ATAC$exon_dens_norm_Z <- scale( pr_meth_GE_ATAC$exon_dens_norm )
+
+# Model fitting
+# Fit brm model w/ weakly informative prior assuming no effect
+const_pr_brm1 <- brm( GE_logCPM_Z ~ promoter_meth_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
+
+const_pr_brm2 <- brm( GE_logCPM_Z ~ promoter_meth_Z + TSS_dens_norm_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior(normal( 0, 2 ), class = Intercept ),
+                                     prior(normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
+
+const_pr_brm3 <- brm( GE_logCPM_Z ~ promoter_meth_Z + intron_dens_norm_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_pr_brm4 <- brm( GE_logCPM_Z ~ promoter_meth_Z + exon_dens_norm_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+# Model selection: waic and loo choose const_pr_brm2
+waic( const_pr_brm1, const_pr_brm2, const_pr_brm3, const_pr_brm4 )
+loo_pr1 <- loo( const_pr_brm1 )
+loo_pr2 <- loo( const_pr_brm2 )
+loo_pr3 <- loo( const_pr_brm3 )
+loo_pr4 <- loo( const_pr_brm4 )
+
+loo_compare( loo_pr1, loo_pr2, loo_pr3, loo_pr4 )
+
+# Add variables to const_pr_brm2
+const_pr_brm5 <- brm( GE_logCPM_Z ~ promoter_meth_Z + TSS_dens_norm_Z + exon_dens_norm_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior(normal( 0, 2 ), class = Intercept ),
+                                     prior(normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_pr_brm6 <- brm( GE_logCPM_Z ~ promoter_meth_Z + TSS_dens_norm_Z + intron_dens_norm_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior(normal( 0, 2 ), class = Intercept ),
+                                     prior(normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_pr_brm7 <- brm( GE_logCPM_Z ~ promoter_meth_Z + TSS_dens_norm_Z +
+                        TSS_dens_norm_Z : promoter_meth_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior(normal( 0, 2 ), class = Intercept ),
+                                     prior(normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
+
+# Second round of model selection: const_pr_brm7 is top model
+waic( const_pr_brm5, const_pr_brm6, const_pr_brm7, const_pr_brm2 )
+loo_pr5 <- loo( const_pr_brm5 )
+loo_pr6 <- loo( const_pr_brm6 )
+loo_pr7 <- loo( const_pr_brm7 )
+
+loo_compare( loo_pr5, loo_pr6, loo_pr7, loo_pr2 )
+
+# Fit one more round of models
+const_pr_brm8 <- brm( GE_logCPM_Z ~ promoter_meth_Z + TSS_dens_norm_Z + exon_dens_norm_Z +
+                        TSS_dens_norm_Z : promoter_meth_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior(normal( 0, 2 ), class = Intercept ),
+                                     prior(normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+const_pr_brm9 <- brm( GE_logCPM_Z ~ promoter_meth_Z + TSS_dens_norm_Z + intron_dens_norm_Z +
+                        TSS_dens_norm_Z : promoter_meth_Z,
+                          data = pr_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior(normal( 0, 2 ), class = Intercept ),
+                                     prior(normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2 )
+
+# Last round of model selection: const_pr_brm7 wins it! 
+waic( const_pr_brm7, const_pr_brm8, const_pr_brm9 )
+loo_pr8 <- loo( const_pr_brm8 )
+loo_pr9 <- loo( const_pr_brm9 )
+
+loo_compare( loo_pr7, loo_pr8, loo_pr9 )
+
+# Diagnostic plots
+conditional_effects( const_pr_brm7 )
+plot( const_pr_brm7 )
+pp_check( const_pr_brm7 )
+
+# Output 0.90 alpha posterior intervals: >95% of posterior for all effects except intron meth is below 0
+posterior_interval(
+  const_pr_brm7,
+  prob = 0.90,
+  type = "central" )
+
+# Use Bayes factor to test hypothesis that chromatin accessibility helps explain effects of methylation
+bayes_factor( const_pr_brm2,
+              const_pr_brm1 ) # Bayes factor = 17.30795; support for hypothesis 
+
+
+```
+
+
+#Modeling effect of baseline meth on splicing
+
+```{r}
+
+# Make splice variable factor
+avg_meth_by_splice$splice <- as.factor( avg_meth_by_splice$splice )
+
+# Scale meth variable 
+avg_meth_by_splice$meth_Z <- scale( avg_meth_by_splice$meth )
+
+# Fit bayesian logistic regression
+pr_splice_meth_glm <- stan_glm( splice ~ meth_Z, 
+                                family = binomial(),  
+                                data = filter( avg_meth_by_splice, feat == "Promoter" ),
+                                iter = 10000 )
+                               
+ex_splice_meth_glm <- stan_glm( splice ~ meth_Z, 
+                                family = binomial(),  
+                                data = filter( avg_meth_by_splice, feat == "Exon" ),
+                                iter = 10000 )
+                               
+int_splice_meth_glm <- stan_glm( splice ~ meth_Z, 
+                                 family = binomial(),  
+                                 data = filter( avg_meth_by_splice, feat == "Intron" ),
+                                 iter = 10000 )
+
+# Plot posterior of exon_num effect using alpha = 0.89/95
+plot( pr_splice_meth_glm, pars = "meth_Z", prob = 0.89,  prob_outer = 0.95 )
+plot( ex_splice_meth_glm, pars = "meth_Z", prob = 0.89,  prob_outer = 0.95 )
+plot( int_splice_meth_glm, pars = "meth_Z", prob = 0.89,  prob_outer = 0.95 ) # Significant effect of intron meth
+
+# Pairs plots
+mcmc_pairs( pr_splice_meth_glm )
+mcmc_pairs( ex_splice_meth_glm )
+mcmc_pairs( int_splice_meth_glm )
+
+# Posterior predictive checks
+pp_check( pr_splice_meth_glm )
+pp_check( ex_splice_meth_glm )
+pp_check( int_splice_meth_glm )
+
+# Plot chains
+mcmc_trace( pr_splice_meth_glm )
+mcmc_trace( ex_splice_meth_glm )
+mcmc_trace( int_splice_meth_glm )
+
+```
+
+#Modeling and plotting differential expression: do intron and exon methylation interact to affect DE?
+
+```{r}
+
+# Read in integrated dataset containing exon and intron DM coeffs, DE coeffs, and chromatin accessibility
+dm_intron_exon_by_DE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/dm_intron_exon_by_DE_ATAC.csv" )
+int_ex_meth_GE_ATAC <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_ex_meth_by_GE_ATAC.csv" )
+
+# Add % meth info to dm by de datasheets
+dm_intron_exon_by_DE_ATAC<- merge( dm_intron_exon_by_DE_ATAC,
+                                   data.frame( int_meth = int_ex_meth_GE_ATAC$intron_meth,
+                                                ex_meth = int_ex_meth_GE_ATAC$exon_meth,
+                                                geneid = int_ex_meth_GE_ATAC$geneid ),
+                                   by = "geneid")
+
+# Scale data
+dm_intron_exon_by_DE_ATAC$int_meth_Z <- scale( dm_intron_exon_by_DE_ATAC$int_meth )
+dm_intron_exon_by_DE_ATAC$ex_meth_Z <- scale( dm_intron_exon_by_DE_ATAC$ex_meth )
+dm_intron_exon_by_DE_ATAC$GE_logFC_Z <- scale( dm_intron_exon_by_DE_ATAC$GE_logFC )
+dm_intron_exon_by_DE_ATAC$GE_logCPM_Z <- scale( dm_intron_exon_by_DE_ATAC$GE_logCPM )
+dm_intron_exon_by_DE_ATAC$int_meth_logFC_Z <- scale( dm_intron_exon_by_DE_ATAC$int_meth_logFC )
+dm_intron_exon_by_DE_ATAC$ex_meth_logFC_Z <- scale( dm_intron_exon_by_DE_ATAC$ex_meth_logFC )
+dm_intron_exon_by_DE_ATAC$TSS_dens_norm_Z <- scale( dm_intron_exon_by_DE_ATAC$TSS_dens_norm )
+dm_intron_exon_by_DE_ATAC$exon_dens_norm_Z <- scale( dm_intron_exon_by_DE_ATAC$exon_dens_norm )
+dm_intron_exon_by_DE_ATAC$intron_dens_norm_Z <- scale( dm_intron_exon_by_DE_ATAC$intron_dens_norm )
+dm_intron_exon_by_DE_ATAC$gene_len_Z <- scale( dm_intron_exon_by_DE_ATAC$gene_len )
+dm_intron_exon_by_DE_ATAC$intron_len_Z <- scale( dm_intron_exon_by_DE_ATAC$intron_len )
+dm_intron_exon_by_DE_ATAC$gene_dens_norm_Z <- scale( ( dm_intron_exon_by_DE_ATAC$peak_density_Exons +
+                                                       dm_intron_exon_by_DE_ATAC$peak_density_Introns ) /
+                                                       dm_intron_exon_by_DE_ATAC$gene_len )
+
+# Create gene body access variable
+dm_intron_exon_by_DE_ATAC$gene_body_access <-
+  ( dm_intron_exon_by_DE_ATAC$peak_density_Introns +
+             dm_intron_exon_by_DE_ATAC$peak_density_Exons ) / 
+           dm_intron_exon_by_DE_ATAC$gene_len
+
+dm_intron_exon_by_DE_ATAC$gene_body_access[ is.na( dm_intron_exon_by_DE_ATAC$gene_body_access ) ] = 0
+
+dm_intron_exon_by_DE_ATAC$gene_body_access_Z <- scale( dm_intron_exon_by_DE_ATAC$gene_body_access )
+
+DE_brm_int_f1 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z + 
+                             ex_meth_logFC_Z : ex_meth_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f2 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z + gene_body_access_Z +
+                             ex_meth_Z + int_meth_Z +
+                             ex_meth_logFC_Z : ex_meth_Z +
+                             int_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f3 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z + TSS_dens_norm_Z +
+                             ex_meth_Z + int_meth_Z +
+                             ex_meth_logFC_Z : ex_meth_Z +
+                             int_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f4 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             int_meth_logFC_Z : GE_logCPM_Z + ex_meth_logFC_Z : int_meth_logFC_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f5 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z + ex_meth_logFC_Z : int_meth_logFC_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f5 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z + ex_meth_logFC_Z : int_meth_logFC_Z +
+                        ex_meth_logFC_Z : exon_dens_norm_Z : GE_logCPM_Z +
+                        int_meth_logFC_Z : intron_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f6 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z + ex_meth_logFC_Z : int_meth_logFC_Z +
+                        int_meth_logFC_Z : intron_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f7 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z + ex_meth_logFC_Z : int_meth_logFC_Z +
+                        ex_meth_logFC_Z : exon_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f8 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             ex_meth_logFC_Z : int_meth_logFC_Z +
+                        ex_meth_logFC_Z : exon_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f9 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z + ex_meth_logFC_Z : int_meth_logFC_Z +
+                        int_meth_logFC_Z : intron_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f9 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z + intron_dens_norm_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f10 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z + exon_dens_norm_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_int_f11 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + int_meth_logFC_Z + GE_logCPM_Z + 
+                             ex_meth_logFC_Z : ex_meth_Z +
+                             ex_meth_logFC_Z : GE_logCPM_Z +
+                             int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+# Model selection w/ Bayes factors
+de_integrated_BF_models <- bayesfactor_models( DE_brm_int_f1, DE_brm_int_f3, DE_brm_int_f10,
+                                               DE_brm_int_f4, DE_brm_int_f5, DE_brm_int_f6,
+                                               DE_brm_int_f7, DE_brm_int_f8, DE_brm_int_f9, 
+                                               DE_brm_int_f11,
+                                               denominator = DE_brm_int_f2 )
+
+# Compare 1, 3, 6, 7: DE_brm_int_f1
+bayesfactor_models( DE_brm_int_f1, DE_brm_int_f3, DE_brm_int_f6,
+                    denominator = DE_brm_int_f7 )
+
+# Print model BFs
+de_integrated_BF_models
+
+# Estimate inclusion BFs
+de_integrated_BF_incl <- bayesfactor_inclusion( de_integrated_BF_models, matched = FALSE )
+
+# Print inclusion BFs
+de_integrated_BF_incl
+
+# Output 0.90 alpha posterior intervals: >95% of posterior for all effects except intron meth is below 0
+posterior_interval(
+  DE_brm_int_f11,
+  prob = 0.90,
+  type = "central" )
+
+# Diagnostic plots
+conditional_effects( skew_DE_brm_int_f5 )
+plot( skew_DE_brm_int_f5 )
+pp_check( skew_DE_brm_int_f5 )
+
+#Apply fitted estimates to plot
+p_ATAC_DE_Integr_f <- fitted( skew_DE_brm_int_f5, 
+                        newdata = dm_intron_exon_by_DE_ATAC ) %>%
+  as_tibble() %>%
+  bind_cols( dm_intron_exon_by_DE_ATAC )
+
+#Unscale estimate
+GE_logFC_mean <- mean( p_ATAC_DE_Integr_f$GE_logFC )
+GE_logFC_sd <- sd( p_ATAC_DE_Integr_f$GE_logFC )
+
+p_ATAC_DE_Integr_f$Estimate_corr <- 
+  ( p_ATAC_DE_Integr_f$Estimate * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_f$Q2.5_corr <- 
+  ( p_ATAC_DE_Integr_f$Q2.5 * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_f$Q97.5_corr <- 
+  ( p_ATAC_DE_Integr_f$Q97.5 * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_f$Est.Error_corr <- 
+  ( p_ATAC_DE_Integr_f$Est.Error * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_f <- p_ATAC_DE_Integr_f %>%
+    mutate(quantile = ntile(TSS_dens_norm_Z, 4))
+p_ATAC_DE_Integr_f$peak_density_TSS_quant <- p_ATAC_DE_Integr_f$quantile
+p_ATAC_DE_Integr_f$peak_density_TSS_quant <- ifelse(p_ATAC_DE_Integr_f$peak_density_TSS_quant == '1', 
+                                                    "Low TSS access", ifelse(p_ATAC_DE_Integr_f$peak_density_TSS_quant == '2' | p_ATAC_DE_Integr_f$peak_density_TSS_quant == '3',
+                                                           "Mid TSS access", "High TSS access") )
+p_ATAC_DE_Integr_f$peak_density_TSS_quant = factor(
+  p_ATAC_DE_Integr_f$peak_density_TSS_quant, 
+  levels=c('High TSS access','Mid TSS access','Low TSS access'))
+
+p_ATAC_DE_Integr_f <- p_ATAC_DE_Integr_f %>%
+    mutate(quantile = ntile(GE_logCPM_Z, 4))
+p_ATAC_DE_Integr_f$logCPM_quant <- p_ATAC_DE_Integr_f$quantile
+p_ATAC_DE_Integr_f$logCPM_quant <- ifelse(p_ATAC_DE_Integr_f$logCPM_quant == '1', "Low logCPM",
+                                                    ifelse(p_ATAC_DE_Integr_f$logCPM_quant == '2' |
+                                                             p_ATAC_DE_Integr_f$logCPM_quant == '3',
+                                                           "Mid logCPM", "High logCPM"))
+p_ATAC_DE_Integr_f$logCPM_quant = factor(
+  p_ATAC_DE_Integr_f$logCPM_quant, 
+  levels=c('High logCPM','Mid logCPM','Low logCPM'))
+
+#Plot fitted values and trends over actual data
+ggplot(data = p_ATAC_DE_Integr_f, aes(x = int_meth_logFC_Z)) +
+  geom_hline(yintercept = 0, color = "lightgrey", lty = 2, size = .5) +
+  geom_vline(xintercept = 0, color = "lightgrey", lty = 2, size = .5) +
+  geom_point(alpha = 1, aes(y = GE_logFC),
+                    size = 1.25) +
+  stat_smooth(aes(y = Estimate_corr), method = "lm", se = FALSE, color = "salmon", 
+              alpha = 01, fullrange = TRUE) +
+  stat_smooth(method = "lm", aes(y = GE_logFC), 
+              size = 1, lty = 1, se = FALSE,
+              alpha = 0.25, fullrange = TRUE) +
+  theme_classic(base_size = 15, base_rect_size = 0) +
+  labs(factor = "TSS peaks", y = "GE logFC", x = "Intron DM logFC") +
+  #coord_cartesian(ylim=c(-1.2, 1.2)) +
+  facet_grid(logCPM_quant~peak_density_TSS_quant)
+
+
+```
+
+#Model effect of exon diff meth on diff exp
+
+```{r}
+
+# Read in exon by GE df
+dm_exon_by_DE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/dm_exon_by_DE_ATAC.csv" )
+ex_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ex_meth_by_GE_ATAC.csv")
+
+# Exons only
+dm_exon_by_DE_ATAC <- merge( dm_exon_by_DE_ATAC,
+                                   data.frame( ex_meth = ex_meth_by_GE_ATAC$median,
+                                               geneid = ex_meth_by_GE_ATAC$geneid ),
+                                   by = "geneid")
+
+# Scale values
+dm_exon_by_DE_ATAC$GE_logFC_Z <- scale( dm_exon_by_DE_ATAC$GE_logFC )
+dm_exon_by_DE_ATAC$GE_logCPM_Z <- scale( dm_exon_by_DE_ATAC$GE_logCPM )
+dm_exon_by_DE_ATAC$ex_meth_logFC_Z <- scale( dm_exon_by_DE_ATAC$ex_meth_logFC )
+dm_exon_by_DE_ATAC$ex_meth_Z <- scale( dm_exon_by_DE_ATAC$ex_meth )
+dm_exon_by_DE_ATAC$TSS_dens_norm_Z <- scale( dm_exon_by_DE_ATAC$TSS_dens_norm )
+dm_exon_by_DE_ATAC$exon_dens_norm_Z <- scale( dm_exon_by_DE_ATAC$exon_dens_norm )
+dm_exon_by_DE_ATAC$intron_dens_norm_Z <- scale( dm_exon_by_DE_ATAC$intron_dens_norm )
+dm_exon_by_DE_ATAC$gene_len_Z <- scale( dm_exon_by_DE_ATAC$gene_len )
+dm_exon_by_DE_ATAC$exon_len_Z <- scale( dm_exon_by_DE_ATAC$exon_len )
+dm_exon_by_DE_ATAC$intron_len_Z <- scale( dm_exon_by_DE_ATAC$intron_len )
+
+# Create gene body access variable
+dm_exon_by_DE_ATAC$gene_body_access <-
+  ( dm_exon_by_DE_ATAC$peak_density_Introns +
+             dm_exon_by_DE_ATAC$peak_density_Exons ) / 
+           dm_exon_by_DE_ATAC$gene_len
+
+dm_exon_by_DE_ATAC$gene_body_access[ is.na( dm_exon_by_DE_ATAC$gene_body_access ) ] = 0
+
+dm_exon_by_DE_ATAC$gene_body_access_Z <- scale( dm_exon_by_DE_ATAC$gene_body_access )
+
+# Fit model
+DE_brm_ex_1 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z + 
+                             ex_meth_logFC_Z : ex_meth_Z + ex_meth_logFC_Z : GE_logCPM_Z + GE_logCPM_Z : ex_meth_Z +
+                             ex_meth_logFC_Z : ex_meth_Z : GE_logCPM_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_2 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z + TSS_dens_norm_Z + exon_dens_norm_Z +
+                             ex_meth_logFC_Z : exon_dens_norm_Z +
+                             ex_meth_logFC_Z : ex_meth_Z + exon_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_3 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z + TSS_dens_norm_Z + exon_dens_norm_Z +
+                             ex_meth_logFC_Z : TSS_dens_norm_Z +
+                             ex_meth_logFC_Z : ex_meth_Z + TSS_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_4 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_5 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_6 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_7 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + TSS_dens_norm_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_8 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + gene_body_access_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_9 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + exon_len_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : exon_len_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : exon_len_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_10 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + exon_len_Z + gene_body_access_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : exon_len_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_11 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : exon_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_12 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_13 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : ex_meth_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_ex_14 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z +
+                      ex_meth_logFC_Z : ex_meth_Z +
+                      ex_meth_logFC_Z : GE_logCPM_Z : exon_dens_norm_Z,
+         data = dm_exon_by_DE_ATAC,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+# Model selection w/ Bayes factors: DE_brm_ex_4
+exon_DE_BF_models <- bayesfactor_models( DE_brm_ex_1, DE_brm_ex_2, DE_brm_ex_3, DE_brm_ex_4, DE_brm_ex_5,
+                                         DE_brm_ex_6, DE_brm_ex_7, DE_brm_ex_8, DE_brm_ex_9, DE_brm_ex_11,
+                                         DE_brm_ex_12, DE_brm_ex_13, DE_brm_ex_14,
+                                         denominator = DE_brm_ex_10 )
+
+# 4 or 11?
+bayesfactor_models( DE_brm_ex_4, denominator = DE_brm_ex_11 )
+
+# Print model Bayes factors
+exon_DE_BF_models
+
+# Inclusion Bayes factors
+exon_DE_BF_incl <- bayesfactor_inclusion( exon_DE_BF_models )
+
+# Print inclusion Bayes factors
+exon_DE_BF_incl
+
+# Frequentist iteration of selected model using permutation test
+library( lmPerm )
+
+lmp_int_meth <- lmp( GE_logFC ~ exon_dens_norm + GE_logCPM +
+                      ex_meth_logFC : GE_logCPM,
+                     data = dm_exon_by_DE_ATAC,
+                     perm = "Exact" )
+
+# Posterior interval of selected model
+posterior_interval(
+  DE_brm_ex_4,
+  prob = 0.90,
+  type = "central" )
+
+# Diagnostic plots
+plot( DE_brm_ex_4 )
+conditional_effects( DE_brm_ex_4 )
+pp_check( DE_brm_ex_4 )
+mcmc_pairs( DE_brm_ex_4 )
+plot( loo( DE_brm_ex_4, moment_match = TRUE ) ) # No high leverage observations
+
+# Apply fitted estimates to plot
+p_ATAC_DE_exon_f <- fitted( DE_brm_ex_4, 
+                        newdata = dm_exon_by_DE_ATAC) %>%
+  as_tibble() %>%
+  bind_cols(dm_exon_by_DE_ATAC)
+
+#Unscale estimate
+GE_logFC_mean <- mean(p_ATAC_DE_exon_f$GE_logFC)
+GE_logFC_sd <- sd(p_ATAC_DE_exon_f$GE_logFC)
+
+p_ATAC_DE_exon_f$Estimate_corr <- 
+  (p_ATAC_DE_exon_f$Estimate * GE_logFC_sd) + GE_logFC_mean
+
+p_ATAC_DE_exon_f$Q2.5_corr <- 
+  (p_ATAC_DE_exon_f$Q2.5 * GE_logFC_sd) + GE_logFC_mean
+
+p_ATAC_DE_exon_f$Q97.5_corr <- 
+  (p_ATAC_DE_exon_f$Q97.5 * GE_logFC_sd) + GE_logFC_mean
+
+p_ATAC_DE_exon_f$Est.Error_corr <- 
+  (p_ATAC_DE_exon_f$Est.Error * GE_logFC_sd) + GE_logFC_mean
+
+p_ATAC_DE_exon_f <- p_ATAC_DE_exon_f %>%
+    mutate(quantile = ntile(exon_dens_norm_Z, 4))
+p_ATAC_DE_exon_f$peak_density_exon_quant <- p_ATAC_DE_exon_f$quantile
+p_ATAC_DE_exon_f$peak_density_exon_quant <- ifelse(p_ATAC_DE_exon_f$peak_density_exon_quant == '1', 
+                                                    "Low exon access", ifelse(p_ATAC_DE_exon_f$peak_density_exon_quant == '2' | p_ATAC_DE_exon_f$peak_density_exon_quant == '3',
+                                                           "Mid exon access", "High exon access"))
+p_ATAC_DE_exon_f$peak_density_exon_quant = factor(
+  p_ATAC_DE_exon_f$peak_density_exon_quant, 
+  levels=c('High exon access','Mid exon access','Low exon access'))
+
+p_ATAC_DE_exon_f <- p_ATAC_DE_exon_f %>%
+    mutate(quantile = ntile(GE_logCPM_Z, 4))
+p_ATAC_DE_exon_f$logCPM_quant <- p_ATAC_DE_exon_f$quantile
+p_ATAC_DE_exon_f$logCPM_quant <- ifelse(p_ATAC_DE_exon_f$logCPM_quant == '1', "Low logCPM",
+                                                    ifelse(p_ATAC_DE_exon_f$logCPM_quant == '2' |
+                                                             p_ATAC_DE_exon_f$logCPM_quant == '3',
+                                                           "Mid logCPM", "High logCPM"))
+p_ATAC_DE_exon_f$logCPM_quant = factor(
+  p_ATAC_DE_exon_f$logCPM_quant, 
+  levels=c('High logCPM','Mid logCPM','Low logCPM'))
+
+# Calculate effect strength of intron DM on DE in low logCPM quartile genes + 
+summary( lm( GE_logFC_Z ~ ex_meth_logFC_Z,
+             data = filter( p_ATAC_DE_exon_f, logCPM_quant == "Low logCPM" ) ) )
+
+```
+
+#Model and plot effect of intron diff meth on diff exp
+
+```{r}
+
+# Read in intron meth by GE df
+dm_intron_by_DE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/dm_intron_by_DE_ATAC.csv" )
+int_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_meth_by_GE_ATAC.csv")
+
+# Add average genewise intron methylation variable to df
+dm_intron_by_DE_ATAC <- merge( dm_intron_by_DE_ATAC,
+                                   data.frame( int_meth = int_meth_by_GE_ATAC$median,
+                                               geneid = int_meth_by_GE_ATAC$geneid ),
+                                   by = "geneid")
+
+# Scale values
+dm_intron_by_DE_ATAC$GE_logFC_Z <- scale( dm_intron_by_DE_ATAC$GE_logFC )
+dm_intron_by_DE_ATAC$GE_logCPM_Z <- scale( dm_intron_by_DE_ATAC$GE_logCPM )
+dm_intron_by_DE_ATAC$int_meth_logFC_Z <- scale( dm_intron_by_DE_ATAC$int_meth_logFC )
+dm_intron_by_DE_ATAC$int_meth_Z <- scale( dm_intron_by_DE_ATAC$int_meth )
+dm_intron_by_DE_ATAC$TSS_dens_norm_Z <- scale( dm_intron_by_DE_ATAC$TSS_dens_norm )
+dm_intron_by_DE_ATAC$intron_dens_norm_Z <- scale( dm_intron_by_DE_ATAC$intron_dens_norm )
+dm_intron_by_DE_ATAC$exon_dens_norm_Z <- scale( dm_intron_by_DE_ATAC$intron_dens_norm )
+dm_intron_by_DE_ATAC$gene_len_Z <- scale( dm_intron_by_DE_ATAC$gene_len )
+dm_intron_by_DE_ATAC$intron_len_Z <- scale( dm_intron_by_DE_ATAC$intron_len )
+
+# Create gene body access variable
+dm_intron_by_DE_ATAC$gene_body_access <-
+  ( dm_intron_by_DE_ATAC$peak_density_Introns +
+             dm_intron_by_DE_ATAC$peak_density_Exons ) / 
+           dm_intron_by_DE_ATAC$gene_len
+
+dm_intron_by_DE_ATAC$gene_body_access[ is.na( dm_intron_by_DE_ATAC$gene_body_access ) ] = 0
+
+dm_intron_by_DE_ATAC$gene_body_access_Z <- scale( dm_intron_by_DE_ATAC$gene_body_access )
+
+stDE_BRM_int_0 <- brm( GE_logFC_Z ~ int_meth_logFC_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_1 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_2 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + gene_body_access_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_2a <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_3 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_4 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_5 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z : intron_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_6 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + int_meth_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_7 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_8 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : intron_len_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_9 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_Z : intron_len_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_10 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
+                        int_meth_logFC_Z : GE_logCPM_Z +
+                        GE_logCPM_Z : intron_len_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+# After selecting stDE_BRM_int_7, can we improve upon it by adding more terms?
+stDE_BRM_int_7b <- brm( GE_logFC_Z ~  GE_logCPM_Z + int_meth_Z + TSS_dens_norm_Z + int_meth_logFC_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z + TSS_dens_norm_Z : int_meth_logFC_Z + 
+                      TSS_dens_norm_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_7c <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      intron_len_Z : int_meth_logFC_Z +
+                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+
+stDE_BRM_int_11 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z + gene_body_access_Z + intron_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_12 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_13 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + gene_body_access_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_14 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + intron_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_15 <- brm( GE_logFC_Z ~ int_meth_logFC_Z + int_meth_Z + TSS_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_7null <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+# Frequentist iteration of selected model using permutation test
+library( lmPerm )
+
+lmp_int_meth <- lmp( GE_logFC ~ GE_logCPM + int_meth +
+                      int_meth_logFC : GE_logCPM +
+                      intron_len : int_meth_logFC +
+                      int_meth_logFC : TSS_dens_norm : GE_logCPM,
+                     data = dm_intron_by_DE_ATAC, 
+                     perm = "Exact" )
+
+summary( lmp_int_meth )
+anova( lmp_int_meth )
+plot( lmp_int_meth )
+
+## Hypothesis testing using bayes factor: do additional variables help explain effect of DM on expression?
+
+# Model selection with Bayes factors
+stDE_BRM_int_bf <- bayesfactor_models( stDE_BRM_int_1, stDE_BRM_int_2, stDE_BRM_int_0, stDE_BRM_int_3, 
+                                       stDE_BRM_int_4, stDE_BRM_int_5, stDE_BRM_int_6, stDE_BRM_int_7, 
+                                       stDE_BRM_int_7b, stDE_BRM_int_7c, stDE_BRM_int_11, stDE_BRM_int_12,
+                                       stDE_BRM_int_13, stDE_BRM_int_14, stDE_BRM_int_15,
+                                       denominator = stDE_BRM_int_2a )
+
+# Print models Bayes factors
+stDE_BRM_int_bf
+
+# Top three models selected w/ Bayes factor include interactions between intron methylation and chromatin accessibility
+
+# Bayes factor averaging to test for inclusion of effects: data 3.1x - 3.4x more likely under effect of chromatin access interactions
+stDE_BRM_int_bf_incl <- bayesfactor_inclusion( stDE_BRM_int_bf, match_models = FALSE )
+
+# Print inclusion Bayes factors
+stDE_BRM_int_bf_incl
+
+## Now that model 7 has been selected, add error terms for methylation parameters corresponding to RRBS CpG coverage
+# Read in df of measurement error (gene-level intron CpG coverage)
+int_meth_error <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/genelvl_int_CpG_cov.csv" )
+
+# Merge w/ intron DM x DE df
+dm_intron_by_DE_ATAC_err <- merge( dm_intron_by_DE_ATAC,
+                                   int_meth_error,
+                                   by = "geneid",
+                                   all.x = TRUE )
+
+# Any lost observations? None lost
+nrow( dm_intron_by_DE_ATAC ) - nrow( dm_intron_by_DE_ATAC_err )
+
+# Invert and scale error
+dm_intron_by_DE_ATAC_err$meth_err <- ( 1 / dm_intron_by_DE_ATAC_err$CpG_count )
+dm_intron_by_DE_ATAC_err$exp_meth_err <- exp( 1 / dm_intron_by_DE_ATAC_err$CpG_count )
+
+# Fit model with methylation measurement error
+stDE_BRM_int_7_err <- brm( bf( GE_logFC_Z ~ GE_logCPM_Z + mi( int_meth_Z ) +
+                      mi( int_meth_logFC_Z ) : GE_logCPM_Z +
+                      mi( int_meth_logFC_Z ) : TSS_dens_norm_Z : GE_logCPM_Z ) +
+                      bf( int_meth_Z | mi( meth_err ) ~ 1 ) +
+                      bf( int_meth_logFC_Z | mi( meth_err ) ~ 1 + int_meth_Z ) +
+                      set_rescor( FALSE ),
+         data = dm_intron_by_DE_ATAC_err,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_mevars = TRUE,
+         save_pars = save_pars( all = TRUE ) )
+
+# Export posterior intervals for each effect of stDE_BRM_int_7c
+posterior_interval(
+  stDE_BRM_int_7_err,
+  prob = 0.90,
+  type = "central" )
+
+# Plot mcmc correlations
+int_meth_DE_mcmc_pairs_err
+
+# Diagnostic plots and estimates
+stDE_BRM_int_7_err <- rename_pars( stDE_BRM_int_7_err )
+stDE_BRM_int_7posts <- plot( stDE_BRM_int_7_err,
+                           pars = c( "b_GElogFCZ_GE_logCPM_Z", "bsp_GElogFCZ_miint_meth_Z", 
+                                                "bsp_GElogFCZ_GE_logCPM_Z:miint_meth_logFC_Z",
+                                                "bsp_GElogFCZ_GE_logCPM_Z:miint_meth_logFC_Z:TSS_dens_norm_Z" ) )
+conditional_effects( stDE_BRM_int_7_err )
+pp_check( stDE_BRM_int_7_err ) + xlim( -10, 10 )
+
+#Outlier test: no outliers present. Model is not skewed by outliers.
+DGE_loo <- loo( stDE_BRM_int_7_err,
+                save_psis = TRUE )
+
+# Plot loo estimates of pareto shape k
+plot( DGE_loo )
+
+# Summarize pareto shape k estimates
+DGE_loo
+
+# Plot correlations among model parameters
+int_meth_DE_mcmc_pairs <- mcmc_pairs( stDE_BRM_int_7_err,
+                                      pars = c( "b_GElogFCZ_GE_logCPM_Z", "bsp_GElogFCZ_miint_meth_Z", 
+                                                "bsp_GElogFCZ_GE_logCPM_Z:miint_meth_logFC_Z",
+                                                "bsp_GElogFCZ_GE_logCPM_Z:miint_meth_logFC_Z:TSS_dens_norm_Z" ),
+                                      diag_fun = "dens", 
+                                      off_diag_fun = "hex" )
+
+# Apply fitted estimates to plot
+p_ATAC_DE_Integr_err <- fitted( stDE_BRM_int_7_err,
+                              newdata = dm_intron_by_DE_ATAC_err ) %>%
+  as_tibble() %>%
+  bind_cols( dm_intron_by_DE_ATAC_err )
+
+# Unscale estimate
+GE_logFC_mean <- mean( p_ATAC_DE_Integr_err$GE_logFC )
+GE_logFC_sd <- sd( p_ATAC_DE_Integr_err$GE_logFC )
+
+p_ATAC_DE_Integr_err$Estimate_corr <- 
+  ( p_ATAC_DE_Integr_err$Estimate.GElogFCZ * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_err$Q2.5_corr <- 
+  ( p_ATAC_DE_Integr_err$Q2.5.GElogFCZ * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_err$Q97.5_corr <- 
+  ( p_ATAC_DE_Integr_err$Q97.5.GElogFCZ * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_err$Est.Error_corr <- 
+  ( p_ATAC_DE_Integr_err$Est.Error.GElogFCZ * GE_logFC_sd ) + GE_logFC_mean
+
+p_ATAC_DE_Integr_err <- p_ATAC_DE_Integr_err %>%
+    mutate(quantile = ntile( TSS_dens_norm_Z, 4 ) )
+p_ATAC_DE_Integr_err$peak_density_TSS_quant <- p_ATAC_DE_Integr_err$quantile
+p_ATAC_DE_Integr_err$peak_density_TSS_quant <- ifelse( p_ATAC_DE_Integr_err$peak_density_TSS_quant == '1', 
+                                                     "Low TSS access", ifelse( p_ATAC_DE_Integr_err$peak_density_TSS_quant == '2' | p_ATAC_DE_Integr_err$peak_density_TSS_quant == '3',
+                                                           "Mid TSS access", "High TSS access" ) )
+p_ATAC_DE_Integr_err$peak_density_TSS_quant = factor(
+  p_ATAC_DE_Integr_err$peak_density_TSS_quant, 
+  levels = c( 'High TSS access', 'Mid TSS access', 'Low TSS access' ) )
+
+p_ATAC_DE_Integr_err <- p_ATAC_DE_Integr_err %>%
+    mutate( quantile = ntile( GE_logCPM_Z, 4 ) )
+p_ATAC_DE_Integr_err$logCPM_quant <- p_ATAC_DE_Integr_err$quantile
+p_ATAC_DE_Integr_err$logCPM_quant <- ifelse( p_ATAC_DE_Integr_err$logCPM_quant == '1', "Low logCPM",
+                                                    ifelse( p_ATAC_DE_Integr_err$logCPM_quant == '2' |
+                                                            p_ATAC_DE_Integr_err$logCPM_quant == '3',
+                                                            "Mid logCPM", "High logCPM" ) )
+p_ATAC_DE_Integr_err$logCPM_quant = factor(
+  p_ATAC_DE_Integr_err$logCPM_quant, 
+  levels = c( 'High logCPM', 'Mid logCPM', 'Low logCPM' ) )
+
+p_ATAC_DE_Integr_err <- p_ATAC_DE_Integr_err %>%
+    mutate( quantile = ntile( intron_len_Z, 4))
+p_ATAC_DE_Integr_err$intron_len_quant <- p_ATAC_DE_Integr_err$quantile
+p_ATAC_DE_Integr_err$intron_len_quant <- ifelse(p_ATAC_DE_Integr_err$intron_len_quant == '1', "Short introns",
+                                                    ifelse(p_ATAC_DE_Integr_err$intron_len_quant == '2' |
+                                                             p_ATAC_DE_Integr_err$intron_len_quant == '3',
+                                                           "Mid introns", "Long introns"))
+p_ATAC_DE_Integr_err$intron_len_quant = factor(
+  p_ATAC_DE_Integr_err$intron_len_quant, 
+  levels = c( 'Long introns', 'Mid introns', 'Short introns' ) )
+
+# Bin intron DM and calculate mean logFC per bin +/- CI
+p_ATAC_DE_Integr_err$int_DM_bins <- ( ( .bincode( p_ATAC_DE_Integr_err$int_meth_logFC,
+                                                      c( seq( from = -3,
+                                                              to = 6, by = .75 ) ), 
+                                                      right = TRUE, include.lowest = TRUE ) ) * .75 ) - 3.75
+
+p_ATAC_DE_Integr_sum <- summarySE( measurevar = "GE_logFC",
+                                   groupvars = c( "int_DM_bins", "logCPM_quant", "peak_density_TSS_quant" ),
+                                   data = p_ATAC_DE_Integr_err )
+
+# Rename binned int meth DM variable
+names( p_ATAC_DE_Integr_sum )[ names( p_ATAC_DE_Integr_sum ) == "int_DM_bins" ] <- "int_meth_logFC"
+
+# Plot fitted values and trends over actual data
+Fig_3a <- ggplot( data = p_ATAC_DE_Integr_err, aes( x = int_meth_logFC ) ) +
+  geom_hline( yintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_vline( xintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_point( alpha = .25, aes( y = GE_logFC ),
+                    size = 1.5, color = "darkgrey" ) +
+  stat_smooth( method = "lm", aes (y = GE_logFC ), 
+               size = 1, lty = 1, fill = "skyblue", se = TRUE,
+               alpha = 0.25, fullrange = TRUE ) +
+  geom_errorbar( data = p_ATAC_DE_Integr_sum,
+                 aes( ymin = GE_logFC - se, ymax = GE_logFC + se ),
+                 width = 0, size = .5 ) +
+  geom_point( data = p_ATAC_DE_Integr_sum,
+              aes( y = GE_logFC ),
+              size = 2 ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  labs( factor = "TSS peaks", y = "Differential expression (logFC)", x = "Intron differential methylation (logFC)" ) +
+  coord_cartesian( ylim = c( -1, 1 ), xlim = c( -3, 5 ) ) +
+  facet_grid( logCPM_quant ~ peak_density_TSS_quant )
+
+# Print Fig_3a
+Fig_3a
+
+# Calculate effect strength of intron DM on DE in low logCPM quartile genes 
+summary( lm( GE_logFC_Z ~ int_meth_logFC_Z,
+             data = filter( p_ATAC_DE_Integr_f, logCPM_quant == "Low logCPM" ) ) )
+
+# Calculate effect strength of intron DM on DE in low logCPM low TSS access quartile genes 
+summary( lm( GE_logFC_Z ~ int_meth_logFC_Z,
+             data = filter( p_ATAC_DE_Integr_f, logCPM_quant == "Low logCPM" & 
+                              peak_density_TSS_quant == "Low TSS access" ) ) )
+
+summary( lm( GE_logFC_Z ~ int_meth_logFC_Z,
+             data = filter( p_ATAC_DE_Integr_f, logCPM_quant == "High logCPM" & 
+                              peak_density_TSS_quant == "Low TSS access" ) ) )
+         
+# Compute bridge samples
+stDE_BRM_int_0_bridge_samples <- bridge_sampler( stDE_BRM_int_0 ) 
+stDE_BRM_int_7_bridge_samples <- bridge_sampler( stDE_BRM_int_7 ) 
+stDE_BRM_int_7null_bridge_samples <- bridge_sampler( stDE_BRM_int_7null ) 
+
+# Create df of all posterior evaluations from bridge sampling for plotting log likelihoods of model types
+de_loglik_df <- rbind(
+  data.frame( name = "stDE_BRM_int_0", model = "Methylation only", post_loglik = stDE_BRM_int_0_bridge_samples$q11 ),
+  data.frame( name = "stDE_BRM_int_7", model = "Selected", 
+              post_loglik = stDE_BRM_int_7_bridge_samples$q11 ),
+  data.frame( name = "stDE_BRM_int_7null", model = "Selected - interaction", 
+              post_loglik = stDE_BRM_int_7null_bridge_samples$q11 ) ) 
+
+# Create inclusion Bayes factor for figure 3b
+df_3b <- data.frame( Effect = c( "methylation:\nchromatin:\nexpression",
+                                        "methylation:\nchromatin",
+                                        "methylation:\nexpression",
+                                        "methylation" ),
+                           logBF = c( log( 3.85 ),
+                                      log( 0.001 ),
+                                      log( 11.09 ),
+                                      log( 0.040 ) ) )
+
+# Re-order factors for 3b y axis
+df_3b$Effect = factor(
+  df_3b$Effect, 
+  levels = c( "methylation",
+              "methylation:\nexpression",
+              "methylation:\nchromatin",
+              "methylation:\nchromatin:\nexpression" ) )
+
+# Plot inclusion Bayes factors for 3-way interactions, 2-ways, and singular effects
+Fig_3b <- ggplot( data = df_3b,
+        aes( x = logBF, y = Effect ) ) +
+  geom_rect( mapping = aes( xmin = -Inf, xmax = 0, ymin = -Inf, ymax = Inf ), 
+    alpha = .1,
+    fill = "salmon",
+    inherit.aes = FALSE ) +
+  geom_rect( mapping = aes( xmin = 0, xmax = Inf, ymin = -Inf, ymax = Inf ), 
+    alpha = .1,
+    fill = "skyblue",
+    inherit.aes = FALSE ) +
+  geom_bar( color = "grey", stat = "identity", width = 0.05, lty = 0 ) +
+  geom_point( size = 3.5 ) +
+  geom_vline( xintercept = 0, lty = 1, size = 1, color = "white" ) +
+  theme_classic( base_size = 20 ) +
+  theme( axis.title = element_text( size = 20 ),
+         axis.text = element_text( size = 15 ) ) +
+  labs( x = "log(Bayes factor)", y = "Effect type" )
+
+Fig_3b
+
+# Reorder model type variable for plotting
+de_loglik_df$model = factor(
+  de_loglik_df$model, 
+  levels = c( 'Methylation only', 'Selected - interaction', 'Selected' ) )
+
+# Set variable for splitting x axis of Fig 3C
+de_loglik_df$facet <- ifelse( de_loglik_df$post_loglik < -1876 & 
+                                 de_loglik_df$post_loglik > -1890, "A",
+                               ifelse( de_loglik_df$post_loglik < -1860 & 
+                                 de_loglik_df$post_loglik > -1870, "B", "C" ) )
+
+de_loglik_df2 <- filter( de_loglik_df, facet == "A" | facet == "B" )                    
+
+# Plot log likelihood posterior evaluations
+Fig_3c <- ggplot( data = filter( de_loglik_df2, facet != -Inf &
+                                   facet != Inf ), 
+                  aes( x = post_loglik, group = model, fill = model ) ) +
+  geom_density( alpha = 0.5, lty = 1, size = 1, color = "white" ) +
+  scale_fill_manual( values = c( "grey", "salmon", "skyblue" ) ) +
+  scale_x_continuous( breaks = c( -1890, -1880, -1870, -1860 ) ) +
+  theme_classic( base_size = 20 ) +
+  theme( legend.position = c( .35, .8 ),
+         legend.text = element_text( size = 10 ),
+         legend.title = element_text( size = 12 ),
+         axis.title = element_text( size = 20 ),
+         axis.text = element_text( size = 15 ),
+         strip.background = element_blank(),
+         strip.text = element_blank(),
+         legend.background = element_rect( fill = alpha( 'white', 0 ) ),
+         aspect.ratio = 1.5 ) +
+  labs( y = "Density", x = "log(model posterior)", fill = "Model type" ) +
+  facet_wrap( ~ facet, scale = "free_x" )
+
+# Print Fig_3c
+Fig_3c
+
+# Plot interaction between genic intron length and intron diff meth
+p_ATAC_DE_Integr_sumb <- summarySE( measurevar = "GE_logFC",
+                                   groupvars = c( "int_DM_bins", "intron_len_quant" ),
+                                   data = p_ATAC_DE_Integr_f )
+
+# Rename binned int meth DM variable
+names( p_ATAC_DE_Integr_sumb )[ names( p_ATAC_DE_Integr_sumb ) == "int_DM_bins" ] <- "int_meth_logFC"
+
+# Plot fitted values and trends over actual data
+Fig_3s <- ggplot(data = p_ATAC_DE_Integr_f, aes( x = int_meth_logFC ) ) +
+  geom_hline( yintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_vline( xintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_point( alpha = .25, aes( y = GE_logFC ),
+                    size = 1.5, color = "darkgrey" ) +
+  stat_smooth( method = "lm", aes (y = GE_logFC ), 
+               size = 1, lty = 1, fill = "skyblue", se = TRUE,
+               alpha = 0.25, fullrange = TRUE ) +
+  geom_errorbar( data = p_ATAC_DE_Integr_sumb,
+                 aes( ymin = GE_logFC - se, ymax = GE_logFC + se ),
+                 width = 0, size = .5 ) +
+  geom_point( data = p_ATAC_DE_Integr_sumb,
+              aes( y = GE_logFC ),
+              size = 2 ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  theme( text = element_text( size = 15 ),
+         axis.title = element_text( size = 20 ),
+         axis.text = element_text( size = 15 ) ) +
+  labs( y = "Differential expression (logFC)", x = "Intron differential methylation (logFC)" ) +
+  coord_cartesian( ylim = c( -1, 1 ), xlim = c( -3, 5 ) ) +
+  facet_wrap( ~ intron_len_quant )
+
+# Plot model predictions for Fig 3
+Fig_3c2 <- ggplot( data = p_ATAC_DE_Integr_err, aes( x = int_meth_logFC ) ) +
+  geom_hline( yintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_vline( xintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_errorbar( aes( ymin = Q2.5_corr, 
+                      ymax = Q97.5_corr ),
+                 width = 0, size = .25, color = "black" ) +
+  geom_point( alpha = .1, aes( y = Estimate_corr ),
+                    size = 1, color = "black" ) +
+  stat_smooth( method = "lm", aes (y = Estimate_corr ), 
+               size = .5, lty = 1, fill = "skyblue", se = FALSE,
+               alpha = 0.25, fullrange = TRUE ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  theme( strip.text = element_blank() ) +
+  scale_y_continuous( breaks = c( -0.2, 0.2 ) ) +
+  scale_x_continuous( breaks = c( -2.5, 2.5 ) ) +
+  labs( factor = "TSS peaks", y = "Fitted DE logFC", x = "Observed DM logFC" ) +
+  facet_grid( logCPM_quant ~ peak_density_TSS_quant )
+
+# Print Fig 3c2
+Fig_3c2
+
+# Print Fig 3s
+Fig_3s
+
+# Arrange Fig 3 panel
+Fig_3bc <- ggarrange( Fig_3b, Fig_3c2, 
+                    labels = c( "B", "C" ),
+                    heights = c( 0.45, 0.55 ),
+                    ncol = 1, nrow = 2, align = "v" )
+
+Fig_3 <- ggarrange( Fig_3a, Fig_3bc,
+                    labels = c( "A", "" ),
+                    widths = c( .6, .4 ),
+                    ncol = 2, nrow = 1, align = "h" )
+
+# Export Fig 3 as tiff
+tiff( "Output_figures/Fig_3.tiff", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_3
+
+dev.off()
+
+# Export Fig 3 as png
+png( "Output_figures/Fig_3.png", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_3
+
+dev.off()
+
+# Export Fig_S3 as tiff
+tiff( "Output_figures/Fig_S3.tiff", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_3s
+
+dev.off()
+
+# Export Fig 3 as png
+png( "Output_figures/Fig_S3.png", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_3s
+
+dev.off()
+
+# Export Fig S9 as png
+png( "Output_figures/Fig_S9.png", units = "in", width = 7, 
+      height = 7, 
+      res = 600 )
+
+Fig_S9
+
+dev.off()
+
+# Export Fig S9 as tiff
+png( "Output_figures/Fig_S9.tiff", units = "in", width = 7, 
+      height = 7, 
+      res = 600 )
+
+Fig_S9
+
+dev.off()
+
+# Export Fig S5 as tiff
+png( "Output_figures/Fig_S5.tiff", units = "in", width = 10, 
+      height = 7, 
+      res = 600 )
+
+stDE_BRM_int_7posts
+
+dev.off()
+
+# Export Fig S5 as png
+png( "Output_figures/Fig_S5.png", units = "in", width = 10, 
+      height = 7, 
+      res = 600 )
+
+stDE_BRM_int_7posts
+
+dev.off()
+
+# Export Fig S7 as tiff
+tiff( "Output_figures/Fig_S7.tiff", units = "in", width = 17, 
+      height = 10, 
+      res = 600 )
+
+int_meth_DE_mcmc_pairs
+
+dev.off()
+
+# Export Fig S7 as png
+png( "Output_figures/Fig_S7.png", units = "in", width = 17, 
+      height = 10, 
+      res = 600 )
+
+int_meth_DE_mcmc_pairs
+
+dev.off()
+
+```
+
+#Model and plot effect of exon DM on DEU
+
+```{r}
+
+# Read in df w/ exon DM, DEU, and chromatin accessibility data
+exon_DM_DEU_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/exon_DM_DEU_ATAC.csv" )
+mat_edgeR_GE_table_filt <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv" )
+
+# Fix geneid in mat_edgeR_GE_table_filt
+mat_edgeR_GE_table_filt$X <- gsub( "transcript:", "", mat_edgeR_GE_table_filt$X )
+mat_edgeR_GE_table_filt$X <- gsub( "-tr", "", mat_edgeR_GE_table_filt$X )
+
+
+# Add logCPM variable to df
+exon_DM_DEU_ATAC <- merge( exon_DM_DEU_ATAC,
+                           data.frame( geneid = mat_edgeR_GE_table_filt$X,
+                                       logCPM = mat_edgeR_GE_table_filt$logCPM ),
+                           by = "geneid" )
+
+```
+
+```{r}
+
+# Scale variables 
+exon_DM_DEU_ATAC$exon_coeff_Z <- scale( exon_DM_DEU_ATAC$exon_coeff )
+exon_DM_DEU_ATAC$exon_num_Z <- scale( exon_DM_DEU_ATAC$exon_num )
+exon_DM_DEU_ATAC$exon_DM_logFC_Z <- scale( exon_DM_DEU_ATAC$exon_DM_logFC )
+exon_DM_DEU_ATAC$gene_len_Z <- scale( exon_DM_DEU_ATAC$gene_len )
+exon_DM_DEU_ATAC$exon_len_Z <- scale( exon_DM_DEU_ATAC$exon_len )
+exon_DM_DEU_ATAC$intron_len_Z <- scale( exon_DM_DEU_ATAC$intron_len )
+exon_DM_DEU_ATAC$TSS_dens_norm_Z <- scale( exon_DM_DEU_ATAC$TSS_dens_norm )
+exon_DM_DEU_ATAC$exon_dens_norm_Z <- scale( exon_DM_DEU_ATAC$exon_dens_norm )
+exon_DM_DEU_ATAC$intron_dens_norm_Z <- scale( exon_DM_DEU_ATAC$intron_dens_norm )
+exon_DM_DEU_ATAC$logCPM_Z <- scale( exon_DM_DEU_ATAC$logCPM )
+
+```
+
+```{r}
+# Fit and select models
+stDEU_dm_brm_0 <- brm( exon_coeff_Z ~ exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                          save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_1 <- brm( exon_coeff_Z ~ exon_num_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_2 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_3 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_4 <- brm( exon_coeff_Z ~ exon_num_Z + intron_len_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_5 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_6 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       exon_dens_norm_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_7a <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       logCPM_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                      save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_8 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       intron_dens_norm_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_9 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       exon_len_Z : exon_dens_norm_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_7 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       exon_num_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                          save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10null <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                      save_pars = save_pars( all = TRUE ) )
+
+# Can stDEU_dm_brm_10 be improved upon? Start by removing insignificant effects then add new interactions
+stDEU_dm_brm_10b <- brm( exon_coeff_Z ~ exon_DM_logFC_Z +
+                          exon_DM_logFC_Z : exon_num_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_dens_norm_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                          save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10c <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          intron_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                          save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10d <- brm(  exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : exon_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10e <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          intron_dens_norm_Z : exon_DM_logFC_Z : exon_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10f <- brm( exon_coeff_Z ~ logCPM_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10g <- brm( exon_coeff_Z ~ exon_dens_norm_Z + exon_DM_logFC_Z + intron_len_Z +
+                           exon_dens_norm_Z : exon_DM_logFC_Z + exon_DM_logFC_Z : intron_len_Z +
+                           exon_dens_norm_Z : intron_len_Z,
+                         data = exon_DM_DEU_ATAC,
+                         family = student(),
+                         prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                         cores = 2,
+                         iter = 20000,
+                         save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10h <- brm( exon_coeff_Z ~ exon_dens_norm_Z + exon_DM_logFC_Z + intron_len_Z,
+                         data = exon_DM_DEU_ATAC,
+                         family = student(),
+                         prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                         cores = 2,
+                         iter = 20000,
+                         save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_11 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                      save_pars = save_pars( all = TRUE ) )
+
+# Bayes factor analysis selects DE_brm_int_7 over cntrl w/ BF = 39.81 (strong evidence in support of hypothesis)
+DEU_brm_bf <- bayesfactor_models( stDEU_dm_brm_1, stDEU_dm_brm_2, stDEU_dm_brm_3, stDEU_dm_brm_5, 
+                                  stDEU_dm_brm_6, stDEU_dm_brm_7, stDEU_dm_brm_7a, stDEU_dm_brm_8, 
+                                  stDEU_dm_brm_9, stDEU_dm_brm_10, stDEU_dm_brm_10b, stDEU_dm_brm_10g,
+                                  stDEU_dm_brm_10h, stDEU_dm_brm_11,
+                                  denominator = stDEU_dm_brm_4 ) # Use lowest performing model as denominator
+
+# Print model Bayes factors
+DEU_brm_bf
+
+# Export inclusion Bayes factors: probability of observed data under effect relative to null
+DEU_brm_bf_incl <- bayesfactor_inclusion( DEU_brm_bf, match = FALSE )
+
+# Print inclusion Bayes factors
+DEU_brm_bf_incl
+
+library( tidyposterior )
+
+# Perform loo cross validation on BF selected model, null model, and simple diff meth model
+kfold_deu <- kfold( stDEU_dm_brm_10,stDEU_dm_brm_10null, stDEU_dm_brm_0, 
+                compare = TRUE, K = 10, Ksub = NULL,
+                folds = NULL, group = NULL, exact_loo = NULL, resp = NULL,
+                model_names = NULL, save_fits = FALSE )
+
+# Print loo-cv results
+kfold_deu
+
+## Now that model 10 has been selected, fit model version with error term for exon CpG coverage
+# Read in df of measurement error (gene-level intron CpG coverage)
+ex_meth_error <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/ex_CpG_cov.csv" )
+
+# Merge w/ intron DM x DE df
+exon_DM_DEU_ATAC_err <- merge( exon_DM_DEU_ATAC,
+                                   ex_meth_error,
+                                   by = "exonid",
+                                   all.x = TRUE )
+
+# Any lost observations? None lost
+nrow( exon_DM_DEU_ATAC_err ) - nrow( exon_DM_DEU_ATAC )
+
+# Invert error
+exon_DM_DEU_ATAC_err$meth_err <- ( 1 / exon_DM_DEU_ATAC_err$CpG_count )
+
+
+stDEU_dm_brm_10_err2 <- brm( bf( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          exon_dens_norm_Z : intron_len_Z : mi( exon_DM_logFC_Z ) ) +
+                          bf( exon_DM_logFC_Z | mi( meth_err ) ~ 1 ) + 
+                          set_rescor( FALSE ),
+                          data = exon_DM_DEU_ATAC_err,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                          save_mevars = TRUE,
+                      save_pars = save_pars( all = TRUE ) )
+
+# Compute bridge samples
+stDEU_dm_brm_0_bridge_samples <- bridge_sampler( stDEU_dm_brm_0, log_posterior = log_density ) 
+stDEU_dm_brm_10_bridge_samples <- bridge_sampler( stDEU_dm_brm_10, log_posterior = log_density ) 
+stDEU_dm_brm_10null_bridge_samples <- bridge_sampler( stDEU_dm_brm_10null, log_posterior = log_density ) 
+
+# Create df of all posterior evaluations from bridge sampling for plotting log likelihoods of model types
+loglik_df <- rbind( 
+  data.frame( name = "stDEU_dm_brm_0", model = "Methylation only", 
+              post_loglik = stDEU_dm_brm_0_bridge_samples$q11,
+              prop_log = stDEU_dm_brm_0_bridge_samples$q12 ),
+  data.frame( name = "stDEU_dm_brm_10", model = "Selected", 
+              post_loglik = stDEU_dm_brm_10_bridge_samples$q11,
+              prop_log = stDEU_dm_brm_10_bridge_samples$q12 ),
+  data.frame( name = "stDEU_dm_brm_10null", model = "Selected - interaction", 
+              post_loglik = stDEU_dm_brm_10null_bridge_samples$q11,
+              prop_log = stDEU_dm_brm_10null_bridge_samples$q12 ) )
+
+# Plot inclusion Bayes factors for 3-way interactions, 2-ways, and singular effects
+Fig_4b <- ggplot( data = data.frame( Effect = c( "methylation:\nchromatin:\narchitecture", 
+                                       "methylation:\nchromatin",
+                                       "methylation:\narchitecture", 
+                                       "methylation" ),
+                           logBF = c( log( 46.451 ), 
+                                         log( 0.153 ), 
+                                         log( 0.001 ), 
+                                         log( 0.016 ) ) ),
+        aes( x = logBF, y = Effect ) ) +
+  geom_rect( mapping = aes( xmin = -Inf, xmax = 0, ymin = -Inf, ymax = Inf ), 
+    alpha = .1,
+    fill = "salmon",
+    inherit.aes = FALSE ) +
+  geom_rect( mapping = aes( xmin = 0, xmax = Inf, ymin = -Inf, ymax = Inf ), 
+    alpha = .1,
+    fill = "skyblue",
+    inherit.aes = FALSE ) +
+  geom_bar( color = "grey", stat = "identity", width = 0.05, lty = 0 ) +
+  geom_point( size = 3.5 ) +
+  geom_vline( xintercept = 0, lty = 1, size = 1, color = "white" ) +
+  theme_classic( base_size = 20 ) +
+  theme( axis.title = element_text( size = 20 ),
+         axis.text = element_text( size = 15 ) ) +
+  labs( x = "log(Bayes factor)", y = "Effect type" )
+
+Fig_4b
+
+# Reorder model type variable for plotting
+loglik_df$model = factor(
+  loglik_df$model, 
+  levels = c( 'Methylation only', 'Selected - interaction', 'Selected' ) )
+
+# Plot log likelihood posterior evaluations
+Fig_4c <- ggplot( data = loglik_df, aes( x = post_loglik, group = model, fill = model ) ) +
+  geom_density( alpha = 0.5, lty = 1, size = 1, color = "white" ) +
+  scale_fill_manual( values = c( "grey", "salmon", "skyblue" ) ) +
+  #scale_x_continuous( lim = c( -2462.5, -2445 ),
+                      #breaks = c( -2465, -2460, -2455, -2450 ) ) +
+  theme_classic( base_size = 20 ) +
+  theme( legend.position = c( .35, .8 ),
+         legend.text = element_text( size = 10 ),
+         legend.title = element_text( size = 12 ),
+         axis.title = element_text( size = 20 ),
+         axis.text = element_text( size = 15 ),
+         legend.background = element_rect( fill = alpha( 'white', 0 ) ) ) +
+  labs( y = "Density", x = "log(model posterior)", fill = "Model type" )
+
+# Print Fig 4C
+Fig_4c
+
+```
+
+```{r}
+# Output posterior intervals
+posterior_interval(
+  stDEU_dm_brm_10,
+  prob = 0.90,
+  type = "central" )
+
+# Diagnostic plots and estimates
+DEU_brm_posts <- plot( stDEU_dm_brm_10_err2,
+                       pars = c( "b_exoncoeffZ_exon_num_Z", "b_exoncoeffZ_logCPM_Z", "b_exoncoeffZ_exon_len_Z",
+                                 "bsp_exoncoeffZ_exon_dens_norm_Z:intron_len_Z:miexon_DM_logFC_Z" ) )
+conditional_effects( stDEU_dm_brm_10_err2 )
+pp_check( stDEU_dm_brm_10_err2,  resp = "exoncoeffZ" ) + xlim(  -5, 5 )
+ex_meth_DEU_mcmc_pairs <- mcmc_pairs( stDEU_dm_brm_10_err2,
+                                      pars = c( "b_exoncoeffZ_exon_num_Z", "b_exoncoeffZ_logCPM_Z",
+                                                "b_exoncoeffZ_exon_len_Z",
+                                                "bsp_exoncoeffZ_exon_dens_norm_Z:intron_len_Z:miexon_DM_logFC_Z" ),
+                                      diag_fun = "dens", 
+                                      off_diag_fun = "hex" )
+# Print MCMC pairs
+ex_meth_DEU_mcmc_pairs
+
+# Outlier test: no outliers detected. Model is not skewed by presence of outliers.
+DEU_loo <- loo( stDEU_dm_brm_10_err2,
+                save_psis = TRUE )
+plot( DEU_loo )
+
+# Print pareto k estimate
+DEU_loo
+
+# Apply fitted estimates to plot
+p_ATAC_DE_DEU_f <- fitted( stDEU_dm_brm_10_err2,
+                           newdata = exon_DM_DEU_ATAC_err ) %>%
+  as_tibble() %>%
+  bind_cols( exon_DM_DEU_ATAC_err )
+
+# Unscale estimate
+exon_coeff_mean <- mean( p_ATAC_DE_DEU_f$exon_coeff )
+exon_coeff_sd <- sd( p_ATAC_DE_DEU_f$exon_coeff )
+
+p_ATAC_DE_DEU_f$Estimate_corr <- 
+  ( p_ATAC_DE_DEU_f$Estimate.exoncoeffZ * exon_coeff_sd ) + exon_coeff_mean
+
+p_ATAC_DE_DEU_f$Q2.5_corr <- 
+  ( p_ATAC_DE_DEU_f$Q2.5.exoncoeffZ * exon_coeff_sd ) + exon_coeff_mean
+
+p_ATAC_DE_DEU_f$Q97.5_corr <- 
+  ( p_ATAC_DE_DEU_f$Q97.5.exoncoeffZ * exon_coeff_sd ) + exon_coeff_mean
+
+p_ATAC_DE_DEU_f$Est.Error_corr <- 
+  ( p_ATAC_DE_DEU_f$Est.Error.exoncoeffZ * exon_coeff_sd ) + exon_coeff_mean
+
+p_ATAC_DE_DEU_f <- p_ATAC_DE_DEU_f %>%
+    mutate( quantile = ntile( exon_dens_norm_Z, 5 ) )
+p_ATAC_DE_DEU_f$peak_density_exon_quant <- p_ATAC_DE_DEU_f$quantile
+p_ATAC_DE_DEU_f$peak_density_exon_quant <- ifelse(p_ATAC_DE_DEU_f$peak_density_exon_quant == '1', 
+                                                    "Low exon access", ifelse( p_ATAC_DE_DEU_f$peak_density_exon_quant == '5',
+                                                                               "High exon access", "Mid exon access" ) )
+
+p_ATAC_DE_DEU_f$peak_density_exon_quant = factor(
+  p_ATAC_DE_DEU_f$peak_density_exon_quant, 
+  levels = c( 'High exon access', 'Mid exon access', 'Low exon access' ) )
+
+p_ATAC_DE_DEU_f <- p_ATAC_DE_DEU_f %>%
+    mutate(quantile = ntile( intron_len_Z, 5 ) )
+p_ATAC_DE_DEU_f$intron_len_quant <- p_ATAC_DE_DEU_f$quantile
+p_ATAC_DE_DEU_f$intron_len_quant <- ifelse( p_ATAC_DE_DEU_f$intron_len_quant == '1', "Short introns",
+                                                    ifelse( p_ATAC_DE_DEU_f$intron_len_quant == '5',
+                                                            "Long introns", "Mid introns"))
+p_ATAC_DE_DEU_f$intron_len_quant = factor(
+  p_ATAC_DE_DEU_f$intron_len_quant, 
+  levels = c( 'Long introns', 'Mid introns', 'Short introns' ) )
+
+# Bin intron DM and calculate mean logFC per bin +/- CI
+p_ATAC_DE_DEU_f$ex_DM_bins <- ( ( .bincode( p_ATAC_DE_DEU_f$exon_DM_logFC,
+                                                      c( seq( from = -8,
+                                                              to = 8, by = 1.5 ) ), 
+                                                      right = TRUE, include.lowest = TRUE ) ) * 1.5 ) - 8.5
+
+p_ATAC_DE_DEU_f_sum <- summarySE( measurevar = "exon_coeff",
+                                   groupvars = c( "ex_DM_bins", "intron_len_quant", "peak_density_exon_quant" ),
+                                   data = p_ATAC_DE_DEU_f )
+
+# Rename binned int meth DM variable
+names( p_ATAC_DE_DEU_f_sum )[ names( p_ATAC_DE_DEU_f_sum ) == "ex_DM_bins" ] <- "exon_DM_logFC"
+
+# Create variable for filtering quantiles with low representation
+p_ATAC_DE_DEU_f$filt_var <- paste( p_ATAC_DE_DEU_f$intron_len_quant,
+                                   p_ATAC_DE_DEU_f$peak_density_exon_quant,
+                                   sep = "_" )
+
+# Plot fitted values and trends over actual data
+Fig_4a <- ggplot( data = p_ATAC_DE_DEU_f,
+                 aes( x = exon_DM_logFC ) ) +
+  geom_hline( yintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_vline( xintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_point( alpha = .25, aes( y = exon_coeff ),
+                    size = 1.5, color = "darkgrey" ) +
+  stat_smooth( data = filter( p_ATAC_DE_DEU_f, filt_var != "Short introns_High exon access" ),
+               method = "lm", aes ( y = exon_coeff ), 
+               size = 1, lty = 1, fill = "skyblue", se = TRUE,
+               alpha = 0.25, fullrange = TRUE ) +
+  geom_errorbar( data = p_ATAC_DE_DEU_f_sum,
+                 aes( ymin = exon_coeff - se, ymax = exon_coeff + se ),
+                 width = 0, size = .5 ) +
+  geom_point( data = p_ATAC_DE_DEU_f_sum,
+              aes( y = exon_coeff ),
+              size = 2 ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  theme( axis.title = element_text( size = 20 ),
+         axis.text = element_text( size = 15 ) ) +
+  labs( factor = "Exon peaks", y = "Differential exon use (ΔlogFC)", x = "Exon differential methylation (logFC)" ) +
+  coord_cartesian( ylim = c( -2, 1.5 ) ) +
+  facet_grid( intron_len_quant ~ peak_density_exon_quant )
+
+# Calculate effect strength of intron DM on DE in low logCPM low TSS access quartile genes 
+summary( lm( exon_coeff_Z ~ exon_DM_logFC_Z,
+             data = filter( p_ATAC_DE_DEU_f, peak_density_exon_quant == "Low exon access" & 
+                              intron_len_quant == "Long introns" ) ) )
+
+summary( lm( exon_coeff_Z ~ exon_DM_logFC_Z,
+             data = filter( p_ATAC_DE_DEU_f, peak_density_exon_quant == "High exon access" & 
+                              intron_len_quant == "Long introns" ) ) )
+
+# Create filtering variable
+p_ATAC_DE_DEU_f$filt_var <- paste( p_ATAC_DE_DEU_f$intron_len_quant,
+                                   p_ATAC_DE_DEU_f$peak_density_exon_quant,
+                                   sep = "_" )
+
+# Print Fig 4c2
+Fig_4c2 <- ggplot( data = p_ATAC_DE_DEU_f, aes( x = exon_DM_logFC ) ) +
+  geom_hline( yintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_vline( xintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_errorbar( aes( ymin = Q2.5_corr, 
+                      ymax = Q97.5_corr ),
+                 width = 0, size = .25, color = "black" ) +
+  geom_point( alpha = .1, aes( y = Estimate_corr ),
+                    size = 1, color = "black" ) +
+  stat_smooth( data = filter( p_ATAC_DE_DEU_f, filt_var != "Short introns_High exon access" ),
+               method = "lm", aes (y = Estimate_corr ), 
+               size = .5, lty = 1, fill = "skyblue", se = FALSE,
+               alpha = 0.25, fullrange = TRUE ) +
+  theme_classic( base_size = 19, base_rect_size = 0 ) +
+  theme( strip.text = element_blank() ) +
+  scale_y_continuous( breaks = c( -0.25, 0.25 ) ) +
+  labs( y = "Fitted DEU ΔlogFC", x = "Observed DM logFC" ) +
+  facet_grid( intron_len_quant ~ peak_density_exon_quant )
+
+# Print Fig_4c2
+Fig_4c2
+
+Fig_S15 <- ggplot( data = p_ATAC_DE_DEU_f, aes( x = exon_DM_logFC ) ) +
+  geom_hline( yintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_vline( xintercept = 0, color = "lightgrey", lty = 2, size = .5 ) +
+  geom_errorbar( aes( ymin = Q2.5_corr, 
+                      ymax = Q97.5_corr ),
+                 width = 0, size = .25, color = "black" ) +
+  geom_point( alpha = .1, aes( y = Estimate_corr ),
+                    size = 1.5, color = "black" ) +
+  stat_smooth( data = filter( p_ATAC_DE_DEU_f, filt_var != "Short introns_High exon access" ),
+               method = "lm", aes (y = Estimate_corr ), 
+               size = .5, lty = 1, fill = "skyblue", se = FALSE,
+               alpha = 0.25, fullrange = TRUE ) +
+  theme_classic( base_size = 20, base_rect_size = 0 ) +
+  labs( y = "Differential exon use (ΔlogFC)", x = "Exon differential methylation (logFC)" ) +
+  facet_grid( intron_len_quant ~ peak_density_exon_quant )
+
+# Print Fig_S15
+Fig_S15
+
+# Print Fig_4a
+Fig_4a
+
+# Arrange Fig 4 panel
+Fig_4bc <- ggarrange( Fig_4b, Fig_4c2,
+                      labels = c( "B", "C" ),
+                      heights = c( 0.45, 0.55 ),
+                      ncol = 1, nrow = 2, align = "v" )
+
+Fig_4 <- ggarrange( Fig_4a, Fig_4bc,
+                    labels = c( "A", "" ),
+                    widths = c( .6, .4 ),
+                    ncol = 2, nrow = 1, align = "h" )
+
+# Export Fig 4 as tiff
+tiff( "Output_figures/Fig_4.tiff", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_4
+
+dev.off()
+
+# Export Fig 4 as png
+png( "Output_figures/Fig_4.png", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_4
+
+dev.off()
+
+# Export Fig S10 as tiff
+tiff( "Output_figures/Fig_S10.tiff", units = "in", width = 10, 
+      height = 8, 
+      res = 600 )
+
+DEU_brm_posts
+
+dev.off()
+
+# Export Fig S10 as png
+png( "Output_figures/Fig_S10.png", units = "in", width = 10, 
+      height = 8, 
+      res = 600 )
+
+DEU_brm_posts
+
+dev.off()
+
+# Export Fig S12 as tiff
+tiff( "Output_figures/Fig_S12.tiff", units = "in", width = 14, 
+      height = 10, 
+      res = 600 )
+
+ex_meth_DEU_mcmc_pairs
+
+dev.off()
+
+# Export Fig S12 as png
+png( "Output_figures/Fig_S12.png", units = "in", width = 14, 
+      height = 10, 
+      res = 600 )
+
+ex_meth_DEU_mcmc_pairs
+
+dev.off()
+
+# Export Fig S15 as tiff
+tiff( "Output_figures/Fig_S15.tiff", units = "in", width = 7, 
+      height = 7, 
+      res = 600 )
+
+Fig_S15
+
+dev.off()
+
+# Export Fig S15 as png
+png( "Output_figures/Fig_S15.png", units = "in", width = 7, 
+      height = 7, 
+      res = 600 )
+
+Fig_S15
+
+dev.off()
+
+```
+
+Analysis of exon-level methylation and accessibility
+
+```{r}
+
+# Read in exon-level meth x accessibility data
+exon_lvl_meth_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/exon_lvl_meth_ATAC.csv" )
+
+# Create exon number variable
+exon_lvl_meth_ATAC$exon_num <- as.numeric( gsub( ".*-E",
+                                                 "",
+                                                 exon_lvl_meth_ATAC$exonid ) )
+
+# Plot exon access across methylation
+ggplot( data = exon_lvl_meth_ATAC,
+        aes( x = median, y = peak_dens_norm_ind_exon ) ) +
+  geom_point( alpha = 0.25 ) +
+  geom_smooth( method = "lm", se = TRUE )
+
+# Normalize exon-level accessibility and methylation
+exon_lvl_meth_ATAC$exon_lvl_access_w <- exon_lvl_meth_ATAC$peak_density_ind_exons + 1
+exon_lvl_meth_ATAC$exon_lvl_access_Z <- scale( exon_lvl_meth_ATAC$peak_density_ind_exons )
+exon_lvl_meth_ATAC$exon_lvl_meth_Z <- scale( exon_lvl_meth_ATAC$median )
+exon_lvl_meth_ATAC$exon_num_Z <- scale( exon_lvl_meth_ATAC$exon_num )
+exon_lvl_meth_ATAC$exon_len_Z <- scale( exon_lvl_meth_ATAC$exon_length )
+
+# Fit Bayesian weibull model
+exon_lvl_access_meth_brm1 <- brm( exon_lvl_access_w ~ 1 + exon_lvl_meth_Z + exon_num_Z +
+                          exon_len_Z,
+                          data = exon_lvl_meth_ATAC,
+                          family = weibull(),
+                          prior = c( prior( normal( 0, 10 ), class = Intercept ), # Set negligibly informative priors
+                                     prior( normal( 0, 10 ), class = b ) ), # Set negligibly informative priors
+                          cores = 2,
+                          iter = 20000 )
+
+exon_lvl_access_meth_brm2 <- brm( exon_lvl_access_w ~ 1 + exon_lvl_meth_Z + exon_num_Z + exon_len_Z +
+                                    exon_lvl_meth_Z:exon_len_Z,
+                          data = exon_lvl_meth_ATAC,
+                          family = weibull(),
+                          prior = c( prior( normal( 0, 10 ), class = Intercept ), # Set negligibly informative priors
+                                     prior( normal( 0, 10 ), class = b ) ), # Set negligibly informative priors
+                          cores = 2,
+                          iter = 20000 )
+
+exon_lvl_access_meth_brm3 <- brm( exon_lvl_access_w ~ 1 + exon_lvl_meth_Z + exon_num_Z + exon_len_Z +
+                                    exon_lvl_meth_Z:exon_num_Z,
+                          data = exon_lvl_meth_ATAC,
+                          family = weibull(),
+                          prior = c( prior( normal( 0, 10 ), class = Intercept ), # Set negligibly informative priors
+                                     prior( normal( 0, 10 ), class = b ) ), # Set negligibly informative priors
+                          cores = 2,
+                          iter = 20000 )
+
+exon_lvl_access_meth_brm4 <- brm( exon_lvl_access_w ~ 1 + exon_lvl_meth_Z + exon_num_Z + exon_len_Z +
+                                    exon_len_Z:exon_num_Z,
+                          data = exon_lvl_meth_ATAC,
+                          family = weibull(),
+                          prior = c( prior( normal( 0, 10 ), class = Intercept ), # Set negligibly informative priors
+                                     prior( normal( 0, 10 ), class = b ) ), # Set negligibly informative priors
+                          cores = 2,
+                          iter = 20000 )
+
+exon_lvl_access_meth_brm5 <- brm( exon_lvl_access_w ~ 1 + exon_lvl_meth_Z + exon_num_Z + exon_len_Z +
+                                    exon_len_Z : exon_num_Z +
+                                    exon_len_Z : exon_num_Z : exon_lvl_meth_Z,
+                          data = exon_lvl_meth_ATAC,
+                          family = weibull(),
+                          prior = c( prior( normal( 0, 10 ), class = Intercept ), # Set negligibly informative priors
+                                     prior( normal( 0, 10 ), class = b ) ), # Set negligibly informative priors
+                          cores = 2,
+                          iter = 20000 )
+
+# Model selection: exon_lvl_access_meth_brm5 is top performing model
+waic( exon_lvl_access_meth_brm1,
+      exon_lvl_access_meth_brm2,
+      exon_lvl_access_meth_brm3,
+      exon_lvl_access_meth_brm4,
+      exon_lvl_access_meth_brm5,
+      cores = 2,
+      pointwise = TRUE )
+
+# Remove unselected models from environment
+rm( exon_lvl_access_meth_brm1,
+    exon_lvl_access_meth_brm2,
+    exon_lvl_access_meth_brm3,
+    exon_lvl_access_meth_brm4 )
+
+# Plot outliers
+loo1 <- loo( exon_lvl_access_meth_brm5, 
+             save_psis = TRUE,
+             pointwise = TRUE,
+             cores = 2 )
+
+# 1/4941 observations exhibited 'ok' leverage: model fit is sufficiently unaffected by outliers
+
+# Plot 'ok' outlier
+plot( loo1 )
+
+# Diagnostic plots
+plot( exon_lvl_access_meth_brm1 )
+conditional_effects( exon_lvl_access_meth_brm4 )
+pp_check( exon_lvl_access_meth_brm1 ) + lims( x = c( 0, 100 ) )
+
+# Posterior intervals
+posterior_interval(
+  exon_lvl_access_meth_brm5,
+  prob = 0.9,
+  type = "central" )
+
+# Output model prediction
+# Apply fitted estimates to plot
+p_exon_lvl_access_meth <- fitted( exon_lvl_access_meth_brm5,
+                           newdata = exon_lvl_meth_ATAC) %>%
+  as_tibble() %>%
+  bind_cols( exon_lvl_meth_ATAC )
+
+# Plot interaction
+p_exon_lvl_access_meth <- p_exon_lvl_access_meth %>%
+    mutate( quantile = ntile( exon_num_Z, 4 ) )
+p_exon_lvl_access_meth$exon_num_quant <- p_exon_lvl_access_meth$quantile
+p_exon_lvl_access_meth$exon_num_quant <- ifelse( p_exon_lvl_access_meth$exon_num_quant == '1', 
+                                                    "5' exons", ifelse( p_exon_lvl_access_meth$exon_num_quant == '4',
+                                                                               "3' exons", "Mid exons" ) )
+
+p_exon_lvl_access_meth$exon_num_quant = factor(
+  p_exon_lvl_access_meth$exon_num_quant, 
+  levels = c( "5' exons", "Mid exons", "3' exons" ) )
+
+p_exon_lvl_access_meth <- p_exon_lvl_access_meth %>%
+    mutate(quantile = ntile( exon_len_Z, 4 ) )
+p_exon_lvl_access_meth$exon_len_quant <- p_exon_lvl_access_meth$quantile
+p_exon_lvl_access_meth$exon_len_quant <- ifelse( p_exon_lvl_access_meth$exon_len_quant == '1', "Short exons",
+                                                    ifelse( p_exon_lvl_access_meth$exon_len_quant == '4',
+                                                            "Long exons", "Mid exons"))
+p_exon_lvl_access_meth$exon_len_quant = factor(
+  p_exon_lvl_access_meth$exon_len_quant, 
+  levels = c( 'Long exons', 'Mid exons', 'Short exons' ) )
+
+# Plot interaction between between exon meth, exon number, and exon length: 
+# long 3' exons show stronger correlation between accessibility and methylation
+ggplot( data = p_exon_lvl_access_meth,
+        aes( y = Estimate, x = exon_lvl_meth_Z ) ) +
+  geom_point() +
+  geom_smooth( method = "lm",
+               se = TRUE ) +
+  theme_classic( base_rect_size = 0 ) +
+  facet_grid( exon_len_quant ~ exon_num_quant ) +
+  ylim( 15, 400 )
+
+```
+
+#Gene body diff meth model selection
+
+Genebody-level differential methylation bears insignificant effect on differential expression
+
+```{r}
+
+# Read in genebody-level diff meth data integrated w/ GE and ATAC
+gb_DM_by_GE_ATAC_df <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/gb_DM_by_GE_ATAC_df.csv" )
+
+# Create normalized genebody access variable
+dm_intron_by_DE_ATAC_gb$genebody_access <- ( dm_intron_by_DE_ATAC_gb$peak_density_Introns +
+                                           dm_intron_by_DE_ATAC_gb$peak_density_Exons ) / dm_intron_by_DE_ATAC_gb$gene_len
+dm_intron_by_DE_ATAC_gb$genebody_access[ is.na( dm_intron_by_DE_ATAC_gb$genebody_access ) ] <- 0
+
+# Scale data to improve model runtime and convergence
+gb_DM_by_GE_ATAC_df$gb_DM_logFC_Z <- scale( gb_DM_by_GE_ATAC_df$gb_DM_logFC )
+gb_DM_by_GE_ATAC_df$GE_logFC_Z <- scale( gb_DM_by_GE_ATAC_df$logFC )
+gb_DM_by_GE_ATAC_df$GE_logCPM_Z <- scale( gb_DM_by_GE_ATAC_df$logCPM )
+gb_DM_by_GE_ATAC_df$TSS_dens_norm_Z <- scale( gb_DM_by_GE_ATAC_df$TSS_dens_norm )
+gb_DM_by_GE_ATAC_df$intron_dens_norm_Z <- scale( gb_DM_by_GE_ATAC_df$intron_dens_norm )
+gb_DM_by_GE_ATAC_df$exon_dens_norm_Z <- scale( gb_DM_by_GE_ATAC_df$exon_dens_norm )
+dm_intron_by_DE_ATAC_gb$genebody_access_Z <- scale( dm_intron_by_DE_ATAC_gb$genebody_access )
+gb_DM_by_GE_ATAC_df$gene_len_Z <- scale( gb_DM_by_GE_ATAC_df$gene_len )
+gb_DM_by_GE_ATAC_df$intron_len_Z <- scale( gb_DM_by_GE_ATAC_df$intron_len )
+gb_DM_by_GE_ATAC_df$exon_len_Z <- scale( gb_DM_by_GE_ATAC_df$exon_len )
+
+# Create control model for more direct comparison to 7c
+DE_brm_gb1 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb2 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + genebody_access_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb3 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + GE_logCPM_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb4 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + TSS_dens_norm_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb5 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + gene_len_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb6 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
+                     gb_DM_logFC_Z : GE_logCPM_Z +
+                     gb_DM_logFC_Z : genebody_access_Z : GE_logCPM_Z ,
+         data = dm_intron_by_DE_ATAC_gb,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .05 ), class = Intercept ), 
+         prior( normal( 0, .05 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb7 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
+                     gb_DM_logFC_Z : GE_logCPM_Z +
+                     gb_DM_logFC_Z : intron_dens_norm_Z : GE_logCPM_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb8 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
+                     gb_DM_logFC_Z : GE_logCPM_Z +
+                     gb_DM_logFC_Z : exon_dens_norm_Z : GE_logCPM_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb9 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
+                     gb_DM_logFC_Z : GE_logCPM_Z +
+                     GE_logCPM_Z : TSS_dens_norm_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb10 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
+                     gb_DM_logFC_Z : GE_logCPM_Z +
+                     gb_DM_logFC_Z : TSS_dens_norm_Z : gene_len_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+DE_brm_gb11 <- brm(  GE_logFC_Z ~ GE_logCPM_Z +
+                     gb_DM_logFC_Z : GE_logCPM_Z +
+                     gb_DM_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = gb_DM_by_GE_ATAC_df,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+# Model selection w/ waic: DE_brm_gb6
+waic( DE_brm_gb1, DE_brm_gb2, DE_brm_gb3, DE_brm_gb4, DE_brm_gb5,
+      DE_brm_gb6, DE_brm_gb7, DE_brm_gb8, DE_brm_gb9, DE_brm_gb10,
+      cores = 2 )
+
+# Model selection w/ loo: DE_brm_gb6
+loo_gb1 <- loo( DE_brm_gb1, cores = 2 )
+loo_gb2 <- loo( DE_brm_gb2, cores = 2 )
+loo_gb3 <- loo( DE_brm_gb3, cores = 2 )
+loo_gb4 <- loo( DE_brm_gb4, cores = 2 )
+loo_gb5 <- loo( DE_brm_gb5, cores = 2 )
+loo_gb6 <- loo( DE_brm_gb6, cores = 2 )
+loo_gb7 <- loo( DE_brm_gb7, cores = 2 )
+loo_gb8 <- loo( DE_brm_gb8, cores = 2 )
+loo_gb9 <- loo( DE_brm_gb9, cores = 2 )
+loo_gb10 <- loo( DE_brm_gb10, cores = 2 )
+
+loo_compare( x = list( loo_gb1, loo_gb2, loo_gb3, loo_gb4, loo_gb5,
+                       loo_gb6, loo_gb7, loo_gb8, loo_gb9, loo_gb10 ) )
+
+# Export posterior intervals for each effect of DE_brm_int_7c
+posterior_interval(
+  DE_brm_gb9,
+  prob = 0.9,
+  type = "central" )
+
+# Diagnostic plots
+plot( DE_brm_gb3 )
+conditional_effects( DE_brm_gb3 )
+pp_check( DE_brm_gb3 )
+plot( loo( DE_brm_gb3 ) )
+
+# Second best performing model contains chromatin accessibility variables: perform hyp test w/ Bayes factor against selected model
+bayes_factor( DE_brm_gb9, DE_brm_gb3 ) # No support for hypothesis using genebody-level diff meth data
+
+DE_brm_int_cntrl <- brm( GE_logFC_Z ~ gb_DM_logFC_Z,
+         data = dm_intron_by_DE_ATAC_gb,
+         family = gaussian(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 40000,
+         chains = 8,
+         cores = 2,
+         save_pars = save_pars( all = TRUE ) )
+
+gb6_bf <- bayesfactor_parameters( DE_brm_gb6, null = 0 )
+gb6_bf
+plot( gb6_bf )
+
+```
+
+#Prepare data for Fisher's exact tests and Mann Whitney U tests (GOMWU) of GO enrichment
+
+```{r}
+
+## DE of genes with poorly accessibile TSS and low expression were most positively correlated w/ intron DM. What are these genes?
+# Read in GE by ATAC-seq data 
+ATAC_dens_by_GE <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ATAC_dens_by_GE.csv" )
+
+# Break df of expression and TSS access into four quantiles for each variable
+ATAC_dens_by_GE <- ATAC_dens_by_GE %>%
+    mutate( quantile = ntile( TSS_dens_norm, 4 ) )
+ATAC_dens_by_GE$peak_density_TSS_quant <- ATAC_dens_by_GE$quantile
+ATAC_dens_by_GE$peak_density_TSS_quant <- ifelse( ATAC_dens_by_GE$peak_density_TSS_quant == 1,
+                                                  "Low TSS access", 
+                                                  ifelse( ATAC_dens_by_GE$peak_density_TSS_quant == 2 |
+                                                            ATAC_dens_by_GE$peak_density_TSS_quant == 3,
+                                                          "Mid TSS access", "High TSS access" ) )
+
+ATAC_dens_by_GE <- ATAC_dens_by_GE %>%
+    mutate( quantile = ntile( logCPM, 4 ) )
+ATAC_dens_by_GE$logCPM_quant <- ATAC_dens_by_GE$quantile
+ATAC_dens_by_GE$logCPM_quant <- ifelse( ATAC_dens_by_GE$logCPM_quant == 1,
+                                                  "Low expression", 
+                                                  ifelse( ATAC_dens_by_GE$logCPM_quant == 2 |
+                                                            ATAC_dens_by_GE$logCPM_quant == 3,
+                                                          "Mid expression", "High expression" ) )
+
+# Merge logCPM and TSS access quantile terms
+ATAC_dens_by_GE$TSS_logCPM_quants <- paste( ATAC_dens_by_GE$logCPM_quant,
+                                            ATAC_dens_by_GE$peak_density_TSS_quant,
+                                            sep = "_" )
+
+# Create df of geneIDs with binary variable attributing low logCPM and low TSS access
+ATAC_dens_by_GE$TSS_logCPM_quants_binom <- ifelse( ATAC_dens_by_GE$TSS_logCPM_quants == "Low expression_Low TSS access", "1", "0" )
+TSS_logCPM_GOMWU_df <- data.frame( geneid = ATAC_dens_by_GE$geneid,
+                                   binom = ATAC_dens_by_GE$TSS_logCPM_quants_binom )
+
+# Export to GOMWU master directory: note - .csv file needs to be resaved in Excel before use in GOMWU script below 
+write.csv( TSS_logCPM_GOMWU_df, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/TSS_logCPM_GOMWU_df.csv", 
+           row.names = FALSE )
+
+# Create df of geneIDs with binary variable attributing high logCPM and low TSS access
+ATAC_dens_by_GE$TSS_logCPM_quants_binom2 <- ifelse( ATAC_dens_by_GE$TSS_logCPM_quants == "High expression_Low TSS access", "1", "0" )
+TSS_logCPM_GOMWU_df2 <- data.frame( geneid = ATAC_dens_by_GE$geneid,
+                                    binom = ATAC_dens_by_GE$TSS_logCPM_quants_binom2 )
+
+# Export to GOMWU master directory: note - .csv file needs to be resaved in Excel before use in GOMWU script below 
+write.csv( TSS_logCPM_GOMWU_df2, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/TSS_logCPM_GOMWU_df2.csv", 
+           row.names = FALSE )
+
+## Splicing of long genes w/ accessible exons was most associated wth exon DM. What are these genes?
+# Read in full ATAC-seq summary df 
+ATAC_df <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/peaks_summary_all_corr.csv" )
+
+# Break df of expression and TSS access into four quantiles for each variable
+ATAC_df <- ATAC_df %>%
+    mutate( quantile = ntile( exon_dens_norm, 4 ) )
+ATAC_df$peak_density_exon_quant <- ATAC_df$quantile
+ATAC_df$peak_density_exon_quant <- ifelse( ATAC_df$peak_density_exon_quant == 1,
+                                           "Low exon access",
+                                          ifelse( ATAC_df$peak_density_exon_quant == 2 |
+                                                    ATAC_df$peak_density_exon_quant == 3,
+                                                  "Mid exon access", "High exon access" ) )
+
+ATAC_df <- ATAC_df %>%
+    mutate( quantile = ntile( intron_len, 4 ) )
+ATAC_df$intron_len_quant <- ATAC_df$quantile
+ATAC_df$intron_len_quant <- ifelse( ATAC_df$intron_len_quant == 1,
+                                   "Short introns",
+                                   ifelse( ATAC_df$intron_len_quant == 2 |
+                                          ATAC_df$intron_len_quant == 3,
+                                          "Mid introns", "Long introns" ) )
+
+# Merge exon access and intron length quantile terms
+ATAC_df$exon_intronlen_quants <- paste( ATAC_df$peak_density_exon_quant,
+                                        ATAC_df$intron_len_quant,
+                                        sep = "_" )
+
+# Create df of geneIDs with binary variable attributing high exon access and long introns
+ATAC_df$exon_intronlen_bi <- ifelse( ATAC_df$exon_intronlen_quants == "High exon access_Long introns", "1", "0" )
+exon_intronlen_GOMWU_df <- data.frame( geneid = ATAC_df$geneid,
+                                       binom = ATAC_df$exon_intronlen_bi )
+
+# Export to GOMWU master directory: note - .csv file needs to be resaved in Excel before use in GOMWU script below 
+write.csv( exon_intronlen_GOMWU_df, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/exon_intronlen_GOMWU_df.csv", 
+           row.names = FALSE )
+
+# Create df of geneIDs with binary variable attributing low exon access and long introns
+ATAC_df$exon_intronlen_bi2 <- ifelse( ATAC_df$exon_intronlen_quants == "Low exon access_Long introns", "1", "0" )
+exon_intronlen_GOMWU_df2 <- data.frame( geneid = ATAC_df$geneid,
+                                        binom = ATAC_df$exon_intronlen_bi2 )
+
+# Export to GOMWU master directory: note - .csv file needs to be resaved in Excel before use in GOMWU script below 
+write.csv( exon_intronlen_GOMWU_df2, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/exon_intronlen_GOMWU_df2.csv", 
+           row.names = FALSE )
+
+# Create df of intron DM -log p-values and geneIDs for use in GOMWU
+mat_edgeR_intron_gene_DM_df <- read.csv(
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_intron_gene_DM_df.csv" )
+
+# Export to GOMWU master directory: note - .csv file needs to be resaved in Excel before use in GOMWU script below 
+write.csv( data.frame( geneid = mat_edgeR_intron_gene_DM_df$X,
+                       neglogpval = -log( mat_edgeR_intron_gene_DM_df$PValue ) ),
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/intron_DM_GOMWU_df.csv",
+           row.names = FALSE )
+
+write.csv( data.frame( geneid = mat_edgeR_intron_gene_DM_df$X,
+                       logFC =  mat_edgeR_intron_gene_DM_df$logFC ),
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/intron_FC_GOMWU_df.csv",
+           row.names = FALSE )
+
+
+
+```
+
+#Run GOMWU and Fisher's exact tests on data of interest; see https://github.com/z0on/GO_MWU
+
+Be sure to adjust between abs value cutoffs of 0.0001 for Fishers exact and -log(0.05) for GOMWU
+
+For exon-level GOMWU test of DEU, increase minimum size threshold from 5 to 25 ( x 5, avg. exon count of S. purp genes). Lower absolute p-value cutoff to 0.01 rather than 0.05 to account for ~5x greater dataset size. Lower reporting thresholds to 0.01, 0.005, and 0.005 as well.
+
+```{r, include = TRUE}
+
+# GO enrichments using Mann Whitney U tests
+setwd( "GO_MWU-master/" )
+
+#Now we multiply them together into a new column
+
+## Ok we also want to bring in our annotations
+#I would suggest putting a GO_MWU folder into your working directory for these steps. There is some stuff to download such as the obo files 
+#See https://github.com/z0on/GO_MWU
+
+# GO_MWU uses continuous measure of significance (such as fold-change or -log(p-value) ) to identify GO categories that are significantly enriches with either up- or down-regulated genes. The advantage - no need to impose arbitrary significance cutoff.
+# If the measure is binary (0 or 1) the script will perform a typical "GO enrichment" analysis based Fisher's exact test: it will show GO categories over-represented among the genes that have 1 as their measure. 
+# On the plot, different fonts are used to indicate significance and color indicates enrichment with either up (red) or down (blue) regulated genes. No colors are shown for binary measure analysis.
+# The tree on the plot is hierarchical clustering of GO categories based on shared genes. Categories with no branch length between them are subsets of each other.
+# The fraction next to GO category name indicates the fracton of "good" genes in it; "good" genes being the ones exceeding the arbitrary absValue cutoff (option in gomwuPlot). For Fisher's based test, specify absValue=0.5. This value does not affect statistics and is used for plotting only.
+# Stretch the plot manually to match tree to text
+
+# Mikhail V. Matz, UT Austin, February 2015; matz@utexas.edu
+
+################################################################
+# First, press command-D on mac or ctrl-shift-H in Rstudio and navigate to the directory containing scripts and input files. Then edit, mark and execute the following bits of code, one after another.
+
+# Edit these to match your data file names: 
+input="intron_FC_GOMWU_df.csv" # two columns of comma-separated values: gene id, continuous measure of significance. To perform standard GO enrichment analysis based on Fisher's exact test, use binary measure (0 or 1, i.e., either sgnificant or not).
+goAnnotations="goAnnot_spu.tab" # two-column, tab-delimited, one line per gene, multiple GO terms separated by semicolon. If you have multiple lines per gene, use nrify_GOtable.pl prior to running this script.
+goDatabase="go.obo" # download from http://www.geneontology.org/GO.downloads.ontology.shtml
+goDivision="MF" # either MF, or BP, or CC
+source("gomwu.functions.R")
+
+# Calculating stats. It might take ~3 min for MF and BP. Do not rerun it if you just want to replot the data with different cutoffs, go straight to gomwuPlot. If you change any of the numeric values below, delete the files that were generated in previos runs first.
+gomwuStats(input, goDatabase, goAnnotations, goDivision,
+	perlPath="perl", # replace with full path to perl executable if it is not in your system's PATH already
+	largest=0.1, # a GO category will not be considered if it contains more than this fraction of the total number of genes
+	smallest=25,   # a GO category should contain at least this many genes to be considered
+	clusterCutHeight=0.25, # threshold for merging similar (gene-sharing) terms. See README for details.
+	Alternative="g") # # threshold for merging similar (gene-sharing) terms. See README for details.
+           #	Alternative="g" # by default the MWU test is two-tailed; specify "g" or "l" of you want to test for "greater" or "less" instead. 
+           #	Module=TRUE,Alternative="g" # un-remark this if you are analyzing a SIGNED WGCNA module (values: 0 for not in module genes, kME for in-module genes). In the call to gomwuPlot below, specify absValue=0.001 (count number of "good genes" that fall into the module)
+           #	Module=TRUE # un-remark this if you are analyzing an UNSIGNED WGCNA module
+# do not continue if the printout shows that no GO terms pass 10% FDR.
+
+quartz.save(file = "quartz.png", type = "png")
+results=gomwuPlot(input, goAnnotations, goDivision,
+#	absValue=-log(0.05,10),  # genes with the measure value exceeding this will be counted as "good genes". Specify absValue=0.001 if you are doing Fisher's exact test for standard GO enrichment or analyzing a WGCNA module (all non-zero genes = "good genes").
+	absValue= .2,
+	level1=0.01, # FDR threshold for plotting. Specify level1=1 to plot all GO categories containing genes exceeding the absValue.
+	level2=0.005, # FDR cutoff to print in regular (not italic) font.
+	level3=0.001, # FDR cutoff to print in large bold font.
+	txtsize=1.2,    # decrease to fit more on one page, or increase (after rescaling the plot so the tree fits the text) for better "word cloud" effect
+	treeHeight=0.5 # height of the hierarchical clustering tree
+#	colors=c("dodgerblue2","firebrick1","skyblue","lightcoral") # these are default colors, un-remar and change if needed
+)
+# manually rescale the plot so the tree matches the text 
+# if there are too many categories displayed, try make it more stringent with level1=0.05,level2=0.01,level3=0.001.  
+
+# text representation of results, with actual adjusted p-values
+results
+
+# Export list of GO terms enriched among genes in lowest quartiles of TSS acess and expression
+write.csv( results[ 1 ] , 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/Output_data/DSGs_Dev_exon_GOMWU_MF.csv", 
+           row.names = TRUE )
+
+# Next, manually repeat this code chunk using BP and CC terms and change exported name of file and repeat for high expression low TSS quantiles
+
+# Applying this code chunk to all Fisher's exact and GOMWU df's prepared above results in the following significant GO enrichment outputs (all other df by GO term combinations result in insignificant enrichment: 
+# hi_exonaccess_long_introns_BP.csv
+# hi_exonaccess_long_introns_MF.csv
+# lo_exonaccess_long_introns_BP.csv
+# lo_exonaccess_long_introns_MF.csv
+# lo_exonaccess_MF_long_introns_MF.csv
+# TSS_logCPM_lohi_quart_FExact_MF.csv
+# TSS_logCPM_low_FExact_MF.csv
+# TSS_logCPM_low_quart_FExact_BP.csv
+# TSS_logCPM_low_quart_FExact_MF.csv
+# DSGs_Mat_exon_GOMWU_MF.csv
+# DSGs_Mat_exon_GOMWU_BP.csv
+# DSGs_Dev_exon_GOMWU_MF.csv
+# DSGs_Dev_exon_GOMWU_BP.csv
+
+```
+
+#Create figures for supplemental results
+
+Start with relationships between chromatin accessibility, gene body methylation, and expression
+
+```{r}
+
+# Read in ATAC by meth df
+base_meth_ex_by_ATAC <- read.csv(
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/base_meth_ex_by_ATAC.csv" )
+
+# Read in ATAC by meth df
+base_meth_int_by_ATAC <- read.csv(
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/base_meth_int_by_ATAC.csv" )
+
+# Read in ATAC by GE df
+ATAC_dens_by_GE <- read.csv(
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ATAC_dens_by_GE.csv" )
+
+## Create gene body access variable for GE df
+
+ATAC_dens_by_GE$gene_body_access <-
+  ( ATAC_dens_by_GE$peak_density_Introns +
+             ATAC_dens_by_GE$peak_density_Exons ) / 
+           ATAC_dens_by_GE$gene_len
+
+ATAC_dens_by_GE$gene_body_access[ is.na( ATAC_dens_by_GE$gene_body_access ) ] = 0
+
+# Plot exon access x exon meth
+Fig_S1Ai <- ggplot( data = base_meth_ex_by_ATAC,
+                    aes( x = median, y = log( exon_dens_norm ) ) ) +
+  geom_point( alpha = 0.1 ) +
+  geom_smooth( method = "lm" ) +
+  theme_classic( base_size = 20 ) +
+  labs( x = "% exon methylation", y = "log(exon accessibility)" )
+
+# Print Fig_S1Ai
+Fig_S1Ai
+
+# Plot intron access x intron meth
+Fig_S1Aii <- ggplot( data = base_meth_int_by_ATAC,
+                    aes( x = median, y = log( intron_dens_norm ) ) ) +
+  geom_point( alpha = 0.1 ) +
+  geom_smooth( method = "lm" ) +
+  theme_classic( base_size = 20 ) +
+  labs( x = "% intron methylation", y = "log(intron accessibility)" )
+
+# Print Fig_S1Ai
+Fig_S1Aii
+
+# Combine Fig_S1Ai and Fig_S1Aii
+Fig_S1A <- ggarrange( Fig_S1Ai, Fig_S1Aii, 
+                    labels = c( "", "" ),
+                    ncol = 1, nrow = 2,
+                    align = "hv")
+
+# Print Fig_S1A
+Fig_S1A
+
+# Plot Fig_S1bi
+Fig_S1Bi <- ggplot( data = ATAC_dens_by_GE,
+                  aes( x = log( TSS_dens_norm ), y = logCPM ) ) +
+  geom_point( alpha = 0.1 ) +
+  geom_smooth( method = "lm" ) +
+  theme_classic( base_size = 20 ) +
+  scale_fill_viridis_c() +
+  labs( x = "log(TSS accessibility)", y = "logCPM" )
+
+# Print Fig_S1Bi
+Fig_S1Bi
+
+# Plot Fig_S1Bii
+Fig_S1Bii <- ggplot( data = ATAC_dens_by_GE,
+                  aes( x = log( gene_body_access ), y = logCPM ) ) +
+  geom_point( alpha = 0.1 ) +
+  geom_smooth( method = "lm" ) +
+  theme_classic( base_size = 20 ) +
+  labs( x = "log(gene body accessibility)", y = "logCPM" )
+
+# Print Fig_S1Bii
+Fig_S1Bii
+
+# Combine Fig_S1Bi and Fig_S1Bii
+Fig_S1B <- ggarrange( Fig_S1Bi, Fig_S1Bii, 
+                    labels = c( "", "" ),
+                    ncol = 1, nrow = 2,
+                    align = "hv")
+
+# Print Fig_S1B
+Fig_S1B
+
+# Arrange Fig_S1
+Fig_S1 <- ggarrange( Fig_S1A, Fig_S1B,
+                     labels = c( "A", "B" ),
+                     ncol = 2, nrow = 1,
+                     widths = c( 0.4, 0.6 ),
+                     align = "hv" )
+
+# Print Fig_S1
+Fig_S1
+
+# Export Fig S1 as tiff
+tiff( "Output_figures/Fig_S1.tiff", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_S1
+
+dev.off()
+
+# Export Fig S1 as png
+png( "Output_figures/Fig_S1.png", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_S1
+
+dev.off()
+
+## Plot and export Fig_S4: TSS access vs gene body methylation
+# Exon methylation
+Fig_S4a <- ggplot( data = base_meth_ex_by_ATAC,
+                   aes( x = median, y = log( TSS_dens_norm ) ) ) +
+  geom_point( alpha = 0.025 ) +
+  geom_smooth( method = "lm" ) +
+  theme_classic( base_size = 20 ) +
+  labs( x = "% exon methylation", y = "log(TSS accessibility)")
+
+# Print Fig_S4a
+Fig_S4a
+
+# Intron methylation
+Fig_S4b <- ggplot( data = base_meth_int_by_ATAC,
+                   aes( x = median, y = log( TSS_dens_norm ) ) ) +
+  geom_point( alpha = 0.025 ) +
+  geom_smooth( method = "lm" ) +
+  theme_classic( base_size = 20 ) +
+  labs( x = "% intron methylation", y = "log(TSS accessibility)")
+
+# Print Fig_S4a
+Fig_S4b
+
+# Arrange Fig_S4
+Fig_S4 <- ggarrange( Fig_S4a, Fig_S4b,
+                     labels = c( "A", "B" ),
+                     ncol = 2, nrow = 1,
+                     widths = c( 0.5, 0.5 ),
+                     align = "hv" )
+
+# Print Fig_S1
+Fig_S4
+
+# Export Fig S4 as tiff
+tiff( "Output_figures/Fig_S4.tiff", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_S4
+
+dev.off()
+
+# Export Fig S4 as png
+png( "Output_figures/Fig_S4.png", units = "in", width = 12, 
+      height = 7, 
+      res = 600 )
+
+Fig_S4
+
+dev.off()
+
+# Frequentist tests of relationships between TSS access, exon meth, and intron meth
+# Exons
+summary( lm( scale( log( TSS_dens_norm ) ) ~ scale( median ), 
+           data = filter( base_meth_ex_by_ATAC, TSS_dens_norm > 0 ) ) )
+
+anova( lm( scale( log( TSS_dens_norm ) ) ~ scale( median ), 
+           data = filter( base_meth_ex_by_ATAC, TSS_dens_norm > 0 ) ) )
+
+# Introns
+summary( lm( scale( log( TSS_dens_norm ) ) ~ scale( median ), 
+           data = filter( base_meth_int_by_ATAC, TSS_dens_norm > 0 ) ) )
+
+anova( lm( scale( log( TSS_dens_norm ) ) ~ scale( median ), 
+           data = filter( base_meth_int_by_ATAC, TSS_dens_norm > 0 ) ) )
+
+```
+
+#Studentized check of inclusion Bayes factors
+
+Model of DE
+
+```{r}
+
+stDE_BRM_int_0 <- brm( GE_logFC_Z ~ int_meth_logFC_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_1 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_2 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + gene_body_access_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_2a <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_3 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_4 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_5 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z : intron_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_6 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + int_meth_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_7 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_8 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : intron_len_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_9 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      int_meth_Z : intron_len_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_10 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
+                        int_meth_logFC_Z : GE_logCPM_Z +
+                        GE_logCPM_Z : intron_len_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+# After selecting stDE_BRM_int_7, can we improve upon it by adding more terms?
+stDE_BRM_int_7b <- brm( GE_logFC_Z ~  GE_logCPM_Z + int_meth_Z + TSS_dens_norm_Z + int_meth_logFC_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z + TSS_dens_norm_Z : int_meth_logFC_Z + GE_logCPM_Z : GE_logCPM_Z +
+                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_7c <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
+                      int_meth_logFC_Z : GE_logCPM_Z +
+                      intron_len_Z : int_meth_logFC_Z +
+                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_11 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z + gene_body_access_Z + intron_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_12 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_13 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + gene_body_access_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_14 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + intron_dens_norm_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_15 <- brm( GE_logFC_Z ~ GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_16 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
+                        GE_logCPM_Z : TSS_dens_norm_Z + 
+                        int_meth_logFC_Z : GE_logCPM_Z + 
+                        TSS_dens_norm_Z : int_meth_logFC_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_17 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
+                        int_meth_logFC_Z : TSS_dens_norm_Z + 
+                        int_meth_logFC_Z : GE_logCPM_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_18 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
+                        int_meth_logFC_Z : GE_logCPM_Z + 
+                        TSS_dens_norm_Z : int_meth_logFC_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+stDE_BRM_int_19 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
+                        GE_logCPM_Z : TSS_dens_norm_Z + 
+                        TSS_dens_norm_Z : int_meth_logFC_Z,
+         data = dm_intron_by_DE_ATAC,
+         family = student(),
+         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
+         prior( normal( 0, .5 ), class = b ) ), 
+         iter = 20000,
+         chains = 4,
+         cores = 3,
+         save_pars = save_pars( all = TRUE ) )
+
+## Hypothesis testing using bayes factor: do additional variables help explain effect of DM on expression?
+
+# Model selection with Bayes factors
+stDE_BRM_int_bf <- bayesfactor_models( stDE_BRM_int_1, stDE_BRM_int_2, stDE_BRM_int_2a, stDE_BRM_int_3, stDE_BRM_int_4,
+                                     stDE_BRM_int_5, stDE_BRM_int_6, stDE_BRM_int_7, stDE_BRM_int_7b, 
+                                     stDE_BRM_int_7c, stDE_BRM_int_8, stDE_BRM_int_9, stDE_BRM_int_0,
+                                     stDE_BRM_int_10, stDE_BRM_int_12, stDE_BRM_int_13, stDE_BRM_int_14,
+                                     denominator = stDE_BRM_int_11 )
+
+# Print models Bayes factors
+stDE_BRM_int_bf
+
+# Further resolve models
+stDE_BRM_int_bf2 <- bayesfactor_models( stDE_BRM_int_4, stDE_BRM_int_5, stDE_BRM_int_7, 
+                                        denominator = stDE_BRM_int_7c )
+stDE_BRM_int_bf2
+
+# Top three models selected w/ Bayes factor include interactions between intron methylation and chromatin accessibility
+
+# Bayes factor averaging to test for inclusion of effects: data 3.1x - 3.4x more likely under effect of chromatin access interactions
+stDE_BRM_int_bf_incl <- bayesfactor_inclusion( stDE_BRM_int_bf, match_models = FALSE )
+
+# Print inclusion Bayes factors
+stDE_BRM_int_bf_incl
+
+```
+
+Studentize DEU by DM models
+
+```{r}
+
+# Fit and select models
+stDEU_dm_brm_0 <- brm( exon_coeff_Z ~ 1,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept )),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_1 <- brm( exon_coeff_Z ~ exon_num_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_2 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_3 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_4 <- brm( exon_coeff_Z ~ exon_num_Z + intron_len_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_5 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_6 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       exon_dens_norm_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_7a <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       logCPM_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                      save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_8 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       intron_dens_norm_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_9 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       exon_len_Z : exon_dens_norm_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_7 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
+                       exon_num_Z : exon_DM_logFC_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                     save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                      save_pars = save_pars( all = TRUE ) )
+
+# Can stDEU_dm_brm_10 be improved upon? Start by removing insignificant effects then add new interactions
+stDEU_dm_brm_10b <- brm( exon_coeff_Z ~ exon_DM_logFC_Z +
+                          exon_DM_logFC_Z : exon_num_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_dens_norm_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                          save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10c <- brm( exon_coeff_Z ~ logCPM_Z + 
+                          logCPM_Z : exon_DM_logFC_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                          save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10d <- brm( exon_coeff_Z ~ logCPM_Z + exon_dens_norm_Z + exon_num_Z +
+                          logCPM_Z : exon_DM_logFC_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10e <- brm( exon_coeff_Z ~ logCPM_Z + TSS_dens_norm_Z +
+                          logCPM_Z : exon_DM_logFC_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10f <- brm( exon_coeff_Z ~ logCPM_Z + TSS_dens_norm_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10g <- brm( exon_coeff_Z ~ exon_dens_norm_Z + exon_DM_logFC_Z + intron_len_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z + exon_DM_logFC_Z : intron_len_Z + exon_dens_norm_Z : intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+stDEU_dm_brm_10h <- brm( exon_coeff_Z ~ exon_dens_norm_Z + exon_DM_logFC_Z + intron_len_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 2,
+                          iter = 20000,
+                       save_pars = save_pars( all = TRUE ) )
+
+# Bayes factor analysis selects DE_brm_int_7 over cntrl w/ BF = 39.81 (strong evidence in support of hypothesis)
+stDEU_brm_bf <- bayesfactor_models( stDEU_dm_brm_1, stDEU_dm_brm_2, stDEU_dm_brm_3, stDEU_dm_brm_5, stDEU_dm_brm_6, stDEU_dm_brm_7, 
+                                  stDEU_dm_brm_7a, stDEU_dm_brm_8, stDEU_dm_brm_9, stDEU_dm_brm_10, stDEU_dm_brm_10b,
+                                  stDEU_dm_brm_10c, stDEU_dm_brm_10d, stDEU_dm_brm_10e, stDEU_dm_brm_10f, stDEU_dm_brm_10g,
+                                  stDEU_dm_brm_10h, denominator = stDEU_dm_brm_4 ) # Use lowest performing model as denominator
+
+# Print model Bayes factors
+
+# Export inclusion Bayes factors: probability of observed data under effect relative to null
+stDEU_brm_bf_incl <- bayesfactor_inclusion( stDEU_brm_bf, match = FALSE )
+
+# Print inclusion Bayes factors
+stDEU_brm_bf_incl
+
+posterior_interval(
+  stDEU_dm_brm_10,
+  prob = 0.90,
+  type = "central" )
+
+```
+

@@ -7,7 +7,7 @@ This is an R markdown document detailing edgeR analysis of differential splicing
 
 The code below reads in and filters an RNAseq count matrix, performs a PCA of each sample, and then fits a multifactorial glm from which pariwise contrasts are made to estimate differential splicing between treatment groups. Developmental treatment: larval S. purpuratus reared in experimental upwelling or non-upwelling conditions. Maternal treatment: larval S. purpuratus spawned from mothers exposed to experimental upwelling or non-upwelling conditions.
 
-This markdown finishes by outputing four dataframes: 2 containing lists of differential spliced genes (DSGs) and likelihood statistics for their splicing corresponding to the maternal and developmental treatments and two dataframes containing differential exon use coefficients corresponding to both treatments.
+This markdown finishes by outputing six dataframes: 4 containing lists of differential spliced genes (DSGs) and likelihood statistics or binary values for significantfor splicing corresponding to the maternal and developmental treatments and two dataframes containing differential exon use coefficients corresponding to both treatments.
 
 Prior to this analysis, reads were mapped to the Spur\_3.1.42 assembly and annotation using HiSat2 and counted using featureCounts in the subread package as detailed in Strader et al. 2020: <https://www.frontiersin.org/articles/10.3389/fmars.2020.00205/full>. Relevant scripts for alignment and read counting can be found at: <https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019>.
 
@@ -635,6 +635,77 @@ length( DSGs_Dev_sig_list )
 
     ## [1] 78
 
+``` r
+# Create df's with binary values associated w/ sig gene-level diff splicing for Fisher's exact
+mat_DSG_Fishers_df <- data.frame( geneid = row.names( DSGs_Mat_gene_info),
+                                  DSG = ifelse( DSGs_Mat_gene_info$gene_FDR < 0.05 &
+                                                  DSGs_Mat_gene_info$gene_FDR %in% DSGs_Mat_sig_list,
+                                                "1", "0" ) )
+
+dev_DSG_Fishers_df <- data.frame( geneid = row.names( DSGs_Dev_gene_info),
+                                  DSG = ifelse( DSGs_Dev_gene_info$gene_FDR < 0.05 &
+                                                  DSGs_Dev_gene_info$gene_FDR %in% DSGs_Dev_sig_list,
+                                                "1", "0" ) )
+
+# Export DSG Fishers exact df's
+write.csv( mat_DSG_Fishers_df, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/mat_DSG_Fishers_df.csv", 
+           row.names = FALSE )
+write.csv( dev_DSG_Fishers_df, 
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/dev_DSG_Fishers_df.csv", 
+           row.names = FALSE )
+
+# How many DEU exons responded to maternal and developmental environments after filtering spurious and alt TSS genes?
+mat_sig_DEU_exons <- filter( data.frame( geneid = Mat_dgelrt$genes$GeneID,
+                    exonid = Mat_dgelrt$genes$ExonID,
+                    DEU_coeff = Mat_dgelrt$coefficients,
+                    exon_fdr = p.adjust( Mat_dgelrt$exon.p.value, "fdr" ) ),
+                    exon_fdr < 0.05 & geneid %notin% mat_spur_transcripts$geneid )
+
+dev_sig_DEU_exons <- filter( data.frame( geneid = Dev_dgelrt$genes$GeneID,
+                    exonid = Dev_dgelrt$genes$ExonID,
+                    DEU_coeff = Dev_dgelrt$coefficients,
+                    exon_fdr = p.adjust( Dev_dgelrt$exon.p.value, "fdr" ) ),
+                    exon_fdr < 0.05 & geneid %notin% dev_spur_transcripts$geneid )
+
+# Number of sig DEU exons
+nrow( mat_sig_DEU_exons )
+```
+
+    ## [1] 47
+
+``` r
+nrow( dev_sig_DEU_exons )
+```
+
+    ## [1] 44
+
+``` r
+# Number of sig dropped exons
+nrow( filter( mat_sig_DEU_exons, DEU_coeff < 0 ) )
+```
+
+    ## [1] 35
+
+``` r
+nrow( filter( dev_sig_DEU_exons, DEU_coeff < 0 ) )
+```
+
+    ## [1] 30
+
+``` r
+# Number of sig included exons
+nrow( filter( mat_sig_DEU_exons, DEU_coeff > 0 ) )
+```
+
+    ## [1] 12
+
+``` r
+nrow( filter( dev_sig_DEU_exons, DEU_coeff > 0 ) )
+```
+
+    ## [1] 14
+
 # Output DEU df and data for GO enrichment
 
 ``` r
@@ -665,8 +736,40 @@ DSGs_Dev_pval <- data.frame( geneid = row.names( DSGs_Dev_gene_info ),
 
 # Export CSVs
 write.csv( DSGs_Mat_pval,
-           "Output_data/DSGs_Mat_pval.csv" )
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/DSGs_Mat_pval.csv",
+           row.names = FALSE )
 
 write.csv( DSGs_Dev_pval,
-           "Output_data/DSGs_Dev_pval.csv" )
+           "~/Documents/GitHub/Sp_RRBS_ATAC/C_Models_and_Figures/GO_MWU-master/DSGs_Dev_pval.csv",
+           row.names = FALSE )
+```
+
+# Create Venn diagram of DEGs and genes with DEU
+
+``` r
+# Read in maternal and developmental DE df's
+mat_edgeR_GE_table_filt <- read.csv(
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv" )
+
+dev_edgeR_GE_table_filt <- read.csv(
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_GE_table_filt.csv" )
+
+# Extract geneids w/ sig DGE
+mat_sig_degs <- filter( mat_edgeR_GE_table_filt,
+                        p.adjust( PValue, "fdr" ) < 0.05 )
+
+dev_sig_degs <- filter( dev_edgeR_GE_table_filt,
+                        p.adjust( PValue, "fdr" ) < 0.05 )
+
+# Correct geneIDs
+mat_sig_degs$X <- gsub( "transcript:", "", gsub( "-tr", "", mat_sig_degs$X ) )
+dev_sig_degs$X <- gsub( "transcript:", "", gsub( "-tr", "", dev_sig_degs$X ) )
+
+# Create and export venn diagram of DSGs and DEGS
+DSG_DEG_venn <- venn.diagram(
+  x = list( mat_sig_degs$X, dev_sig_degs$X, DSGs_Mat_sig_list, DSGs_Dev_sig_list ),
+  category.names = c("Mat DEGs" , "Dev DEGs" , "Mat DSGs", "Dev DSGs"),
+  filename = "Output_data/DSG_DEG_venn.png",
+  output = TRUE
+)
 ```

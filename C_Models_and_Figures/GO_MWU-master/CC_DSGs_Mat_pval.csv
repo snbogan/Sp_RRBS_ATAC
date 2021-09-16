@@ -1,0 +1,1984 @@
+name	term	lev	seq	value
+"proton-transporting V-type ATPase, V1 domain"	GO:0033180	2	SPU_000364	0.375034501
+"proton-transporting V-type ATPase, V1 domain"	GO:0033180	2	SPU_006308	0.200574067
+"proton-transporting V-type ATPase, V1 domain"	GO:0033180	2	SPU_012695	1.511452366
+"proton-transporting V-type ATPase, V1 domain"	GO:0033180	2	SPU_012784	2.008461386
+"proton-transporting V-type ATPase, V1 domain"	GO:0033180	2	SPU_017753	1.196021538
+"WASH complex"	GO:0071203	2	SPU_000461	8.321660868
+"WASH complex"	GO:0071203	2	SPU_002760	2.792206516
+"WASH complex"	GO:0071203	2	SPU_006076	1.873329225
+"WASH complex"	GO:0071203	2	SPU_008689	1.106345815
+"WASH complex"	GO:0071203	2	SPU_017758	1.756723963
+"WASH complex"	GO:0071203	2	SPU_020075	0.127788384
+"WASH complex"	GO:0071203	2	SPU_020116	0.178635172
+"WASH complex"	GO:0071203	2	SPU_021807	0.520313408
+"WASH complex"	GO:0071203	2	SPU_024912	4.567595209
+"WASH complex"	GO:0071203	2	SPU_025423	1.731231778
+"oxidoreductase complex"	GO:1990204	3	SPU_002482	1.307197326
+"oxidoreductase complex"	GO:1990204	3	SPU_003867	2.74490292
+"oxidoreductase complex"	GO:1990204	3	SPU_008073	0.405333361
+"oxidoreductase complex"	GO:1990204	3	SPU_015981	0.846769563
+"oxidoreductase complex"	GO:1990204	3	SPU_028917	0.40210845
+"nuclear pore"	GO:0005643	2	SPU_002619	0.2135027
+"nuclear pore"	GO:0005643	2	SPU_003075	0.911415421
+"nuclear pore"	GO:0005643	2	SPU_003282	2.203089392
+"nuclear pore"	GO:0005643	2	SPU_006379	2.436559725
+"nuclear pore"	GO:0005643	2	SPU_009115	1.392551724
+"nuclear pore"	GO:0005643	2	SPU_009213	0.237541908
+"nuclear pore"	GO:0005643	2	SPU_015468	0.436442084
+"nuclear pore"	GO:0005643	2	SPU_021249	0.574065126
+"nuclear pore"	GO:0005643	2	SPU_022327	0.002326882
+"nuclear pore"	GO:0005643	2	SPU_024737	1.792101837
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_003959	0.867629902
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_005110	3.916982531
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_007142	1.094742458
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_009673	2.917460311
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_009674	1.511663646
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_015257	1.275644572
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_016404	0.957447163
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_025777	0.131449468
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_027236	4.043722157
+"outer membrane"	GO:0005741;GO:0031968;GO:0019867	2	SPU_007515	0.677567003
+"voltage-gated potassium channel complex"	GO:0008076;GO:0034705	3	SPU_000856	0.936821995
+"voltage-gated potassium channel complex"	GO:0008076;GO:0034705	3	SPU_004907	4.020694472
+"voltage-gated potassium channel complex"	GO:0008076;GO:0034705	3	SPU_006470	0.325856256
+"voltage-gated potassium channel complex"	GO:0008076;GO:0034705	3	SPU_012871	1.127530064
+"voltage-gated potassium channel complex"	GO:0008076;GO:0034705	3	SPU_018422	0.322951099
+"voltage-gated potassium channel complex"	GO:0008076;GO:0034705	3	SPU_019341	0.306028149
+"exocyst"	GO:0000145	3	SPU_001083	0.342434851
+"exocyst"	GO:0000145	3	SPU_004177	1.19944948
+"exocyst"	GO:0000145	3	SPU_011511	0.65436771
+"exocyst"	GO:0000145	3	SPU_012639	1.88049094
+"exocyst"	GO:0000145	3	SPU_013045	2.577473023
+"exocyst"	GO:0000145	3	SPU_015370	4.037173637
+"exocyst"	GO:0000145	3	SPU_028263	0.65713717
+"extracellular space"	GO:0005615	2	SPU_000997	0.862869857
+"extracellular space"	GO:0005615	2	SPU_004543	1.454045229
+"extracellular space"	GO:0005615	2	SPU_005193	0.765202666
+"extracellular space"	GO:0005615	2	SPU_009463	0.033471895
+"extracellular space"	GO:0005615	2	SPU_013170	3.075796042
+"extracellular space"	GO:0005615	2	SPU_018503	0.026237226
+"extracellular space"	GO:0005615	2	SPU_019422	0.143911147
+"extracellular space"	GO:0005615	2	SPU_019667	0.905737009
+"extracellular space"	GO:0005615	2	SPU_020443	0.313383161
+"extracellular space"	GO:0005615	2	SPU_022988	0.34084281
+"extracellular space"	GO:0005615	2	SPU_024128	0.077470342
+"extracellular space"	GO:0005615	2	SPU_024263	3.178290797
+"extracellular space"	GO:0005615	2	SPU_025922	0.290421426
+"extracellular space"	GO:0005615	2	SPU_028275	1.920724714
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_000379	0.515290717
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_000395	0.775837717
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_001232	1.330234549
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_001462	0.181660122
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_001935	0.393794093
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_002458	0.566046019
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_002536	2.05719832
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_002606	14.01324186
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_003485	2.722566798
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_003521	0.435849102
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_003718	1.087441455
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_003772	1.549884576
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_003849	1.038596853
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_003905	0.111818387
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_004609	1.352478386
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_004721	9.109580049
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_004996	3.016381734
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_005227	0.694569154
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_005280	0.036915385
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_005401	0.277108179
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_005571	4.364592263
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_005700	0.487793572
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_005709	4.289020387
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_006034	1.204297997
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_006213	9.618631085
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_006459	2.066553905
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_006569	1.591162373
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_007057	7.916021231
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_007261	5.046471463
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_007327	1.241022026
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_007593	1.139508736
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_007971	0.927336373
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008211	0.094135721
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008221	1.947707494
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008398	3.621850833
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008447	2.269215311
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008636	3.318177077
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008650	3.0599653
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_008778	1.821495557
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_009084	0.292220605
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_009141	0.208002081
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_010158	1.920604106
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_010279	0.95993741
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_010528	0.210975571
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_010626	1.939748545
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_010688	0.224345976
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_010692	49.95400511
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011054	0.191866999
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011111	0.92263881
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011243	0.683658837
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011244	0.281519365
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011352	13.80842632
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011703	0.284652092
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_011723	0.344409927
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_012228	0.550832834
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_012377	0.386315202
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_012865	0.237420615
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013161	0.454417656
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013452	0.005451575
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013515	0.705454139
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013577	1.153910299
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013617	2.178951801
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013662	0.198398468
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013834	0.150718245
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013859	0.66962628
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_013862	0.964102905
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_014060	2.173895414
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_014074	0.160115857
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_014454	1.790689604
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_014728	0.506206255
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_014957	0.343465889
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015260	0.731142687
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015276	0.604597867
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015294	4.627026698
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015327	0.619068579
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015334	1.379935016
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015343	0.105482373
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015414	0.795168894
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_015666	0.572746476
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_017132	1.901982018
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_017310	0.027940224
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_017319	0.350184992
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_017502	1.467512664
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018210	0.345747568
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018318	0.2822848
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018674	1.974928964
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018705	0.091652011
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018801	0.453206415
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018851	1.08666051
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018866	0.313981962
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_018884	0.569252185
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_019686	1.313015584
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_019736	1.34408562
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_019788	0.725792483
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_020487	0.828006718
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_020627	2.319247901
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_020742	0.520212982
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_020745	0.264629898
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_020787	0.674786098
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_021322	0.636441387
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_021629	0.515256679
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_021702	2.879802642
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_021739	0.503028525
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_021924	1.900330117
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_022040	4.443565692
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_022161	0.434188384
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_022607	0.584330344
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_022682	2.926968572
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_023370	0.048980044
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_023423	0.474616074
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_023549	0.942134031
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_023692	0.000530012
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_024467	3.595214346
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_024546	0.875429085
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_025185	0.629741422
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_025318	0.0357715
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_025343	1.566682796
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_025569	0.759236716
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_025574	0.427777821
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_026256	1.928960468
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_026427	0.850479288
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_026541	0.372955126
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_026671	0.900180896
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_026892	1.575502116
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_027149	1.597680882
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_027778	1.116332379
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028036	0.194448932
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028155	0.551686847
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028226	0.03457374
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028247	0.293390008
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028306	0.090661177
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028592	0.203396971
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028781	1.95355875
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028837	0.577235102
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028866	0.314140726
+"intracellular non-membrane-bounded organelle"	GO:0043232;GO:0043228	2	SPU_028926	1.74463998
+"transferase complex"	GO:1990234	2	SPU_000088	1.611311731
+"transferase complex"	GO:1990234	2	SPU_000206	0.142113054
+"transferase complex"	GO:1990234	2	SPU_002920	0.86728366
+"transferase complex"	GO:1990234	2	SPU_002933	4.196477162
+"transferase complex"	GO:1990234	2	SPU_004393	0.418655117
+"transferase complex"	GO:1990234	2	SPU_004697	0.290083444
+"transferase complex"	GO:1990234	2	SPU_005644	0.226235472
+"transferase complex"	GO:1990234	2	SPU_006755	2.130288755
+"transferase complex"	GO:1990234	2	SPU_007377	0.692586991
+"transferase complex"	GO:1990234	2	SPU_008018	3.948907176
+"transferase complex"	GO:1990234	2	SPU_008469	1.02026218
+"transferase complex"	GO:1990234	2	SPU_008501	1.529007575
+"transferase complex"	GO:1990234	2	SPU_009461	2.755251072
+"transferase complex"	GO:1990234	2	SPU_010339	1.192453451
+"transferase complex"	GO:1990234	2	SPU_011676	0.17393716
+"transferase complex"	GO:1990234	2	SPU_012580	1.010195043
+"transferase complex"	GO:1990234	2	SPU_012696	0.604183314
+"transferase complex"	GO:1990234	2	SPU_013346	1.096730378
+"transferase complex"	GO:1990234	2	SPU_013996	0.392084834
+"transferase complex"	GO:1990234	2	SPU_014071	0.099651172
+"transferase complex"	GO:1990234	2	SPU_014281	1.573109954
+"transferase complex"	GO:1990234	2	SPU_014569	2.129429506
+"transferase complex"	GO:1990234	2	SPU_014980	0.168797186
+"transferase complex"	GO:1990234	2	SPU_015724	1.146781537
+"transferase complex"	GO:1990234	2	SPU_015843	0.692474124
+"transferase complex"	GO:1990234	2	SPU_015981	0.846769563
+"transferase complex"	GO:1990234	2	SPU_018512	4.326009857
+"transferase complex"	GO:1990234	2	SPU_018554	0.395658701
+"transferase complex"	GO:1990234	2	SPU_018555	0.97860825
+"transferase complex"	GO:1990234	2	SPU_018556	0.702341973
+"transferase complex"	GO:1990234	2	SPU_019174	2.548472244
+"transferase complex"	GO:1990234	2	SPU_019604	1.807222305
+"transferase complex"	GO:1990234	2	SPU_019875	0.199659844
+"transferase complex"	GO:1990234	2	SPU_020495	1.157154811
+"transferase complex"	GO:1990234	2	SPU_020994	0.120731402
+"transferase complex"	GO:1990234	2	SPU_020995	0.011355792
+"transferase complex"	GO:1990234	2	SPU_021036	0.206685229
+"transferase complex"	GO:1990234	2	SPU_021077	0.685520583
+"transferase complex"	GO:1990234	2	SPU_021121	2.091601836
+"transferase complex"	GO:1990234	2	SPU_021620	2.102838019
+"transferase complex"	GO:1990234	2	SPU_021625	2.573755022
+"transferase complex"	GO:1990234	2	SPU_022309	0.537621376
+"transferase complex"	GO:1990234	2	SPU_022327	0.002326882
+"transferase complex"	GO:1990234	2	SPU_022674	3.846217015
+"transferase complex"	GO:1990234	2	SPU_022917	1.220527651
+"transferase complex"	GO:1990234	2	SPU_023729	3.24670544
+"transferase complex"	GO:1990234	2	SPU_024153	1.593068592
+"transferase complex"	GO:1990234	2	SPU_024737	1.792101837
+"transferase complex"	GO:1990234	2	SPU_025541	3.27998592
+"transferase complex"	GO:1990234	2	SPU_026147	0.231185538
+"transferase complex"	GO:1990234	2	SPU_026535	0.031472148
+"transferase complex"	GO:1990234	2	SPU_027270	0.280128403
+"transferase complex"	GO:1990234	2	SPU_028333	0.808600135
+"transferase complex"	GO:1990234	2	SPU_028524	1.375279216
+"transferase complex"	GO:1990234	2	SPU_028722	1.348817061
+"intracellular protein-containing complex"	GO:0140535	2	SPU_000088	1.611311731
+"intracellular protein-containing complex"	GO:0140535	2	SPU_000178	1.841885913
+"intracellular protein-containing complex"	GO:0140535	2	SPU_002007	4.796218789
+"intracellular protein-containing complex"	GO:0140535	2	SPU_002347	1.949542672
+"intracellular protein-containing complex"	GO:0140535	2	SPU_002933	4.196477162
+"intracellular protein-containing complex"	GO:0140535	2	SPU_003119	0.371811777
+"intracellular protein-containing complex"	GO:0140535	2	SPU_003120	1.732410731
+"intracellular protein-containing complex"	GO:0140535	2	SPU_004393	0.418655117
+"intracellular protein-containing complex"	GO:0140535	2	SPU_005644	0.226235472
+"intracellular protein-containing complex"	GO:0140535	2	SPU_006755	2.130288755
+"intracellular protein-containing complex"	GO:0140535	2	SPU_007377	0.692586991
+"intracellular protein-containing complex"	GO:0140535	2	SPU_008018	3.948907176
+"intracellular protein-containing complex"	GO:0140535	2	SPU_008395	1.611423503
+"intracellular protein-containing complex"	GO:0140535	2	SPU_008469	1.02026218
+"intracellular protein-containing complex"	GO:0140535	2	SPU_008501	1.529007575
+"intracellular protein-containing complex"	GO:0140535	2	SPU_009838	1.731977236
+"intracellular protein-containing complex"	GO:0140535	2	SPU_010339	1.192453451
+"intracellular protein-containing complex"	GO:0140535	2	SPU_011442	3.217506314
+"intracellular protein-containing complex"	GO:0140535	2	SPU_011676	0.17393716
+"intracellular protein-containing complex"	GO:0140535	2	SPU_011685	0.431968647
+"intracellular protein-containing complex"	GO:0140535	2	SPU_012580	1.010195043
+"intracellular protein-containing complex"	GO:0140535	2	SPU_012696	0.604183314
+"intracellular protein-containing complex"	GO:0140535	2	SPU_013040	0.638740183
+"intracellular protein-containing complex"	GO:0140535	2	SPU_013642	2.177996651
+"intracellular protein-containing complex"	GO:0140535	2	SPU_013996	0.392084834
+"intracellular protein-containing complex"	GO:0140535	2	SPU_014281	1.573109954
+"intracellular protein-containing complex"	GO:0140535	2	SPU_014980	0.168797186
+"intracellular protein-containing complex"	GO:0140535	2	SPU_015754	1.363377948
+"intracellular protein-containing complex"	GO:0140535	2	SPU_015843	0.692474124
+"intracellular protein-containing complex"	GO:0140535	2	SPU_016763	0.077180034
+"intracellular protein-containing complex"	GO:0140535	2	SPU_018419	0.440619924
+"intracellular protein-containing complex"	GO:0140535	2	SPU_018512	4.326009857
+"intracellular protein-containing complex"	GO:0140535	2	SPU_018552	1.218402608
+"intracellular protein-containing complex"	GO:0140535	2	SPU_018554	0.395658701
+"intracellular protein-containing complex"	GO:0140535	2	SPU_018555	0.97860825
+"intracellular protein-containing complex"	GO:0140535	2	SPU_018556	0.702341973
+"intracellular protein-containing complex"	GO:0140535	2	SPU_019171	0.280758846
+"intracellular protein-containing complex"	GO:0140535	2	SPU_019172	0.230261808
+"intracellular protein-containing complex"	GO:0140535	2	SPU_019174	2.548472244
+"intracellular protein-containing complex"	GO:0140535	2	SPU_019604	1.807222305
+"intracellular protein-containing complex"	GO:0140535	2	SPU_019875	0.199659844
+"intracellular protein-containing complex"	GO:0140535	2	SPU_020495	1.157154811
+"intracellular protein-containing complex"	GO:0140535	2	SPU_021036	0.206685229
+"intracellular protein-containing complex"	GO:0140535	2	SPU_021077	0.685520583
+"intracellular protein-containing complex"	GO:0140535	2	SPU_021121	2.091601836
+"intracellular protein-containing complex"	GO:0140535	2	SPU_021620	2.102838019
+"intracellular protein-containing complex"	GO:0140535	2	SPU_022038	0.71017152
+"intracellular protein-containing complex"	GO:0140535	2	SPU_022309	0.537621376
+"intracellular protein-containing complex"	GO:0140535	2	SPU_022327	0.002326882
+"intracellular protein-containing complex"	GO:0140535	2	SPU_022674	3.846217015
+"intracellular protein-containing complex"	GO:0140535	2	SPU_022917	1.220527651
+"intracellular protein-containing complex"	GO:0140535	2	SPU_024153	1.593068592
+"intracellular protein-containing complex"	GO:0140535	2	SPU_024345	0.617753921
+"intracellular protein-containing complex"	GO:0140535	2	SPU_024737	1.792101837
+"intracellular protein-containing complex"	GO:0140535	2	SPU_025321	3.88010211
+"intracellular protein-containing complex"	GO:0140535	2	SPU_025818	4.510535774
+"intracellular protein-containing complex"	GO:0140535	2	SPU_026147	0.231185538
+"intracellular protein-containing complex"	GO:0140535	2	SPU_026535	0.031472148
+"intracellular protein-containing complex"	GO:0140535	2	SPU_028524	1.375279216
+"intracellular protein-containing complex"	GO:0140535	2	SPU_028722	1.348817061
+"intracellular protein-containing complex"	GO:0140535	2	SPU_028912	0.458433575
+"extracellular region"	GO:0005576	2	SPU_000427	4.343135088
+"extracellular region"	GO:0005576	2	SPU_000957	0.465348444
+"extracellular region"	GO:0005576	2	SPU_000997	0.862869857
+"extracellular region"	GO:0005576	2	SPU_001628	0.055055025
+"extracellular region"	GO:0005576	2	SPU_001638	1.087309845
+"extracellular region"	GO:0005576	2	SPU_004017	3.331800782
+"extracellular region"	GO:0005576	2	SPU_004104	0.131791988
+"extracellular region"	GO:0005576	2	SPU_004610	0.039765359
+"extracellular region"	GO:0005576	2	SPU_004977	1.263549266
+"extracellular region"	GO:0005576	2	SPU_005193	0.765202666
+"extracellular region"	GO:0005576	2	SPU_005399	1.893203103
+"extracellular region"	GO:0005576	2	SPU_005781	3.317863666
+"extracellular region"	GO:0005576	2	SPU_007141	1.466019775
+"extracellular region"	GO:0005576	2	SPU_007203	0.573379214
+"extracellular region"	GO:0005576	2	SPU_008873	0.808159477
+"extracellular region"	GO:0005576	2	SPU_009052	0.193417504
+"extracellular region"	GO:0005576	2	SPU_009817	0.804031083
+"extracellular region"	GO:0005576	2	SPU_010964	0.783080096
+"extracellular region"	GO:0005576	2	SPU_011451	0.324612698
+"extracellular region"	GO:0005576	2	SPU_012403	0.098678234
+"extracellular region"	GO:0005576	2	SPU_012667	0.439147112
+"extracellular region"	GO:0005576	2	SPU_012936	2.80421288
+"extracellular region"	GO:0005576	2	SPU_013106	2.815494827
+"extracellular region"	GO:0005576	2	SPU_013170	3.075796042
+"extracellular region"	GO:0005576	2	SPU_013570	1.302874693
+"extracellular region"	GO:0005576	2	SPU_015371	0.671492174
+"extracellular region"	GO:0005576	2	SPU_016497	0.812407246
+"extracellular region"	GO:0005576	2	SPU_017329	2.310600224
+"extracellular region"	GO:0005576	2	SPU_019130	0.637432388
+"extracellular region"	GO:0005576	2	SPU_019400	2.478168288
+"extracellular region"	GO:0005576	2	SPU_019422	0.143911147
+"extracellular region"	GO:0005576	2	SPU_019601	0.116019666
+"extracellular region"	GO:0005576	2	SPU_020371	0.288322516
+"extracellular region"	GO:0005576	2	SPU_021973	0.757770845
+"extracellular region"	GO:0005576	2	SPU_022347	0.850768569
+"extracellular region"	GO:0005576	2	SPU_022667	3.206510428
+"extracellular region"	GO:0005576	2	SPU_022741	1.126231261
+"extracellular region"	GO:0005576	2	SPU_022954	0.486060513
+"extracellular region"	GO:0005576	2	SPU_022988	0.34084281
+"extracellular region"	GO:0005576	2	SPU_023463	0.542582515
+"extracellular region"	GO:0005576	2	SPU_024946	0.071850162
+"extracellular region"	GO:0005576	2	SPU_025900	3.269109713
+"extracellular region"	GO:0005576	2	SPU_025922	0.290421426
+"extracellular region"	GO:0005576	2	SPU_026949	0.125178389
+"extracellular region"	GO:0005576	2	SPU_027178	0.686260985
+"extracellular region"	GO:0005576	2	SPU_027226	0.368473584
+"extracellular region"	GO:0005576	2	SPU_027369	2.183449192
+"extracellular region"	GO:0005576	2	SPU_028501	2.880696261
+"extracellular region"	GO:0005576	2	SPU_030074	3.453423536
+"extracellular region"	GO:0005576	2	SPU_030204	2.429805846
+"vacuole"	GO:0005764;GO:0000323;GO:0005773	4	SPU_008303	0.862129566
+"vacuole"	GO:0005764;GO:0000323;GO:0005773	4	SPU_008640	2.76567144
+"vacuole"	GO:0005764;GO:0000323;GO:0005773	4	SPU_013454	2.143738976
+"vacuole"	GO:0005764;GO:0000323;GO:0005773	4	SPU_016273	0.319431967
+"vacuole"	GO:0005764;GO:0000323;GO:0005773	4	SPU_020799	0.798382574
+"vacuole"	GO:0005764;GO:0000323;GO:0005773	4	SPU_022672	0.008310134
+"proteasome core complex"	GO:0005839	2	SPU_002299	3.042697124
+"proteasome core complex"	GO:0005839	2	SPU_004036	1.772568063
+"proteasome core complex"	GO:0005839	2	SPU_013097	0.035770628
+"proteasome core complex"	GO:0005839	2	SPU_014490	1.026480584
+"proteasome core complex"	GO:0005839	2	SPU_015513	0.985628593
+"proteasome core complex"	GO:0005839	2	SPU_018103	1.528455978
+"proteasome core complex"	GO:0005839	2	SPU_019829	2.453626923
+"proteasome core complex"	GO:0005839	2	SPU_022074	1.143585056
+"proteasome core complex"	GO:0005839	2	SPU_023191	0.12154273
+"proteasome core complex"	GO:0005839	2	SPU_023286	0.650450074
+"proteasome core complex"	GO:0005839	2	SPU_028652	1.735283556
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_000856	0.936821995
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_001624	0.231634705
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_004907	4.020694472
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_006470	0.325856256
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_007770	1.199084251
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_007963	2.934349748
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_012871	1.127530064
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_018422	0.322951099
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_019341	0.306028149
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_023063	0.934059604
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_025997	0.46198368
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_026800	2.510529886
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_027038	1.826504732
+"transporter complex"	GO:0034703;GO:0034702;GO:1902495;GO:1990351	4	SPU_009075	0.098216067
+"extracellular matrix"	GO:0031012	2	SPU_000566	1.001813969
+"extracellular matrix"	GO:0031012	2	SPU_000680	0.077197134
+"extracellular matrix"	GO:0031012	2	SPU_003703	0.16064714
+"extracellular matrix"	GO:0031012	2	SPU_004897	0.108407056
+"extracellular matrix"	GO:0031012	2	SPU_005577	2.892875761
+"extracellular matrix"	GO:0031012	2	SPU_005723	3.251114969
+"extracellular matrix"	GO:0031012	2	SPU_006268	1.863767874
+"extracellular matrix"	GO:0031012	2	SPU_009503	1.315587383
+"extracellular matrix"	GO:0031012	2	SPU_011913	1.207433704
+"extracellular matrix"	GO:0031012	2	SPU_016078	1.010020528
+"extracellular matrix"	GO:0031012	2	SPU_018156	2.992180286
+"extracellular matrix"	GO:0031012	2	SPU_021193	2.728584537
+"extracellular matrix"	GO:0031012	2	SPU_021857	0.48846008
+"extracellular matrix"	GO:0031012	2	SPU_022929	0.222262231
+"extracellular matrix"	GO:0031012	2	SPU_025345	5.259472187
+"extracellular matrix"	GO:0031012	2	SPU_026041	0.080753766
+"extracellular matrix"	GO:0031012	2	SPU_026798	0.359289398
+"extracellular matrix"	GO:0031012	2	SPU_027219	0.282783195
+"extracellular matrix"	GO:0031012	2	SPU_027328	1.232478257
+"extracellular matrix"	GO:0031012	2	SPU_028749	3.651906064
+"extracellular matrix"	GO:0031012	2	SPU_030009	0.408964718
+"Golgi membrane"	GO:0000139	4	SPU_001579	1.803069722
+"Golgi membrane"	GO:0000139	4	SPU_008505	1.864647541
+"Golgi membrane"	GO:0000139	4	SPU_008692	1.698523238
+"Golgi membrane"	GO:0000139	4	SPU_009014	0.384140618
+"Golgi membrane"	GO:0000139	4	SPU_009922	2.819879367
+"Golgi membrane"	GO:0000139	4	SPU_015506	0.995123227
+"Golgi membrane"	GO:0000139	4	SPU_018130	4.163091392
+"Golgi membrane"	GO:0000139	4	SPU_019074	0.514420601
+"Golgi membrane"	GO:0000139	4	SPU_019603	3.278949233
+"Golgi membrane"	GO:0000139	4	SPU_019782	1.645481643
+"Golgi membrane"	GO:0000139	4	SPU_023648	1.330963683
+"Golgi membrane"	GO:0000139	4	SPU_025102	3.150527723
+"Golgi membrane"	GO:0000139	4	SPU_025858	1.207797152
+"Golgi membrane"	GO:0000139	4	SPU_027418	1.347424587
+"mitochondrial membrane"	GO:0031966	3	SPU_003959	0.867629902
+"mitochondrial membrane"	GO:0031966	3	SPU_005110	3.916982531
+"mitochondrial membrane"	GO:0031966	3	SPU_007142	1.094742458
+"mitochondrial membrane"	GO:0031966	3	SPU_009107	1.214043442
+"mitochondrial membrane"	GO:0031966	3	SPU_009673	2.917460311
+"mitochondrial membrane"	GO:0031966	3	SPU_009674	1.511663646
+"mitochondrial membrane"	GO:0031966	3	SPU_011261	3.204942414
+"mitochondrial membrane"	GO:0031966	3	SPU_011313	0.767994542
+"mitochondrial membrane"	GO:0031966	3	SPU_012712	2.077711713
+"mitochondrial membrane"	GO:0031966	3	SPU_014660	1.1315123
+"mitochondrial membrane"	GO:0031966	3	SPU_015067	0.032425717
+"mitochondrial membrane"	GO:0031966	3	SPU_015257	1.275644572
+"mitochondrial membrane"	GO:0031966	3	SPU_016404	0.957447163
+"mitochondrial membrane"	GO:0031966	3	SPU_019118	0.443329138
+"mitochondrial membrane"	GO:0031966	3	SPU_023426	0.309518714
+"mitochondrial membrane"	GO:0031966	3	SPU_024224	0.325804295
+"mitochondrial membrane"	GO:0031966	3	SPU_024417	6.559563455
+"mitochondrial membrane"	GO:0031966	3	SPU_024446	0.04602191
+"mitochondrial membrane"	GO:0031966	3	SPU_025777	0.131449468
+"mitochondrial membrane"	GO:0031966	3	SPU_026618	1.357960512
+"mitochondrial membrane"	GO:0031966	3	SPU_027236	4.043722157
+"centrosome"	GO:0005813	2	SPU_000215	0.03809839
+"centrosome"	GO:0005813	2	SPU_002498	2.768234288
+"centrosome"	GO:0005813	2	SPU_009979	0.288973933
+"centrosome"	GO:0005813	2	SPU_010736	0.443454286
+"centrosome"	GO:0005813	2	SPU_011707	0.595088436
+"centrosome"	GO:0005813	2	SPU_016509	5.239570187
+"centrosome"	GO:0005813	2	SPU_020715	0.771574613
+"centrosome"	GO:0005813	2	SPU_024595	0.392322763
+"centrosome"	GO:0005813	2	SPU_024954	3.440464844
+"DNA packaging complex"	GO:0044815	2	SPU_010616	0.956947236
+"DNA packaging complex"	GO:0044815	2	SPU_012150	0.290419357
+"DNA packaging complex"	GO:0044815	2	SPU_014879	2.504863034
+"DNA packaging complex"	GO:0044815	2	SPU_015391	1.606870402
+"DNA packaging complex"	GO:0044815	2	SPU_018309	0.803420142
+"DNA packaging complex"	GO:0044815	2	SPU_021279	2.269043151
+"DNA packaging complex"	GO:0044815	2	SPU_023075	1.68895619
+"DNA packaging complex"	GO:0044815	2	SPU_024546	0.875429085
+"DNA packaging complex"	GO:0044815	2	SPU_024801	1.030352675
+"DNA packaging complex"	GO:0044815	2	SPU_025973	0.743391449
+"peptidase complex"	GO:1905368	3	SPU_006119	0.831537405
+"peptidase complex"	GO:1905368	3	SPU_013996	0.392084834
+"peptidase complex"	GO:1905368	3	SPU_014281	1.573109954
+"peptidase complex"	GO:1905368	3	SPU_022327	0.002326882
+"peptidase complex"	GO:1905368	3	SPU_024540	0.06673095
+"peptidase complex"	GO:1905368	3	SPU_024737	1.792101837
+"peptidase complex"	GO:1905368	3	SPU_025818	4.510535774
+"peptidase complex"	GO:1905368	3	SPU_028912	0.458433575
+"membrane protein complex"	GO:0098796	2	SPU_000022	2.966106626
+"membrane protein complex"	GO:0098796	2	SPU_000206	0.142113054
+"membrane protein complex"	GO:0098796	2	SPU_000364	0.375034501
+"membrane protein complex"	GO:0098796	2	SPU_000856	0.936821995
+"membrane protein complex"	GO:0098796	2	SPU_001183	1.544882074
+"membrane protein complex"	GO:0098796	2	SPU_001332	1.820315234
+"membrane protein complex"	GO:0098796	2	SPU_001624	0.231634705
+"membrane protein complex"	GO:0098796	2	SPU_001860	1.140806774
+"membrane protein complex"	GO:0098796	2	SPU_002002	0.976487802
+"membrane protein complex"	GO:0098796	2	SPU_002051	0.444557296
+"membrane protein complex"	GO:0098796	2	SPU_002069	0.136230868
+"membrane protein complex"	GO:0098796	2	SPU_002197	4.236742006
+"membrane protein complex"	GO:0098796	2	SPU_002198	1.195103198
+"membrane protein complex"	GO:0098796	2	SPU_002356	1.07844588
+"membrane protein complex"	GO:0098796	2	SPU_002518	1.021993721
+"membrane protein complex"	GO:0098796	2	SPU_002519	0.341498582
+"membrane protein complex"	GO:0098796	2	SPU_002521	0.330127667
+"membrane protein complex"	GO:0098796	2	SPU_002616	0.346194902
+"membrane protein complex"	GO:0098796	2	SPU_002714	0.134005627
+"membrane protein complex"	GO:0098796	2	SPU_003070	2.444033821
+"membrane protein complex"	GO:0098796	2	SPU_003273	1.912919806
+"membrane protein complex"	GO:0098796	2	SPU_004297	0.602942959
+"membrane protein complex"	GO:0098796	2	SPU_004682	0.010912959
+"membrane protein complex"	GO:0098796	2	SPU_004907	4.020694472
+"membrane protein complex"	GO:0098796	2	SPU_004963	2.124931034
+"membrane protein complex"	GO:0098796	2	SPU_005296	0.504984401
+"membrane protein complex"	GO:0098796	2	SPU_005405	0.18491568
+"membrane protein complex"	GO:0098796	2	SPU_005583	1.989106114
+"membrane protein complex"	GO:0098796	2	SPU_006119	0.831537405
+"membrane protein complex"	GO:0098796	2	SPU_006308	0.200574067
+"membrane protein complex"	GO:0098796	2	SPU_006436	3.840213846
+"membrane protein complex"	GO:0098796	2	SPU_006470	0.325856256
+"membrane protein complex"	GO:0098796	2	SPU_006702	0.140805107
+"membrane protein complex"	GO:0098796	2	SPU_006765	0.115467055
+"membrane protein complex"	GO:0098796	2	SPU_007770	1.199084251
+"membrane protein complex"	GO:0098796	2	SPU_007942	1.013714544
+"membrane protein complex"	GO:0098796	2	SPU_007963	2.934349748
+"membrane protein complex"	GO:0098796	2	SPU_008073	0.405333361
+"membrane protein complex"	GO:0098796	2	SPU_008143	1.485619335
+"membrane protein complex"	GO:0098796	2	SPU_008449	0.05644854
+"membrane protein complex"	GO:0098796	2	SPU_009461	2.755251072
+"membrane protein complex"	GO:0098796	2	SPU_009513	1.229441593
+"membrane protein complex"	GO:0098796	2	SPU_009588	0.775693503
+"membrane protein complex"	GO:0098796	2	SPU_010116	0.539615583
+"membrane protein complex"	GO:0098796	2	SPU_010739	0.28031026
+"membrane protein complex"	GO:0098796	2	SPU_010964	0.783080096
+"membrane protein complex"	GO:0098796	2	SPU_011567	0.586550069
+"membrane protein complex"	GO:0098796	2	SPU_011577	0.870803555
+"membrane protein complex"	GO:0098796	2	SPU_011877	0.918768409
+"membrane protein complex"	GO:0098796	2	SPU_012559	2.561887964
+"membrane protein complex"	GO:0098796	2	SPU_012695	1.511452366
+"membrane protein complex"	GO:0098796	2	SPU_012784	2.008461386
+"membrane protein complex"	GO:0098796	2	SPU_012871	1.127530064
+"membrane protein complex"	GO:0098796	2	SPU_013012	2.113568948
+"membrane protein complex"	GO:0098796	2	SPU_013052	0.307461413
+"membrane protein complex"	GO:0098796	2	SPU_013353	0.585959035
+"membrane protein complex"	GO:0098796	2	SPU_013536	1.538125781
+"membrane protein complex"	GO:0098796	2	SPU_013675	2.267052198
+"membrane protein complex"	GO:0098796	2	SPU_013681	1.633607482
+"membrane protein complex"	GO:0098796	2	SPU_014071	0.099651172
+"membrane protein complex"	GO:0098796	2	SPU_014811	0.088082965
+"membrane protein complex"	GO:0098796	2	SPU_015556	2.118969576
+"membrane protein complex"	GO:0098796	2	SPU_015724	1.146781537
+"membrane protein complex"	GO:0098796	2	SPU_015920	3.14788264
+"membrane protein complex"	GO:0098796	2	SPU_015921	0.665175884
+"membrane protein complex"	GO:0098796	2	SPU_016414	0.716189107
+"membrane protein complex"	GO:0098796	2	SPU_016618	4.114510339
+"membrane protein complex"	GO:0098796	2	SPU_017200	0.25147512
+"membrane protein complex"	GO:0098796	2	SPU_017753	1.196021538
+"membrane protein complex"	GO:0098796	2	SPU_017792	2.198362891
+"membrane protein complex"	GO:0098796	2	SPU_018350	0.004392971
+"membrane protein complex"	GO:0098796	2	SPU_018422	0.322951099
+"membrane protein complex"	GO:0098796	2	SPU_019118	0.443329138
+"membrane protein complex"	GO:0098796	2	SPU_019341	0.306028149
+"membrane protein complex"	GO:0098796	2	SPU_019622	4.554380932
+"membrane protein complex"	GO:0098796	2	SPU_020029	1.697548788
+"membrane protein complex"	GO:0098796	2	SPU_020030	0.07182872
+"membrane protein complex"	GO:0098796	2	SPU_020497	1.101684505
+"membrane protein complex"	GO:0098796	2	SPU_021308	0.640975064
+"membrane protein complex"	GO:0098796	2	SPU_022302	2.475991654
+"membrane protein complex"	GO:0098796	2	SPU_022612	3.424756978
+"membrane protein complex"	GO:0098796	2	SPU_022837	0.100654009
+"membrane protein complex"	GO:0098796	2	SPU_023063	0.934059604
+"membrane protein complex"	GO:0098796	2	SPU_023647	2.641193279
+"membrane protein complex"	GO:0098796	2	SPU_023750	2.308001538
+"membrane protein complex"	GO:0098796	2	SPU_024417	6.559563455
+"membrane protein complex"	GO:0098796	2	SPU_024540	0.06673095
+"membrane protein complex"	GO:0098796	2	SPU_024862	1.686886132
+"membrane protein complex"	GO:0098796	2	SPU_024893	3.229880533
+"membrane protein complex"	GO:0098796	2	SPU_025016	3.318652898
+"membrane protein complex"	GO:0098796	2	SPU_025121	2.071456563
+"membrane protein complex"	GO:0098796	2	SPU_025229	0.839098274
+"membrane protein complex"	GO:0098796	2	SPU_025450	0.199591959
+"membrane protein complex"	GO:0098796	2	SPU_025626	0.636457811
+"membrane protein complex"	GO:0098796	2	SPU_025997	0.46198368
+"membrane protein complex"	GO:0098796	2	SPU_026800	2.510529886
+"membrane protein complex"	GO:0098796	2	SPU_027038	1.826504732
+"membrane protein complex"	GO:0098796	2	SPU_028111	0.670548819
+"membrane protein complex"	GO:0098796	2	SPU_028420	3.818187369
+"membrane protein complex"	GO:0098796	2	SPU_028775	0.583217492
+"membrane protein complex"	GO:0098796	2	SPU_028873	0.885522366
+"membrane protein complex"	GO:0098796	2	SPU_028880	1.213064254
+"membrane protein complex"	GO:0098796	2	SPU_028885	0.442664444
+"membrane protein complex"	GO:0098796	2	SPU_030082	0.142713867
+"nuclear ubiquitin ligase complex"	GO:0005680;GO:0000152	3	SPU_008018	3.948907176
+"nuclear ubiquitin ligase complex"	GO:0005680;GO:0000152	3	SPU_012580	1.010195043
+"nuclear ubiquitin ligase complex"	GO:0005680;GO:0000152	3	SPU_012696	0.604183314
+"nuclear ubiquitin ligase complex"	GO:0005680;GO:0000152	3	SPU_021077	0.685520583
+"nuclear ubiquitin ligase complex"	GO:0005680;GO:0000152	3	SPU_024153	1.593068592
+"Smc5-Smc6 complex"	GO:0030915;GO:0106068	4	SPU_002920	0.86728366
+"Smc5-Smc6 complex"	GO:0030915;GO:0106068	4	SPU_020994	0.120731402
+"Smc5-Smc6 complex"	GO:0030915;GO:0106068	4	SPU_020995	0.011355792
+"Smc5-Smc6 complex"	GO:0030915;GO:0106068	4	SPU_023729	3.24670544
+"Smc5-Smc6 complex"	GO:0030915;GO:0106068	4	SPU_025541	3.27998592
+"Smc5-Smc6 complex"	GO:0030915;GO:0106068	4	SPU_028333	0.808600135
+"ubiquitin ligase complex"	GO:0000151	2	SPU_000088	1.611311731
+"ubiquitin ligase complex"	GO:0000151	2	SPU_002933	4.196477162
+"ubiquitin ligase complex"	GO:0000151	2	SPU_006755	2.130288755
+"ubiquitin ligase complex"	GO:0000151	2	SPU_008018	3.948907176
+"ubiquitin ligase complex"	GO:0000151	2	SPU_008469	1.02026218
+"ubiquitin ligase complex"	GO:0000151	2	SPU_008501	1.529007575
+"ubiquitin ligase complex"	GO:0000151	2	SPU_012580	1.010195043
+"ubiquitin ligase complex"	GO:0000151	2	SPU_012696	0.604183314
+"ubiquitin ligase complex"	GO:0000151	2	SPU_014980	0.168797186
+"ubiquitin ligase complex"	GO:0000151	2	SPU_015843	0.692474124
+"ubiquitin ligase complex"	GO:0000151	2	SPU_018512	4.326009857
+"ubiquitin ligase complex"	GO:0000151	2	SPU_018554	0.395658701
+"ubiquitin ligase complex"	GO:0000151	2	SPU_018555	0.97860825
+"ubiquitin ligase complex"	GO:0000151	2	SPU_018556	0.702341973
+"ubiquitin ligase complex"	GO:0000151	2	SPU_019174	2.548472244
+"ubiquitin ligase complex"	GO:0000151	2	SPU_019875	0.199659844
+"ubiquitin ligase complex"	GO:0000151	2	SPU_021077	0.685520583
+"ubiquitin ligase complex"	GO:0000151	2	SPU_021121	2.091601836
+"ubiquitin ligase complex"	GO:0000151	2	SPU_021620	2.102838019
+"ubiquitin ligase complex"	GO:0000151	2	SPU_022674	3.846217015
+"ubiquitin ligase complex"	GO:0000151	2	SPU_022917	1.220527651
+"ubiquitin ligase complex"	GO:0000151	2	SPU_024153	1.593068592
+"ubiquitin ligase complex"	GO:0000151	2	SPU_026535	0.031472148
+"integral component of Golgi membrane"	GO:0030173;GO:0031228	2	SPU_002756	3.635307653
+"integral component of Golgi membrane"	GO:0030173;GO:0031228	2	SPU_003596	0.370427648
+"integral component of Golgi membrane"	GO:0030173;GO:0031228	2	SPU_014287	2.001618597
+"integral component of Golgi membrane"	GO:0030173;GO:0031228	2	SPU_015169	0.492926765
+"integral component of Golgi membrane"	GO:0030173;GO:0031228	2	SPU_017896	1.597392525
+"integral component of Golgi membrane"	GO:0030173;GO:0031228	2	SPU_024405	0.558057902
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_000364	0.375034501
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_005296	0.504984401
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_006308	0.200574067
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_009588	0.775693503
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_010739	0.28031026
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_012695	1.511452366
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_012784	2.008461386
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_016414	0.716189107
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_017753	1.196021538
+"proton-transporting two-sector ATPase complex, catalytic domain"	GO:0033178	3	SPU_028873	0.885522366
+"transport vesicle"	GO:0008021;GO:0070382;GO:0030133;GO:0099503	3	SPU_001702	2.536306482
+"transport vesicle"	GO:0008021;GO:0070382;GO:0030133;GO:0099503	3	SPU_002292	0.599441835
+"transport vesicle"	GO:0008021;GO:0070382;GO:0030133;GO:0099503	3	SPU_005854	0.112506579
+"transport vesicle"	GO:0008021;GO:0070382;GO:0030133;GO:0099503	3	SPU_010151	0.975314244
+"transport vesicle"	GO:0008021;GO:0070382;GO:0030133;GO:0099503	3	SPU_020199	1.80879212
+"transport vesicle"	GO:0008021;GO:0070382;GO:0030133;GO:0099503	3	SPU_019930	0.944482896
+"catalytic complex"	GO:1902494	2	SPU_000088	1.611311731
+"catalytic complex"	GO:1902494	2	SPU_000178	1.841885913
+"catalytic complex"	GO:1902494	2	SPU_000206	0.142113054
+"catalytic complex"	GO:1902494	2	SPU_000632	10.56050042
+"catalytic complex"	GO:1902494	2	SPU_002482	1.307197326
+"catalytic complex"	GO:1902494	2	SPU_002521	0.330127667
+"catalytic complex"	GO:1902494	2	SPU_002920	0.86728366
+"catalytic complex"	GO:1902494	2	SPU_002933	4.196477162
+"catalytic complex"	GO:1902494	2	SPU_002935	1.25258611
+"catalytic complex"	GO:1902494	2	SPU_003119	0.371811777
+"catalytic complex"	GO:1902494	2	SPU_003120	1.732410731
+"catalytic complex"	GO:1902494	2	SPU_003564	0.739146926
+"catalytic complex"	GO:1902494	2	SPU_003867	2.74490292
+"catalytic complex"	GO:1902494	2	SPU_004393	0.418655117
+"catalytic complex"	GO:1902494	2	SPU_004697	0.290083444
+"catalytic complex"	GO:1902494	2	SPU_005644	0.226235472
+"catalytic complex"	GO:1902494	2	SPU_005944	0.529296851
+"catalytic complex"	GO:1902494	2	SPU_006119	0.831537405
+"catalytic complex"	GO:1902494	2	SPU_006755	2.130288755
+"catalytic complex"	GO:1902494	2	SPU_006861	0.40011085
+"catalytic complex"	GO:1902494	2	SPU_007377	0.692586991
+"catalytic complex"	GO:1902494	2	SPU_008018	3.948907176
+"catalytic complex"	GO:1902494	2	SPU_008073	0.405333361
+"catalytic complex"	GO:1902494	2	SPU_008188	2.958378637
+"catalytic complex"	GO:1902494	2	SPU_008469	1.02026218
+"catalytic complex"	GO:1902494	2	SPU_008501	1.529007575
+"catalytic complex"	GO:1902494	2	SPU_008590	1.991138686
+"catalytic complex"	GO:1902494	2	SPU_009461	2.755251072
+"catalytic complex"	GO:1902494	2	SPU_010339	1.192453451
+"catalytic complex"	GO:1902494	2	SPU_010886	1.206513047
+"catalytic complex"	GO:1902494	2	SPU_011676	0.17393716
+"catalytic complex"	GO:1902494	2	SPU_012139	4.983153582
+"catalytic complex"	GO:1902494	2	SPU_012418	0.117907433
+"catalytic complex"	GO:1902494	2	SPU_012580	1.010195043
+"catalytic complex"	GO:1902494	2	SPU_012696	0.604183314
+"catalytic complex"	GO:1902494	2	SPU_013346	1.096730378
+"catalytic complex"	GO:1902494	2	SPU_013819	0.625055347
+"catalytic complex"	GO:1902494	2	SPU_013996	0.392084834
+"catalytic complex"	GO:1902494	2	SPU_014071	0.099651172
+"catalytic complex"	GO:1902494	2	SPU_014281	1.573109954
+"catalytic complex"	GO:1902494	2	SPU_014569	2.129429506
+"catalytic complex"	GO:1902494	2	SPU_014980	0.168797186
+"catalytic complex"	GO:1902494	2	SPU_015049	1.831332603
+"catalytic complex"	GO:1902494	2	SPU_015724	1.146781537
+"catalytic complex"	GO:1902494	2	SPU_015843	0.692474124
+"catalytic complex"	GO:1902494	2	SPU_015981	0.846769563
+"catalytic complex"	GO:1902494	2	SPU_016050	1.236041439
+"catalytic complex"	GO:1902494	2	SPU_018512	4.326009857
+"catalytic complex"	GO:1902494	2	SPU_018552	1.218402608
+"catalytic complex"	GO:1902494	2	SPU_018554	0.395658701
+"catalytic complex"	GO:1902494	2	SPU_018555	0.97860825
+"catalytic complex"	GO:1902494	2	SPU_018556	0.702341973
+"catalytic complex"	GO:1902494	2	SPU_019174	2.548472244
+"catalytic complex"	GO:1902494	2	SPU_019604	1.807222305
+"catalytic complex"	GO:1902494	2	SPU_019875	0.199659844
+"catalytic complex"	GO:1902494	2	SPU_020495	1.157154811
+"catalytic complex"	GO:1902494	2	SPU_020621	1.802604259
+"catalytic complex"	GO:1902494	2	SPU_020994	0.120731402
+"catalytic complex"	GO:1902494	2	SPU_020995	0.011355792
+"catalytic complex"	GO:1902494	2	SPU_021036	0.206685229
+"catalytic complex"	GO:1902494	2	SPU_021077	0.685520583
+"catalytic complex"	GO:1902494	2	SPU_021121	2.091601836
+"catalytic complex"	GO:1902494	2	SPU_021620	2.102838019
+"catalytic complex"	GO:1902494	2	SPU_021625	2.573755022
+"catalytic complex"	GO:1902494	2	SPU_022309	0.537621376
+"catalytic complex"	GO:1902494	2	SPU_022327	0.002326882
+"catalytic complex"	GO:1902494	2	SPU_022674	3.846217015
+"catalytic complex"	GO:1902494	2	SPU_022837	0.100654009
+"catalytic complex"	GO:1902494	2	SPU_022917	1.220527651
+"catalytic complex"	GO:1902494	2	SPU_023506	1.293996578
+"catalytic complex"	GO:1902494	2	SPU_023679	0.88722666
+"catalytic complex"	GO:1902494	2	SPU_023729	3.24670544
+"catalytic complex"	GO:1902494	2	SPU_024153	1.593068592
+"catalytic complex"	GO:1902494	2	SPU_024540	0.06673095
+"catalytic complex"	GO:1902494	2	SPU_024737	1.792101837
+"catalytic complex"	GO:1902494	2	SPU_025541	3.27998592
+"catalytic complex"	GO:1902494	2	SPU_025818	4.510535774
+"catalytic complex"	GO:1902494	2	SPU_026147	0.231185538
+"catalytic complex"	GO:1902494	2	SPU_026343	0.070329854
+"catalytic complex"	GO:1902494	2	SPU_026500	0.069470376
+"catalytic complex"	GO:1902494	2	SPU_026535	0.031472148
+"catalytic complex"	GO:1902494	2	SPU_026667	0.572349598
+"catalytic complex"	GO:1902494	2	SPU_027270	0.280128403
+"catalytic complex"	GO:1902494	2	SPU_027408	2.464788673
+"catalytic complex"	GO:1902494	2	SPU_027580	1.137190053
+"catalytic complex"	GO:1902494	2	SPU_028057	0.741594173
+"catalytic complex"	GO:1902494	2	SPU_028189	0.225602707
+"catalytic complex"	GO:1902494	2	SPU_028333	0.808600135
+"catalytic complex"	GO:1902494	2	SPU_028524	1.375279216
+"catalytic complex"	GO:1902494	2	SPU_028722	1.348817061
+"catalytic complex"	GO:1902494	2	SPU_028912	0.458433575
+"catalytic complex"	GO:1902494	2	SPU_028917	0.40210845
+"catalytic complex"	GO:1902494	2	SPU_030082	0.142713867
+"catalytic complex"	GO:1902494	2	SPU_030224	1.34871266
+"catalytic complex"	GO:1902494	2	SPU_030225	1.462343763
+"catalytic complex"	GO:1902494	2	SPU_030226	0.678137525
+"catalytic complex"	GO:1902494	2	SPU_030228	2.522669636
+"catalytic complex"	GO:1902494	2	SPU_030230	1.89710895
+"catalytic complex"	GO:1902494	2	SPU_030231	1.632304181
+"catalytic complex"	GO:1902494	2	SPU_030234	0.659437312
+"catalytic complex"	GO:1902494	2	SPU_030235	0.520244642
+"catalytic complex"	GO:1902494	2	SPU_030236	0.788830847
+"TOR complex"	GO:0038201	2	SPU_002347	1.949542672
+"TOR complex"	GO:0038201	2	SPU_008395	1.611423503
+"TOR complex"	GO:0038201	2	SPU_011685	0.431968647
+"TOR complex"	GO:0038201	2	SPU_019171	0.280758846
+"TOR complex"	GO:0038201	2	SPU_019172	0.230261808
+"TOR complex"	GO:0038201	2	SPU_024345	0.617753921
+"TOR complex"	GO:0038201	2	SPU_025321	3.88010211
+"dynein complex"	GO:0030286	2	SPU_003564	0.739146926
+"dynein complex"	GO:0030286	2	SPU_008188	2.958378637
+"dynein complex"	GO:0030286	2	SPU_010886	1.206513047
+"dynein complex"	GO:0030286	2	SPU_012139	4.983153582
+"dynein complex"	GO:0030286	2	SPU_012418	0.117907433
+"dynein complex"	GO:0030286	2	SPU_015049	1.831332603
+"dynein complex"	GO:0030286	2	SPU_016050	1.236041439
+"dynein complex"	GO:0030286	2	SPU_020621	1.802604259
+"dynein complex"	GO:0030286	2	SPU_023679	0.88722666
+"dynein complex"	GO:0030286	2	SPU_026343	0.070329854
+"dynein complex"	GO:0030286	2	SPU_026667	0.572349598
+"dynein complex"	GO:0030286	2	SPU_028057	0.741594173
+"dynein complex"	GO:0030286	2	SPU_028189	0.225602707
+"dynein complex"	GO:0030286	2	SPU_030224	1.34871266
+"dynein complex"	GO:0030286	2	SPU_030225	1.462343763
+"dynein complex"	GO:0030286	2	SPU_030226	0.678137525
+"dynein complex"	GO:0030286	2	SPU_030228	2.522669636
+"dynein complex"	GO:0030286	2	SPU_030230	1.89710895
+"dynein complex"	GO:0030286	2	SPU_030231	1.632304181
+"dynein complex"	GO:0030286	2	SPU_030234	0.659437312
+"dynein complex"	GO:0030286	2	SPU_030235	0.520244642
+"dynein complex"	GO:0030286	2	SPU_030236	0.788830847
+"nucleosome"	GO:0000786;GO:0032993	2	SPU_010616	0.956947236
+"nucleosome"	GO:0000786;GO:0032993	2	SPU_014879	2.504863034
+"nucleosome"	GO:0000786;GO:0032993	2	SPU_015391	1.606870402
+"nucleosome"	GO:0000786;GO:0032993	2	SPU_021279	2.269043151
+"nucleosome"	GO:0000786;GO:0032993	2	SPU_023075	1.68895619
+"nucleosome"	GO:0000786;GO:0032993	2	SPU_025973	0.743391449
+"voltage-gated calcium channel complex"	GO:0005891;GO:0034704	5	SPU_001624	0.231634705
+"voltage-gated calcium channel complex"	GO:0005891;GO:0034704	5	SPU_007770	1.199084251
+"voltage-gated calcium channel complex"	GO:0005891;GO:0034704	5	SPU_007963	2.934349748
+"voltage-gated calcium channel complex"	GO:0005891;GO:0034704	5	SPU_023063	0.934059604
+"voltage-gated calcium channel complex"	GO:0005891;GO:0034704	5	SPU_026800	2.510529886
+"voltage-gated calcium channel complex"	GO:0005891;GO:0034704	5	SPU_027038	1.826504732
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_005930	2.389299841
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_008311	0.56233414
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_012217	0.318082315
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_012644	4.214985756
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_018397	0.139482821
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_018556	0.702341973
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_019712	1.269744114
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_019713	1.558949468
+"peroxisome"	GO:0005777;GO:0042579	2	SPU_020364	0.280367698
+"plasma membrane"	GO:0005886	3	SPU_001452	0.495791887
+"plasma membrane"	GO:0005886	3	SPU_001454	0.738825925
+"plasma membrane"	GO:0005886	3	SPU_001480	0.656402666
+"plasma membrane"	GO:0005886	3	SPU_003730	1.318354072
+"plasma membrane"	GO:0005886	3	SPU_004074	1.560857144
+"plasma membrane"	GO:0005886	3	SPU_009073	0.133131308
+"plasma membrane"	GO:0005886	3	SPU_011375	0.123692308
+"plasma membrane"	GO:0005886	3	SPU_013323	3.041604344
+"plasma membrane"	GO:0005886	3	SPU_015140	1.107955107
+"plasma membrane"	GO:0005886	3	SPU_015210	0.029741739
+"plasma membrane"	GO:0005886	3	SPU_017039	0.070403553
+"plasma membrane"	GO:0005886	3	SPU_019010	0.356376947
+"plasma membrane"	GO:0005886	3	SPU_019261	0.917882409
+"plasma membrane"	GO:0005886	3	SPU_019394	3.702100118
+"plasma membrane"	GO:0005886	3	SPU_021625	2.573755022
+"plasma membrane"	GO:0005886	3	SPU_022283	0.155906973
+"plasma membrane"	GO:0005886	3	SPU_023632	0.68239106
+"plasma membrane"	GO:0005886	3	SPU_027133	1.952234025
+"nuclear DNA-directed RNA polymerase complex"	GO:0055029;GO:0000428;GO:0030880	5	SPU_005644	0.226235472
+"nuclear DNA-directed RNA polymerase complex"	GO:0055029;GO:0000428;GO:0030880	5	SPU_007377	0.692586991
+"nuclear DNA-directed RNA polymerase complex"	GO:0055029;GO:0000428;GO:0030880	5	SPU_019604	1.807222305
+"nuclear DNA-directed RNA polymerase complex"	GO:0055029;GO:0000428;GO:0030880	5	SPU_022309	0.537621376
+"nuclear DNA-directed RNA polymerase complex"	GO:0055029;GO:0000428;GO:0030880	5	SPU_028524	1.375279216
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_000765	0.417084897
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_002737	0.954486308
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_005670	1.100552954
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_017912	1.689576453
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_019709	2.592534893
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_021157	0.976988092
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_021159	2.581249292
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_024908	0.231479513
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_026087	0.280086578
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_027433	0.064706386
+"postsynaptic membrane"	GO:0045211;GO:0097060;GO:0098590	5	SPU_027434	0.637815949
+"nuclear protein-containing complex"	GO:0140513	2	SPU_000544	0.331135865
+"nuclear protein-containing complex"	GO:0140513	2	SPU_000879	0.213283999
+"nuclear protein-containing complex"	GO:0140513	2	SPU_000900	0.925954446
+"nuclear protein-containing complex"	GO:0140513	2	SPU_001146	0.026791302
+"nuclear protein-containing complex"	GO:0140513	2	SPU_001308	2.122145755
+"nuclear protein-containing complex"	GO:0140513	2	SPU_001512	0.050304966
+"nuclear protein-containing complex"	GO:0140513	2	SPU_002619	0.2135027
+"nuclear protein-containing complex"	GO:0140513	2	SPU_003075	0.911415421
+"nuclear protein-containing complex"	GO:0140513	2	SPU_003197	0.181122121
+"nuclear protein-containing complex"	GO:0140513	2	SPU_003282	2.203089392
+"nuclear protein-containing complex"	GO:0140513	2	SPU_003573	1.016327239
+"nuclear protein-containing complex"	GO:0140513	2	SPU_003868	1.597181545
+"nuclear protein-containing complex"	GO:0140513	2	SPU_004393	0.418655117
+"nuclear protein-containing complex"	GO:0140513	2	SPU_004635	0.543461099
+"nuclear protein-containing complex"	GO:0140513	2	SPU_004782	2.672672174
+"nuclear protein-containing complex"	GO:0140513	2	SPU_004889	2.784353837
+"nuclear protein-containing complex"	GO:0140513	2	SPU_005190	0.409078774
+"nuclear protein-containing complex"	GO:0140513	2	SPU_005276	1.389689226
+"nuclear protein-containing complex"	GO:0140513	2	SPU_005644	0.226235472
+"nuclear protein-containing complex"	GO:0140513	2	SPU_005659	0.27048759
+"nuclear protein-containing complex"	GO:0140513	2	SPU_005944	0.529296851
+"nuclear protein-containing complex"	GO:0140513	2	SPU_006379	2.436559725
+"nuclear protein-containing complex"	GO:0140513	2	SPU_006396	2.41950981
+"nuclear protein-containing complex"	GO:0140513	2	SPU_006861	0.40011085
+"nuclear protein-containing complex"	GO:0140513	2	SPU_007187	3.179351586
+"nuclear protein-containing complex"	GO:0140513	2	SPU_007377	0.692586991
+"nuclear protein-containing complex"	GO:0140513	2	SPU_007799	0.632554739
+"nuclear protein-containing complex"	GO:0140513	2	SPU_008018	3.948907176
+"nuclear protein-containing complex"	GO:0140513	2	SPU_008533	0.280079951
+"nuclear protein-containing complex"	GO:0140513	2	SPU_008590	1.991138686
+"nuclear protein-containing complex"	GO:0140513	2	SPU_008840	0.027391253
+"nuclear protein-containing complex"	GO:0140513	2	SPU_009115	1.392551724
+"nuclear protein-containing complex"	GO:0140513	2	SPU_009213	0.237541908
+"nuclear protein-containing complex"	GO:0140513	2	SPU_009345	0.610428875
+"nuclear protein-containing complex"	GO:0140513	2	SPU_009602	1.7979008
+"nuclear protein-containing complex"	GO:0140513	2	SPU_009651	0.943772785
+"nuclear protein-containing complex"	GO:0140513	2	SPU_010339	1.192453451
+"nuclear protein-containing complex"	GO:0140513	2	SPU_011091	0.056054336
+"nuclear protein-containing complex"	GO:0140513	2	SPU_011658	0.337689677
+"nuclear protein-containing complex"	GO:0140513	2	SPU_011676	0.17393716
+"nuclear protein-containing complex"	GO:0140513	2	SPU_012051	2.21983342
+"nuclear protein-containing complex"	GO:0140513	2	SPU_012580	1.010195043
+"nuclear protein-containing complex"	GO:0140513	2	SPU_012696	0.604183314
+"nuclear protein-containing complex"	GO:0140513	2	SPU_012887	1.454224655
+"nuclear protein-containing complex"	GO:0140513	2	SPU_012930	5.183508907
+"nuclear protein-containing complex"	GO:0140513	2	SPU_013568	0.828598034
+"nuclear protein-containing complex"	GO:0140513	2	SPU_013996	0.392084834
+"nuclear protein-containing complex"	GO:0140513	2	SPU_014281	1.573109954
+"nuclear protein-containing complex"	GO:0140513	2	SPU_014946	0.346905992
+"nuclear protein-containing complex"	GO:0140513	2	SPU_015342	0.914376174
+"nuclear protein-containing complex"	GO:0140513	2	SPU_015468	0.436442084
+"nuclear protein-containing complex"	GO:0140513	2	SPU_015999	0.891131788
+"nuclear protein-containing complex"	GO:0140513	2	SPU_016017	0.340062288
+"nuclear protein-containing complex"	GO:0140513	2	SPU_016687	0.485144214
+"nuclear protein-containing complex"	GO:0140513	2	SPU_016844	1.968695206
+"nuclear protein-containing complex"	GO:0140513	2	SPU_017204	0.648015989
+"nuclear protein-containing complex"	GO:0140513	2	SPU_017205	0.490138206
+"nuclear protein-containing complex"	GO:0140513	2	SPU_017222	0.907538994
+"nuclear protein-containing complex"	GO:0140513	2	SPU_017442	7.754526801
+"nuclear protein-containing complex"	GO:0140513	2	SPU_018944	1.38519721
+"nuclear protein-containing complex"	GO:0140513	2	SPU_019175	0.212729754
+"nuclear protein-containing complex"	GO:0140513	2	SPU_019373	1.34038182
+"nuclear protein-containing complex"	GO:0140513	2	SPU_019604	1.807222305
+"nuclear protein-containing complex"	GO:0140513	2	SPU_020495	1.157154811
+"nuclear protein-containing complex"	GO:0140513	2	SPU_020766	1.999549016
+"nuclear protein-containing complex"	GO:0140513	2	SPU_020924	0.817700789
+"nuclear protein-containing complex"	GO:0140513	2	SPU_021036	0.206685229
+"nuclear protein-containing complex"	GO:0140513	2	SPU_021077	0.685520583
+"nuclear protein-containing complex"	GO:0140513	2	SPU_021249	0.574065126
+"nuclear protein-containing complex"	GO:0140513	2	SPU_022309	0.537621376
+"nuclear protein-containing complex"	GO:0140513	2	SPU_022327	0.002326882
+"nuclear protein-containing complex"	GO:0140513	2	SPU_022626	0.586190148
+"nuclear protein-containing complex"	GO:0140513	2	SPU_022847	0.116714395
+"nuclear protein-containing complex"	GO:0140513	2	SPU_023027	1.711517785
+"nuclear protein-containing complex"	GO:0140513	2	SPU_023334	3.981261886
+"nuclear protein-containing complex"	GO:0140513	2	SPU_023506	1.293996578
+"nuclear protein-containing complex"	GO:0140513	2	SPU_023529	0.929395183
+"nuclear protein-containing complex"	GO:0140513	2	SPU_024153	1.593068592
+"nuclear protein-containing complex"	GO:0140513	2	SPU_024432	0.214958217
+"nuclear protein-containing complex"	GO:0140513	2	SPU_024737	1.792101837
+"nuclear protein-containing complex"	GO:0140513	2	SPU_024927	1.359475755
+"nuclear protein-containing complex"	GO:0140513	2	SPU_025185	0.629741422
+"nuclear protein-containing complex"	GO:0140513	2	SPU_025399	0.454490786
+"nuclear protein-containing complex"	GO:0140513	2	SPU_025580	3.332358187
+"nuclear protein-containing complex"	GO:0140513	2	SPU_025671	1.957565893
+"nuclear protein-containing complex"	GO:0140513	2	SPU_025732	0.546860023
+"nuclear protein-containing complex"	GO:0140513	2	SPU_026147	0.231185538
+"nuclear protein-containing complex"	GO:0140513	2	SPU_026500	0.069470376
+"nuclear protein-containing complex"	GO:0140513	2	SPU_026620	0.346473997
+"nuclear protein-containing complex"	GO:0140513	2	SPU_027408	2.464788673
+"nuclear protein-containing complex"	GO:0140513	2	SPU_027580	1.137190053
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028213	0.206940379
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028371	0.243392335
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028430	1.215264275
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028524	1.375279216
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028561	0.925437124
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028722	1.348817061
+"nuclear protein-containing complex"	GO:0140513	2	SPU_028771	2.267092267
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_004509	0.745405053
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_009107	1.214043442
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_011313	0.767994542
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_012712	2.077711713
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_014660	1.1315123
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_015067	0.032425717
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_019118	0.443329138
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_024224	0.325804295
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_024417	6.559563455
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_024446	0.04602191
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_026618	1.357960512
+"organelle inner membrane"	GO:0019866;GO:0005743	4	SPU_028500	1.082661924
+"vesicle tethering complex"	GO:0099023	2	SPU_001083	0.342434851
+"vesicle tethering complex"	GO:0099023	2	SPU_004177	1.19944948
+"vesicle tethering complex"	GO:0099023	2	SPU_004388	3.142336694
+"vesicle tethering complex"	GO:0099023	2	SPU_006147	5.54372581
+"vesicle tethering complex"	GO:0099023	2	SPU_007535	2.062940212
+"vesicle tethering complex"	GO:0099023	2	SPU_010030	4.243810971
+"vesicle tethering complex"	GO:0099023	2	SPU_011511	0.65436771
+"vesicle tethering complex"	GO:0099023	2	SPU_012639	1.88049094
+"vesicle tethering complex"	GO:0099023	2	SPU_013045	2.577473023
+"vesicle tethering complex"	GO:0099023	2	SPU_015370	4.037173637
+"vesicle tethering complex"	GO:0099023	2	SPU_023110	1.663420556
+"vesicle tethering complex"	GO:0099023	2	SPU_026186	4.045674491
+"vesicle tethering complex"	GO:0099023	2	SPU_026764	0.980807591
+"vesicle tethering complex"	GO:0099023	2	SPU_027492	1.1564559
+"vesicle tethering complex"	GO:0099023	2	SPU_028263	0.65713717
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_011877	0.918768409
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_013536	1.538125781
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_015920	3.14788264
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_015921	0.665175884
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_016618	4.114510339
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_022302	2.475991654
+"receptor complex"	GO:0008305;GO:0098636;GO:0098802;GO:0043235	3	SPU_017511	0.8808589
+"plasma membrane protein complex"	GO:0098797	2	SPU_000856	0.936821995
+"plasma membrane protein complex"	GO:0098797	2	SPU_001624	0.231634705
+"plasma membrane protein complex"	GO:0098797	2	SPU_002069	0.136230868
+"plasma membrane protein complex"	GO:0098797	2	SPU_002521	0.330127667
+"plasma membrane protein complex"	GO:0098797	2	SPU_002616	0.346194902
+"plasma membrane protein complex"	GO:0098797	2	SPU_004907	4.020694472
+"plasma membrane protein complex"	GO:0098797	2	SPU_006470	0.325856256
+"plasma membrane protein complex"	GO:0098797	2	SPU_007770	1.199084251
+"plasma membrane protein complex"	GO:0098797	2	SPU_007963	2.934349748
+"plasma membrane protein complex"	GO:0098797	2	SPU_010116	0.539615583
+"plasma membrane protein complex"	GO:0098797	2	SPU_011877	0.918768409
+"plasma membrane protein complex"	GO:0098797	2	SPU_012559	2.561887964
+"plasma membrane protein complex"	GO:0098797	2	SPU_012871	1.127530064
+"plasma membrane protein complex"	GO:0098797	2	SPU_013536	1.538125781
+"plasma membrane protein complex"	GO:0098797	2	SPU_015920	3.14788264
+"plasma membrane protein complex"	GO:0098797	2	SPU_015921	0.665175884
+"plasma membrane protein complex"	GO:0098797	2	SPU_016618	4.114510339
+"plasma membrane protein complex"	GO:0098797	2	SPU_017200	0.25147512
+"plasma membrane protein complex"	GO:0098797	2	SPU_018422	0.322951099
+"plasma membrane protein complex"	GO:0098797	2	SPU_019341	0.306028149
+"plasma membrane protein complex"	GO:0098797	2	SPU_022302	2.475991654
+"plasma membrane protein complex"	GO:0098797	2	SPU_022837	0.100654009
+"plasma membrane protein complex"	GO:0098797	2	SPU_023063	0.934059604
+"plasma membrane protein complex"	GO:0098797	2	SPU_025626	0.636457811
+"plasma membrane protein complex"	GO:0098797	2	SPU_025997	0.46198368
+"plasma membrane protein complex"	GO:0098797	2	SPU_026800	2.510529886
+"plasma membrane protein complex"	GO:0098797	2	SPU_027038	1.826504732
+"plasma membrane protein complex"	GO:0098797	2	SPU_028775	0.583217492
+"plasma membrane protein complex"	GO:0098797	2	SPU_030082	0.142713867
+"microtubule organizing center"	GO:0005815	2	SPU_000215	0.03809839
+"microtubule organizing center"	GO:0005815	2	SPU_000723	0.057067102
+"microtubule organizing center"	GO:0005815	2	SPU_002498	2.768234288
+"microtubule organizing center"	GO:0005815	2	SPU_002534	0.578076262
+"microtubule organizing center"	GO:0005815	2	SPU_009979	0.288973933
+"microtubule organizing center"	GO:0005815	2	SPU_010158	1.920604106
+"microtubule organizing center"	GO:0005815	2	SPU_010736	0.443454286
+"microtubule organizing center"	GO:0005815	2	SPU_011707	0.595088436
+"microtubule organizing center"	GO:0005815	2	SPU_016509	5.239570187
+"microtubule organizing center"	GO:0005815	2	SPU_017473	0.197295914
+"microtubule organizing center"	GO:0005815	2	SPU_020715	0.771574613
+"microtubule organizing center"	GO:0005815	2	SPU_024595	0.392322763
+"microtubule organizing center"	GO:0005815	2	SPU_024954	3.440464844
+"microtubule organizing center"	GO:0005815	2	SPU_026892	1.575502116
+"mitochondrion"	GO:0005739	2	SPU_002012	0.910861128
+"mitochondrion"	GO:0005739	2	SPU_004823	0.756911897
+"mitochondrion"	GO:0005739	2	SPU_005227	0.694569154
+"mitochondrion"	GO:0005739	2	SPU_007027	0.083581746
+"mitochondrion"	GO:0005739	2	SPU_007107	0.569561559
+"mitochondrion"	GO:0005739	2	SPU_007121	0.370218145
+"mitochondrion"	GO:0005739	2	SPU_008461	0.334342886
+"mitochondrion"	GO:0005739	2	SPU_008554	0.763506219
+"mitochondrion"	GO:0005739	2	SPU_010683	2.00015726
+"mitochondrion"	GO:0005739	2	SPU_013256	2.992376679
+"mitochondrion"	GO:0005739	2	SPU_018021	2.089499455
+"mitochondrion"	GO:0005739	2	SPU_018496	1.898573513
+"mitochondrion"	GO:0005739	2	SPU_021567	0.842698132
+"mitochondrion"	GO:0005739	2	SPU_021568	0.017399039
+"mitochondrion"	GO:0005739	2	SPU_025686	0.400041111
+"mitochondrion"	GO:0005739	2	SPU_025801	0.004534497
+"cytoskeleton"	GO:0005856	4	SPU_001462	0.181660122
+"cytoskeleton"	GO:0005856	4	SPU_001935	0.393794093
+"cytoskeleton"	GO:0005856	4	SPU_002536	2.05719832
+"cytoskeleton"	GO:0005856	4	SPU_007261	5.046471463
+"cytoskeleton"	GO:0005856	4	SPU_007593	1.139508736
+"cytoskeleton"	GO:0005856	4	SPU_008398	3.621850833
+"cytoskeleton"	GO:0005856	4	SPU_008447	2.269215311
+"cytoskeleton"	GO:0005856	4	SPU_010158	1.920604106
+"cytoskeleton"	GO:0005856	4	SPU_011723	0.344409927
+"cytoskeleton"	GO:0005856	4	SPU_012228	0.550832834
+"cytoskeleton"	GO:0005856	4	SPU_013161	0.454417656
+"cytoskeleton"	GO:0005856	4	SPU_013862	0.964102905
+"cytoskeleton"	GO:0005856	4	SPU_014728	0.506206255
+"cytoskeleton"	GO:0005856	4	SPU_014957	0.343465889
+"cytoskeleton"	GO:0005856	4	SPU_015334	1.379935016
+"cytoskeleton"	GO:0005856	4	SPU_017502	1.467512664
+"cytoskeleton"	GO:0005856	4	SPU_018705	0.091652011
+"cytoskeleton"	GO:0005856	4	SPU_019686	1.313015584
+"cytoskeleton"	GO:0005856	4	SPU_022040	4.443565692
+"cytoskeleton"	GO:0005856	4	SPU_023370	0.048980044
+"cytoskeleton"	GO:0005856	4	SPU_023423	0.474616074
+"cytoskeleton"	GO:0005856	4	SPU_023549	0.942134031
+"cytoskeleton"	GO:0005856	4	SPU_024467	3.595214346
+"cytoskeleton"	GO:0005856	4	SPU_025343	1.566682796
+"cytoskeleton"	GO:0005856	4	SPU_026256	1.928960468
+"cytoskeleton"	GO:0005856	4	SPU_026892	1.575502116
+"cytoskeleton"	GO:0005856	4	SPU_027778	1.116332379
+"cytoskeleton"	GO:0005856	4	SPU_028592	0.203396971
+"cytoskeleton"	GO:0005856	4	SPU_028781	1.95355875
+"cytoskeleton"	GO:0005856	4	SPU_028926	1.74463998
+"ribosome"	GO:0005840	3	SPU_000379	0.515290717
+"ribosome"	GO:0005840	3	SPU_000395	0.775837717
+"ribosome"	GO:0005840	3	SPU_002458	0.566046019
+"ribosome"	GO:0005840	3	SPU_002606	14.01324186
+"ribosome"	GO:0005840	3	SPU_003485	2.722566798
+"ribosome"	GO:0005840	3	SPU_003718	1.087441455
+"ribosome"	GO:0005840	3	SPU_003849	1.038596853
+"ribosome"	GO:0005840	3	SPU_003905	0.111818387
+"ribosome"	GO:0005840	3	SPU_004609	1.352478386
+"ribosome"	GO:0005840	3	SPU_004721	9.109580049
+"ribosome"	GO:0005840	3	SPU_004996	3.016381734
+"ribosome"	GO:0005840	3	SPU_005227	0.694569154
+"ribosome"	GO:0005840	3	SPU_005280	0.036915385
+"ribosome"	GO:0005840	3	SPU_005401	0.277108179
+"ribosome"	GO:0005840	3	SPU_005571	4.364592263
+"ribosome"	GO:0005840	3	SPU_005700	0.487793572
+"ribosome"	GO:0005840	3	SPU_005709	4.289020387
+"ribosome"	GO:0005840	3	SPU_006034	1.204297997
+"ribosome"	GO:0005840	3	SPU_006213	9.618631085
+"ribosome"	GO:0005840	3	SPU_006459	2.066553905
+"ribosome"	GO:0005840	3	SPU_006569	1.591162373
+"ribosome"	GO:0005840	3	SPU_007057	7.916021231
+"ribosome"	GO:0005840	3	SPU_007327	1.241022026
+"ribosome"	GO:0005840	3	SPU_007971	0.927336373
+"ribosome"	GO:0005840	3	SPU_008211	0.094135721
+"ribosome"	GO:0005840	3	SPU_008650	3.0599653
+"ribosome"	GO:0005840	3	SPU_008778	1.821495557
+"ribosome"	GO:0005840	3	SPU_009084	0.292220605
+"ribosome"	GO:0005840	3	SPU_009141	0.208002081
+"ribosome"	GO:0005840	3	SPU_010279	0.95993741
+"ribosome"	GO:0005840	3	SPU_010528	0.210975571
+"ribosome"	GO:0005840	3	SPU_010626	1.939748545
+"ribosome"	GO:0005840	3	SPU_010688	0.224345976
+"ribosome"	GO:0005840	3	SPU_010692	49.95400511
+"ribosome"	GO:0005840	3	SPU_011054	0.191866999
+"ribosome"	GO:0005840	3	SPU_011111	0.92263881
+"ribosome"	GO:0005840	3	SPU_011243	0.683658837
+"ribosome"	GO:0005840	3	SPU_011244	0.281519365
+"ribosome"	GO:0005840	3	SPU_011352	13.80842632
+"ribosome"	GO:0005840	3	SPU_011703	0.284652092
+"ribosome"	GO:0005840	3	SPU_012377	0.386315202
+"ribosome"	GO:0005840	3	SPU_012865	0.237420615
+"ribosome"	GO:0005840	3	SPU_013452	0.005451575
+"ribosome"	GO:0005840	3	SPU_013662	0.198398468
+"ribosome"	GO:0005840	3	SPU_013834	0.150718245
+"ribosome"	GO:0005840	3	SPU_014060	2.173895414
+"ribosome"	GO:0005840	3	SPU_014074	0.160115857
+"ribosome"	GO:0005840	3	SPU_014454	1.790689604
+"ribosome"	GO:0005840	3	SPU_015260	0.731142687
+"ribosome"	GO:0005840	3	SPU_015276	0.604597867
+"ribosome"	GO:0005840	3	SPU_015294	4.627026698
+"ribosome"	GO:0005840	3	SPU_015327	0.619068579
+"ribosome"	GO:0005840	3	SPU_015343	0.105482373
+"ribosome"	GO:0005840	3	SPU_015666	0.572746476
+"ribosome"	GO:0005840	3	SPU_017132	1.901982018
+"ribosome"	GO:0005840	3	SPU_018318	0.2822848
+"ribosome"	GO:0005840	3	SPU_018674	1.974928964
+"ribosome"	GO:0005840	3	SPU_018801	0.453206415
+"ribosome"	GO:0005840	3	SPU_018851	1.08666051
+"ribosome"	GO:0005840	3	SPU_018866	0.313981962
+"ribosome"	GO:0005840	3	SPU_018884	0.569252185
+"ribosome"	GO:0005840	3	SPU_019736	1.34408562
+"ribosome"	GO:0005840	3	SPU_019788	0.725792483
+"ribosome"	GO:0005840	3	SPU_020487	0.828006718
+"ribosome"	GO:0005840	3	SPU_020627	2.319247901
+"ribosome"	GO:0005840	3	SPU_020745	0.264629898
+"ribosome"	GO:0005840	3	SPU_021322	0.636441387
+"ribosome"	GO:0005840	3	SPU_021702	2.879802642
+"ribosome"	GO:0005840	3	SPU_021739	0.503028525
+"ribosome"	GO:0005840	3	SPU_021924	1.900330117
+"ribosome"	GO:0005840	3	SPU_022161	0.434188384
+"ribosome"	GO:0005840	3	SPU_022607	0.584330344
+"ribosome"	GO:0005840	3	SPU_022682	2.926968572
+"ribosome"	GO:0005840	3	SPU_023692	0.000530012
+"ribosome"	GO:0005840	3	SPU_025318	0.0357715
+"ribosome"	GO:0005840	3	SPU_025569	0.759236716
+"ribosome"	GO:0005840	3	SPU_025574	0.427777821
+"ribosome"	GO:0005840	3	SPU_026541	0.372955126
+"ribosome"	GO:0005840	3	SPU_026671	0.900180896
+"ribosome"	GO:0005840	3	SPU_027149	1.597680882
+"ribosome"	GO:0005840	3	SPU_028155	0.551686847
+"ribosome"	GO:0005840	3	SPU_028226	0.03457374
+"ribosome"	GO:0005840	3	SPU_028247	0.293390008
+"ribosome"	GO:0005840	3	SPU_028306	0.090661177
+"ribosome"	GO:0005840	3	SPU_028837	0.577235102
+"ribosome"	GO:0005840	3	SPU_028866	0.314140726
+"Golgi apparatus"	GO:0005794	4	SPU_001332	1.820315234
+"Golgi apparatus"	GO:0005794	4	SPU_002329	2.062839726
+"Golgi apparatus"	GO:0005794	4	SPU_004515	3.587737299
+"Golgi apparatus"	GO:0005794	4	SPU_016064	1.597320548
+"Golgi apparatus"	GO:0005794	4	SPU_017959	0.128375993
+"Golgi apparatus"	GO:0005794	4	SPU_018438	3.765722337
+"Golgi apparatus"	GO:0005794	4	SPU_019820	1.771368898
+"Golgi apparatus"	GO:0005794	4	SPU_022654	4.076853368
+"Golgi apparatus"	GO:0005794	4	SPU_022930	0.81695426
+"Golgi apparatus"	GO:0005794	4	SPU_025418	1.777825483
+"Golgi apparatus"	GO:0005794	4	SPU_026090	0.954136381
+"Golgi apparatus"	GO:0005794	4	SPU_026736	0.445129946
+"Golgi apparatus"	GO:0005794	4	SPU_027231	2.173888275
+"proton-transporting V-type ATPase, V0 domain"	GO:0033179	4	SPU_001860	1.140806774
+"proton-transporting V-type ATPase, V0 domain"	GO:0033179	4	SPU_002051	0.444557296
+"proton-transporting V-type ATPase, V0 domain"	GO:0033179	4	SPU_020497	1.101684505
+"proton-transporting V-type ATPase, V0 domain"	GO:0033179	4	SPU_024862	1.686886132
+"proton-transporting V-type ATPase, V0 domain"	GO:0033179	4	SPU_028111	0.670548819
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_002443	0.300945289
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_006773	2.067547261
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_009090	0.60525766
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_009248	4.349871656
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_010303	1.772031502
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_012359	1.447808377
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_013398	1.889544326
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_014579	1.218249028
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_016822	5.471627463
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_022562	2.024250115
+"eukaryotic translation initiation factor 3 complex"	GO:0005852	2	SPU_026863	5.105990132
+"kinetochore"	GO:0000776	3	SPU_003772	1.549884576
+"kinetochore"	GO:0000776	3	SPU_013515	0.705454139
+"kinetochore"	GO:0000776	3	SPU_015414	0.795168894
+"kinetochore"	GO:0000776	3	SPU_017319	0.350184992
+"kinetochore"	GO:0000776	3	SPU_020787	0.674786098
+"membrane coat"	GO:0030117	3	SPU_001332	1.820315234
+"membrane coat"	GO:0030117	3	SPU_002616	0.346194902
+"membrane coat"	GO:0030117	3	SPU_002714	0.134005627
+"membrane coat"	GO:0030117	3	SPU_003070	2.444033821
+"membrane coat"	GO:0030117	3	SPU_004682	0.010912959
+"membrane coat"	GO:0030117	3	SPU_004963	2.124931034
+"membrane coat"	GO:0030117	3	SPU_005405	0.18491568
+"membrane coat"	GO:0030117	3	SPU_005583	1.989106114
+"membrane coat"	GO:0030117	3	SPU_006436	3.840213846
+"membrane coat"	GO:0030117	3	SPU_007942	1.013714544
+"membrane coat"	GO:0030117	3	SPU_008143	1.485619335
+"membrane coat"	GO:0030117	3	SPU_008449	0.05644854
+"membrane coat"	GO:0030117	3	SPU_009513	1.229441593
+"membrane coat"	GO:0030117	3	SPU_011577	0.870803555
+"membrane coat"	GO:0030117	3	SPU_012559	2.561887964
+"membrane coat"	GO:0030117	3	SPU_013675	2.267052198
+"membrane coat"	GO:0030117	3	SPU_014811	0.088082965
+"membrane coat"	GO:0030117	3	SPU_015556	2.118969576
+"membrane coat"	GO:0030117	3	SPU_017792	2.198362891
+"membrane coat"	GO:0030117	3	SPU_018350	0.004392971
+"membrane coat"	GO:0030117	3	SPU_020029	1.697548788
+"membrane coat"	GO:0030117	3	SPU_020030	0.07182872
+"membrane coat"	GO:0030117	3	SPU_023647	2.641193279
+"membrane coat"	GO:0030117	3	SPU_023750	2.308001538
+"membrane coat"	GO:0030117	3	SPU_024893	3.229880533
+"membrane coat"	GO:0030117	3	SPU_025016	3.318652898
+"membrane coat"	GO:0030117	3	SPU_025121	2.071456563
+"membrane coat"	GO:0030117	3	SPU_025229	0.839098274
+"membrane coat"	GO:0030117	3	SPU_028420	3.818187369
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_000062	2.344130925
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_000096	1.46192852
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_000098	0.527756133
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_000796	1.355134449
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_001024	1.201532816
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_001045	1.218494222
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_002663	0.127393633
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_002788	3.305172021
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_004266	0.100995921
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_004628	2.687177244
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_006453	0.457731354
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_006857	0.629076288
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_006878	0.981175613
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_007424	1.51666506
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_007435	0.855444221
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_008221	1.947707494
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_008774	1.545863494
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_008777	3.282087996
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_009979	0.288973933
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_012141	0.24207785
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_012679	13.00738985
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_013841	0.894305587
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_014954	1.273571378
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_015056	0.785733537
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_015182	1.07909673
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_015608	0.940129895
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_016061	1.140958379
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_016509	5.239570187
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_016972	2.117553908
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_019989	0.037065087
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_019990	3.806613395
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_020943	2.126160817
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_021667	0.259540109
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_021670	1.141380425
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_024595	0.392322763
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_024617	0.226751427
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_025175	0.29693152
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_028221	1.746836426
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_004509	0.745405053
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_020333	1.142013505
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_028386	0.582484183
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_028500	1.082661924
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_003772	1.549884576
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_013515	0.705454139
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_015414	0.795168894
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_017319	0.350184992
+"supramolecular complex"	GO:0005874;GO:0099513;GO:0099512;GO:0099081;GO:0099080	6	SPU_020787	0.674786098
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_001308	2.122145755
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_001512	0.050304966
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_003868	1.597181545
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_007799	0.632554739
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_008840	0.027391253
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_009345	0.610428875
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_009651	0.943772785
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_011091	0.056054336
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_011658	0.337689677
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_016687	0.485144214
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_020924	0.817700789
+"RNA polymerase II transcription regulator complex"	GO:0090575	3	SPU_028430	1.215264275
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_000206	0.142113054
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_005644	0.226235472
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_007377	0.692586991
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_014071	0.099651172
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_014569	2.129429506
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_015724	1.146781537
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_019604	1.807222305
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_022309	0.537621376
+"transferase complex, transferring phosphorus-containing groups"	GO:0061695	4	SPU_028524	1.375279216
+"proton-transporting ATP synthase complex, coupling factor F(o)"	GO:0000276;GO:0045263	2	SPU_000022	2.966106626
+"proton-transporting ATP synthase complex, coupling factor F(o)"	GO:0000276;GO:0045263	2	SPU_001183	1.544882074
+"proton-transporting ATP synthase complex, coupling factor F(o)"	GO:0000276;GO:0045263	2	SPU_003273	1.912919806
+"proton-transporting ATP synthase complex, coupling factor F(o)"	GO:0000276;GO:0045263	2	SPU_013353	0.585959035
+"proton-transporting ATP synthase complex, coupling factor F(o)"	GO:0000276;GO:0045263	2	SPU_028880	1.213064254
+"proton-transporting ATP synthase complex, coupling factor F(o)"	GO:0000276;GO:0045263	2	SPU_013052	0.307461413
+"signal recognition particle"	GO:0048500	3	SPU_000303	0.189377602
+"signal recognition particle"	GO:0048500	3	SPU_001889	0.816783867
+"signal recognition particle"	GO:0048500	3	SPU_018995	0.073379906
+"signal recognition particle"	GO:0048500	3	SPU_020329	0.733902853
+"signal recognition particle"	GO:0048500	3	SPU_023895	0.351758014
+"signal recognition particle"	GO:0048500	3	SPU_024348	1.243809299
+"spliceosomal complex"	GO:0005681	2	SPU_003197	0.181122121
+"spliceosomal complex"	GO:0005681	2	SPU_004782	2.672672174
+"spliceosomal complex"	GO:0005681	2	SPU_012930	5.183508907
+"spliceosomal complex"	GO:0005681	2	SPU_015342	0.914376174
+"spliceosomal complex"	GO:0005681	2	SPU_017204	0.648015989
+"spliceosomal complex"	GO:0005681	2	SPU_017205	0.490138206
+"spliceosomal complex"	GO:0005681	2	SPU_024432	0.214958217
+"spliceosomal complex"	GO:0005681	2	SPU_026620	0.346473997
+"spliceosomal complex"	GO:0005681	2	SPU_028561	0.925437124
+"spliceosomal complex"	GO:0005681	2	SPU_028771	2.267092267
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_000022	2.966106626
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_001183	1.544882074
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_002002	0.976487802
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_003273	1.912919806
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_008073	0.405333361
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_010964	0.783080096
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_013353	0.585959035
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_019118	0.443329138
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_022612	3.424756978
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_024417	6.559563455
+"inner mitochondrial membrane protein complex"	GO:0098800	3	SPU_028880	1.213064254
+"COPII vesicle coat"	GO:0030127	5	SPU_005405	0.18491568
+"COPII vesicle coat"	GO:0030127	5	SPU_009513	1.229441593
+"COPII vesicle coat"	GO:0030127	5	SPU_018350	0.004392971
+"COPII vesicle coat"	GO:0030127	5	SPU_020029	1.697548788
+"COPII vesicle coat"	GO:0030127	5	SPU_020030	0.07182872
+"COPII vesicle coat"	GO:0030127	5	SPU_023750	2.308001538
+"COPII vesicle coat"	GO:0030127	5	SPU_025229	0.839098274
+"nucleolus"	GO:0005730	2	SPU_003521	0.435849102
+"nucleolus"	GO:0005730	2	SPU_013859	0.66962628
+"nucleolus"	GO:0005730	2	SPU_018210	0.345747568
+"nucleolus"	GO:0005730	2	SPU_025185	0.629741422
+"nucleolus"	GO:0005730	2	SPU_028036	0.194448932
+"ribosomal subunit"	GO:0044391	2	SPU_005252	0.064899077
+"ribosomal subunit"	GO:0044391	2	SPU_006213	9.618631085
+"ribosomal subunit"	GO:0044391	2	SPU_007057	7.916021231
+"ribosomal subunit"	GO:0044391	2	SPU_008394	0.051395442
+"ribosomal subunit"	GO:0044391	2	SPU_008852	2.262690505
+"ribosomal subunit"	GO:0044391	2	SPU_011015	5.22426377
+"ribosomal subunit"	GO:0044391	2	SPU_013452	0.005451575
+"ribosomal subunit"	GO:0044391	2	SPU_013662	0.198398468
+"ribosomal subunit"	GO:0044391	2	SPU_014454	1.790689604
+"ribosomal subunit"	GO:0044391	2	SPU_015827	0.792493906
+"ribosomal subunit"	GO:0044391	2	SPU_017142	2.611388913
+"ribosomal subunit"	GO:0044391	2	SPU_019736	1.34408562
+"ribosomal subunit"	GO:0044391	2	SPU_022957	1.915120103
+"ribosomal subunit"	GO:0044391	2	SPU_026541	0.372955126
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_001332	1.820315234
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_002519	0.341498582
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_004297	0.602942959
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_004963	2.124931034
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_006765	0.115467055
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_012559	2.561887964
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_013675	2.267052198
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_019622	4.554380932
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_025016	3.318652898
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_006702	0.140805107
+"AP-type membrane coat adaptor complex"	GO:0030131;GO:0030119	2	SPU_008143	1.485619335
+"Golgi transport complex"	GO:0017119	2	SPU_004388	3.142336694
+"Golgi transport complex"	GO:0017119	2	SPU_006147	5.54372581
+"Golgi transport complex"	GO:0017119	2	SPU_007535	2.062940212
+"Golgi transport complex"	GO:0017119	2	SPU_010030	4.243810971
+"Golgi transport complex"	GO:0017119	2	SPU_023110	1.663420556
+"Golgi transport complex"	GO:0017119	2	SPU_026186	4.045674491
+"Golgi transport complex"	GO:0017119	2	SPU_026764	0.980807591
+"Golgi transport complex"	GO:0017119	2	SPU_027492	1.1564559
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_004393	0.418655117
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_010339	1.192453451
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_011676	0.17393716
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_013996	0.392084834
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_014281	1.573109954
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_020495	1.157154811
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_021036	0.206685229
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_022327	0.002326882
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_024737	1.792101837
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_026147	0.231185538
+"histone acetyltransferase complex"	GO:0000123;GO:0031248;GO:1902493	4	SPU_028722	1.348817061
+"myosin complex"	GO:0016459	2	SPU_000832	4.040656842
+"myosin complex"	GO:0016459	2	SPU_001633	0.080590888
+"myosin complex"	GO:0016459	2	SPU_001634	0.264703176
+"myosin complex"	GO:0016459	2	SPU_002723	2.46653914
+"myosin complex"	GO:0016459	2	SPU_003881	0.016097751
+"myosin complex"	GO:0016459	2	SPU_003900	0.568375166
+"myosin complex"	GO:0016459	2	SPU_003901	0.920071244
+"myosin complex"	GO:0016459	2	SPU_005048	3.101829232
+"myosin complex"	GO:0016459	2	SPU_006811	0.736321246
+"myosin complex"	GO:0016459	2	SPU_006850	1.319280975
+"myosin complex"	GO:0016459	2	SPU_007023	0.463897017
+"myosin complex"	GO:0016459	2	SPU_009340	0.334839217
+"myosin complex"	GO:0016459	2	SPU_013161	0.454417656
+"myosin complex"	GO:0016459	2	SPU_013384	1.581231555
+"myosin complex"	GO:0016459	2	SPU_014397	1.076820335
+"myosin complex"	GO:0016459	2	SPU_016585	1.886459363
+"myosin complex"	GO:0016459	2	SPU_019273	0.243444085
+"myosin complex"	GO:0016459	2	SPU_021621	21.53113879
+"myosin complex"	GO:0016459	2	SPU_022456	0.949064237
+"myosin complex"	GO:0016459	2	SPU_023549	0.942134031
+"myosin complex"	GO:0016459	2	SPU_024055	0.006601347
+"myosin complex"	GO:0016459	2	SPU_024688	2.599889645
+"myosin complex"	GO:0016459	2	SPU_025990	1.186495848
+"myosin complex"	GO:0016459	2	SPU_026648	0.999408318
+"myosin complex"	GO:0016459	2	SPU_027930	0.684896533
+"myosin complex"	GO:0016459	2	SPU_028913	0.739683071
+"vesicle coat"	GO:0030120	4	SPU_002616	0.346194902
+"vesicle coat"	GO:0030120	4	SPU_005405	0.18491568
+"vesicle coat"	GO:0030120	4	SPU_007942	1.013714544
+"vesicle coat"	GO:0030120	4	SPU_008449	0.05644854
+"vesicle coat"	GO:0030120	4	SPU_009513	1.229441593
+"vesicle coat"	GO:0030120	4	SPU_018350	0.004392971
+"vesicle coat"	GO:0030120	4	SPU_020029	1.697548788
+"vesicle coat"	GO:0030120	4	SPU_020030	0.07182872
+"vesicle coat"	GO:0030120	4	SPU_023750	2.308001538
+"vesicle coat"	GO:0030120	4	SPU_025016	3.318652898
+"vesicle coat"	GO:0030120	4	SPU_025121	2.071456563
+"vesicle coat"	GO:0030120	4	SPU_025229	0.839098274
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_002179	1.050619304
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_002398	0.125824797
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_004564	1.002615704
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_006206	2.370029876
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_012047	1.637261374
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_012397	1.572450604
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_020788	1.409239099
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_023829	0.335136381
+"endoplasmic reticulum membrane"	GO:0005789	3	SPU_026238	0.212746915
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_001702	2.536306482
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_002292	0.599441835
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_004958	0.364554606
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_005854	0.112506579
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_008689	1.106345815
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_010151	0.975314244
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_019930	0.944482896
+"cytoplasmic vesicle"	GO:0031410;GO:0097708;GO:0031982	3	SPU_020199	1.80879212
+"microtubule associated complex"	GO:0005875	2	SPU_000982	1.952688939
+"microtubule associated complex"	GO:0005875	2	SPU_001284	1.264805692
+"microtubule associated complex"	GO:0005875	2	SPU_001360	0.189611489
+"microtubule associated complex"	GO:0005875	2	SPU_001890	0.360369732
+"microtubule associated complex"	GO:0005875	2	SPU_002985	4.134459255
+"microtubule associated complex"	GO:0005875	2	SPU_003122	2.620864012
+"microtubule associated complex"	GO:0005875	2	SPU_003564	0.739146926
+"microtubule associated complex"	GO:0005875	2	SPU_003717	3.136978603
+"microtubule associated complex"	GO:0005875	2	SPU_004224	1.220242841
+"microtubule associated complex"	GO:0005875	2	SPU_005509	5.747502276
+"microtubule associated complex"	GO:0005875	2	SPU_005741	1.449459225
+"microtubule associated complex"	GO:0005875	2	SPU_006163	1.543532791
+"microtubule associated complex"	GO:0005875	2	SPU_006237	0.603003927
+"microtubule associated complex"	GO:0005875	2	SPU_006260	2.550932457
+"microtubule associated complex"	GO:0005875	2	SPU_006602	2.512382262
+"microtubule associated complex"	GO:0005875	2	SPU_007414	1.87208811
+"microtubule associated complex"	GO:0005875	2	SPU_007505	1.508766266
+"microtubule associated complex"	GO:0005875	2	SPU_007560	1.869363452
+"microtubule associated complex"	GO:0005875	2	SPU_008162	0.95640453
+"microtubule associated complex"	GO:0005875	2	SPU_008188	2.958378637
+"microtubule associated complex"	GO:0005875	2	SPU_008800	3.796473619
+"microtubule associated complex"	GO:0005875	2	SPU_009783	1.605606976
+"microtubule associated complex"	GO:0005875	2	SPU_010290	2.204865256
+"microtubule associated complex"	GO:0005875	2	SPU_010770	0.249608553
+"microtubule associated complex"	GO:0005875	2	SPU_010886	1.206513047
+"microtubule associated complex"	GO:0005875	2	SPU_010954	1.201497289
+"microtubule associated complex"	GO:0005875	2	SPU_011353	2.254959122
+"microtubule associated complex"	GO:0005875	2	SPU_011681	0.014947076
+"microtubule associated complex"	GO:0005875	2	SPU_012139	4.983153582
+"microtubule associated complex"	GO:0005875	2	SPU_012158	0.903388273
+"microtubule associated complex"	GO:0005875	2	SPU_012418	0.117907433
+"microtubule associated complex"	GO:0005875	2	SPU_012757	2.087021221
+"microtubule associated complex"	GO:0005875	2	SPU_012877	4.194858265
+"microtubule associated complex"	GO:0005875	2	SPU_013236	1.879063928
+"microtubule associated complex"	GO:0005875	2	SPU_013729	0.324816436
+"microtubule associated complex"	GO:0005875	2	SPU_013935	1.239002953
+"microtubule associated complex"	GO:0005875	2	SPU_014451	0.302717214
+"microtubule associated complex"	GO:0005875	2	SPU_015049	1.831332603
+"microtubule associated complex"	GO:0005875	2	SPU_015308	3.296841472
+"microtubule associated complex"	GO:0005875	2	SPU_015809	0.106397977
+"microtubule associated complex"	GO:0005875	2	SPU_016050	1.236041439
+"microtubule associated complex"	GO:0005875	2	SPU_016655	0.69308685
+"microtubule associated complex"	GO:0005875	2	SPU_016664	2.9494637
+"microtubule associated complex"	GO:0005875	2	SPU_018077	1.281804615
+"microtubule associated complex"	GO:0005875	2	SPU_018388	1.318516386
+"microtubule associated complex"	GO:0005875	2	SPU_018500	4.413647505
+"microtubule associated complex"	GO:0005875	2	SPU_018764	1.938002921
+"microtubule associated complex"	GO:0005875	2	SPU_018898	4.848008401
+"microtubule associated complex"	GO:0005875	2	SPU_019066	1.579648875
+"microtubule associated complex"	GO:0005875	2	SPU_019165	3.712189347
+"microtubule associated complex"	GO:0005875	2	SPU_020414	1.355719286
+"microtubule associated complex"	GO:0005875	2	SPU_020621	1.802604259
+"microtubule associated complex"	GO:0005875	2	SPU_020634	3.014139919
+"microtubule associated complex"	GO:0005875	2	SPU_021317	2.883110125
+"microtubule associated complex"	GO:0005875	2	SPU_021656	0.103798152
+"microtubule associated complex"	GO:0005875	2	SPU_022160	1.882259119
+"microtubule associated complex"	GO:0005875	2	SPU_022756	0.21478723
+"microtubule associated complex"	GO:0005875	2	SPU_022840	0.016493289
+"microtubule associated complex"	GO:0005875	2	SPU_022982	5.278689645
+"microtubule associated complex"	GO:0005875	2	SPU_023126	1.516355199
+"microtubule associated complex"	GO:0005875	2	SPU_023560	0.14333966
+"microtubule associated complex"	GO:0005875	2	SPU_023679	0.88722666
+"microtubule associated complex"	GO:0005875	2	SPU_024588	2.713489921
+"microtubule associated complex"	GO:0005875	2	SPU_026237	0.716521729
+"microtubule associated complex"	GO:0005875	2	SPU_026280	0.11960318
+"microtubule associated complex"	GO:0005875	2	SPU_026281	1.5019473
+"microtubule associated complex"	GO:0005875	2	SPU_026343	0.070329854
+"microtubule associated complex"	GO:0005875	2	SPU_026667	0.572349598
+"microtubule associated complex"	GO:0005875	2	SPU_027552	5.49468805
+"microtubule associated complex"	GO:0005875	2	SPU_028057	0.741594173
+"microtubule associated complex"	GO:0005875	2	SPU_028189	0.225602707
+"microtubule associated complex"	GO:0005875	2	SPU_028826	3.404812876
+"microtubule associated complex"	GO:0005875	2	SPU_030224	1.34871266
+"microtubule associated complex"	GO:0005875	2	SPU_030225	1.462343763
+"microtubule associated complex"	GO:0005875	2	SPU_030226	0.678137525
+"microtubule associated complex"	GO:0005875	2	SPU_030228	2.522669636
+"microtubule associated complex"	GO:0005875	2	SPU_030230	1.89710895
+"microtubule associated complex"	GO:0005875	2	SPU_030231	1.632304181
+"microtubule associated complex"	GO:0005875	2	SPU_030234	0.659437312
+"microtubule associated complex"	GO:0005875	2	SPU_030235	0.520244642
+"microtubule associated complex"	GO:0005875	2	SPU_030236	0.788830847
+"organelle membrane"	GO:0031090	2	SPU_001579	1.803069722
+"organelle membrane"	GO:0031090	2	SPU_002179	1.050619304
+"organelle membrane"	GO:0031090	2	SPU_002398	0.125824797
+"organelle membrane"	GO:0031090	2	SPU_003959	0.867629902
+"organelle membrane"	GO:0031090	2	SPU_004509	0.745405053
+"organelle membrane"	GO:0031090	2	SPU_004564	1.002615704
+"organelle membrane"	GO:0031090	2	SPU_005110	3.916982531
+"organelle membrane"	GO:0031090	2	SPU_006206	2.370029876
+"organelle membrane"	GO:0031090	2	SPU_007142	1.094742458
+"organelle membrane"	GO:0031090	2	SPU_008505	1.864647541
+"organelle membrane"	GO:0031090	2	SPU_008692	1.698523238
+"organelle membrane"	GO:0031090	2	SPU_009014	0.384140618
+"organelle membrane"	GO:0031090	2	SPU_009107	1.214043442
+"organelle membrane"	GO:0031090	2	SPU_009673	2.917460311
+"organelle membrane"	GO:0031090	2	SPU_009674	1.511663646
+"organelle membrane"	GO:0031090	2	SPU_009922	2.819879367
+"organelle membrane"	GO:0031090	2	SPU_010010	1.02104078
+"organelle membrane"	GO:0031090	2	SPU_011261	3.204942414
+"organelle membrane"	GO:0031090	2	SPU_011313	0.767994542
+"organelle membrane"	GO:0031090	2	SPU_012047	1.637261374
+"organelle membrane"	GO:0031090	2	SPU_012397	1.572450604
+"organelle membrane"	GO:0031090	2	SPU_012712	2.077711713
+"organelle membrane"	GO:0031090	2	SPU_014660	1.1315123
+"organelle membrane"	GO:0031090	2	SPU_015067	0.032425717
+"organelle membrane"	GO:0031090	2	SPU_015257	1.275644572
+"organelle membrane"	GO:0031090	2	SPU_015506	0.995123227
+"organelle membrane"	GO:0031090	2	SPU_015644	0.425775278
+"organelle membrane"	GO:0031090	2	SPU_016404	0.957447163
+"organelle membrane"	GO:0031090	2	SPU_018130	4.163091392
+"organelle membrane"	GO:0031090	2	SPU_019074	0.514420601
+"organelle membrane"	GO:0031090	2	SPU_019118	0.443329138
+"organelle membrane"	GO:0031090	2	SPU_019603	3.278949233
+"organelle membrane"	GO:0031090	2	SPU_019782	1.645481643
+"organelle membrane"	GO:0031090	2	SPU_020788	1.409239099
+"organelle membrane"	GO:0031090	2	SPU_023426	0.309518714
+"organelle membrane"	GO:0031090	2	SPU_023648	1.330963683
+"organelle membrane"	GO:0031090	2	SPU_023829	0.335136381
+"organelle membrane"	GO:0031090	2	SPU_024224	0.325804295
+"organelle membrane"	GO:0031090	2	SPU_024417	6.559563455
+"organelle membrane"	GO:0031090	2	SPU_024446	0.04602191
+"organelle membrane"	GO:0031090	2	SPU_025102	3.150527723
+"organelle membrane"	GO:0031090	2	SPU_025777	0.131449468
+"organelle membrane"	GO:0031090	2	SPU_025858	1.207797152
+"organelle membrane"	GO:0031090	2	SPU_026238	0.212746915
+"organelle membrane"	GO:0031090	2	SPU_026618	1.357960512
+"organelle membrane"	GO:0031090	2	SPU_027236	4.043722157
+"organelle membrane"	GO:0031090	2	SPU_027418	1.347424587
+"organelle membrane"	GO:0031090	2	SPU_028500	1.082661924
+"preribosome"	GO:0030684;GO:0032040	3	SPU_000405	5.080125303
+"preribosome"	GO:0030684;GO:0032040	3	SPU_005528	1.052058706
+"preribosome"	GO:0030684;GO:0032040	3	SPU_007265	1.001369384
+"preribosome"	GO:0030684;GO:0032040	3	SPU_009068	0.366802428
+"preribosome"	GO:0030684;GO:0032040	3	SPU_010312	1.149665369
+"preribosome"	GO:0030684;GO:0032040	3	SPU_018172	1.386122458
+"preribosome"	GO:0030684;GO:0032040	3	SPU_021168	1.927822569
+"protein serine/threonine phosphatase complex"	GO:0008287;GO:1903293	4	SPU_000178	1.841885913
+"protein serine/threonine phosphatase complex"	GO:0008287;GO:1903293	4	SPU_002935	1.25258611
+"protein serine/threonine phosphatase complex"	GO:0008287;GO:1903293	4	SPU_003119	0.371811777
+"protein serine/threonine phosphatase complex"	GO:0008287;GO:1903293	4	SPU_003120	1.732410731
+"protein serine/threonine phosphatase complex"	GO:0008287;GO:1903293	4	SPU_018552	1.218402608
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_000022	2.966106626
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_001183	1.544882074
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_001860	1.140806774
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_002051	0.444557296
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_003273	1.912919806
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_013052	0.307461413
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_013353	0.585959035
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_020497	1.101684505
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_024862	1.686886132
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_028111	0.670548819
+"proton-transporting two-sector ATPase complex, proton-transporting domain"	GO:0033177	3	SPU_028880	1.213064254
+"chromosome"	GO:0005694	2	SPU_001232	1.330234549
+"chromosome"	GO:0005694	2	SPU_008636	3.318177077
+"chromosome"	GO:0005694	2	SPU_013577	1.153910299
+"chromosome"	GO:0005694	2	SPU_013617	2.178951801
+"chromosome"	GO:0005694	2	SPU_017310	0.027940224
+"chromosome"	GO:0005694	2	SPU_020742	0.520212982
+"chromosome"	GO:0005694	2	SPU_021629	0.515256679
+"chromosome"	GO:0005694	2	SPU_024546	0.875429085
+"chromosome"	GO:0005694	2	SPU_026427	0.850479288
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_002933	4.196477162
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_006755	2.130288755
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_008018	3.948907176
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_008501	1.529007575
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_012580	1.010195043
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_012696	0.604183314
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_018512	4.326009857
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_018554	0.395658701
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_018555	0.97860825
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_018556	0.702341973
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_019174	2.548472244
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_021077	0.685520583
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_021121	2.091601836
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_022917	1.220527651
+"cullin-RING ubiquitin ligase complex"	GO:0031461	4	SPU_024153	1.593068592
+"cytoplasm"	GO:0005737	2	SPU_000129	1.797093607
+"cytoplasm"	GO:0005737	2	SPU_000131	0.450068685
+"cytoplasm"	GO:0005737	2	SPU_000292	0.441006589
+"cytoplasm"	GO:0005737	2	SPU_000799	2.195143063
+"cytoplasm"	GO:0005737	2	SPU_001309	1.860075228
+"cytoplasm"	GO:0005737	2	SPU_001337	0.833379742
+"cytoplasm"	GO:0005737	2	SPU_001579	1.803069722
+"cytoplasm"	GO:0005737	2	SPU_001825	1.032538475
+"cytoplasm"	GO:0005737	2	SPU_002153	1.931105195
+"cytoplasm"	GO:0005737	2	SPU_002182	5.084240296
+"cytoplasm"	GO:0005737	2	SPU_002220	2.824610922
+"cytoplasm"	GO:0005737	2	SPU_002376	1.396916358
+"cytoplasm"	GO:0005737	2	SPU_002443	0.300945289
+"cytoplasm"	GO:0005737	2	SPU_002655	1.98948009
+"cytoplasm"	GO:0005737	2	SPU_002773	0.576189957
+"cytoplasm"	GO:0005737	2	SPU_003088	1.810406757
+"cytoplasm"	GO:0005737	2	SPU_003124	2.762489743
+"cytoplasm"	GO:0005737	2	SPU_003180	4.68072282
+"cytoplasm"	GO:0005737	2	SPU_003458	0.305454452
+"cytoplasm"	GO:0005737	2	SPU_003631	0.183389738
+"cytoplasm"	GO:0005737	2	SPU_003632	1.221655099
+"cytoplasm"	GO:0005737	2	SPU_004466	3.115973528
+"cytoplasm"	GO:0005737	2	SPU_004625	1.638929252
+"cytoplasm"	GO:0005737	2	SPU_004757	1.17930231
+"cytoplasm"	GO:0005737	2	SPU_004893	3.215798329
+"cytoplasm"	GO:0005737	2	SPU_005212	0.232474703
+"cytoplasm"	GO:0005737	2	SPU_005226	3.296440364
+"cytoplasm"	GO:0005737	2	SPU_005285	0.22536136
+"cytoplasm"	GO:0005737	2	SPU_005338	1.78738205
+"cytoplasm"	GO:0005737	2	SPU_005554	0.456016884
+"cytoplasm"	GO:0005737	2	SPU_005711	0.861052315
+"cytoplasm"	GO:0005737	2	SPU_006153	0.435857253
+"cytoplasm"	GO:0005737	2	SPU_006443	2.685812994
+"cytoplasm"	GO:0005737	2	SPU_006773	2.067547261
+"cytoplasm"	GO:0005737	2	SPU_007569	0.355576561
+"cytoplasm"	GO:0005737	2	SPU_007595	0.496534849
+"cytoplasm"	GO:0005737	2	SPU_007665	0.760750208
+"cytoplasm"	GO:0005737	2	SPU_008129	1.123653702
+"cytoplasm"	GO:0005737	2	SPU_008215	0.367429465
+"cytoplasm"	GO:0005737	2	SPU_008372	0.985132104
+"cytoplasm"	GO:0005737	2	SPU_008385	0.089972441
+"cytoplasm"	GO:0005737	2	SPU_008449	0.05644854
+"cytoplasm"	GO:0005737	2	SPU_008742	1.67391177
+"cytoplasm"	GO:0005737	2	SPU_008981	0.18528977
+"cytoplasm"	GO:0005737	2	SPU_009021	0.003841027
+"cytoplasm"	GO:0005737	2	SPU_009226	1.165903587
+"cytoplasm"	GO:0005737	2	SPU_009248	4.349871656
+"cytoplasm"	GO:0005737	2	SPU_009305	3.868314005
+"cytoplasm"	GO:0005737	2	SPU_009735	1.055061924
+"cytoplasm"	GO:0005737	2	SPU_009772	0.735600731
+"cytoplasm"	GO:0005737	2	SPU_010272	0.250875817
+"cytoplasm"	GO:0005737	2	SPU_010303	1.772031502
+"cytoplasm"	GO:0005737	2	SPU_010377	0.77926681
+"cytoplasm"	GO:0005737	2	SPU_010382	0.732871986
+"cytoplasm"	GO:0005737	2	SPU_010715	1.632320526
+"cytoplasm"	GO:0005737	2	SPU_010790	2.870342778
+"cytoplasm"	GO:0005737	2	SPU_010958	3.367733648
+"cytoplasm"	GO:0005737	2	SPU_011196	0.16061251
+"cytoplasm"	GO:0005737	2	SPU_011211	0.756997725
+"cytoplasm"	GO:0005737	2	SPU_011216	0.039315215
+"cytoplasm"	GO:0005737	2	SPU_011485	3.547821838
+"cytoplasm"	GO:0005737	2	SPU_011712	0.069386734
+"cytoplasm"	GO:0005737	2	SPU_011721	0.271508467
+"cytoplasm"	GO:0005737	2	SPU_011980	0.729438741
+"cytoplasm"	GO:0005737	2	SPU_012082	1.402705324
+"cytoplasm"	GO:0005737	2	SPU_012229	0.859728114
+"cytoplasm"	GO:0005737	2	SPU_012359	1.447808377
+"cytoplasm"	GO:0005737	2	SPU_012858	4.980667731
+"cytoplasm"	GO:0005737	2	SPU_013198	0.375700034
+"cytoplasm"	GO:0005737	2	SPU_013310	0.607869105
+"cytoplasm"	GO:0005737	2	SPU_013380	0.691232595
+"cytoplasm"	GO:0005737	2	SPU_013398	1.889544326
+"cytoplasm"	GO:0005737	2	SPU_013500	1.040929956
+"cytoplasm"	GO:0005737	2	SPU_013699	1.79372458
+"cytoplasm"	GO:0005737	2	SPU_014063	2.335840313
+"cytoplasm"	GO:0005737	2	SPU_014179	1.104466798
+"cytoplasm"	GO:0005737	2	SPU_014235	0.566038617
+"cytoplasm"	GO:0005737	2	SPU_014312	0.238526775
+"cytoplasm"	GO:0005737	2	SPU_014428	0.571654945
+"cytoplasm"	GO:0005737	2	SPU_014712	1.937714592
+"cytoplasm"	GO:0005737	2	SPU_015090	1.644669341
+"cytoplasm"	GO:0005737	2	SPU_015374	0.93947798
+"cytoplasm"	GO:0005737	2	SPU_015706	1.311518498
+"cytoplasm"	GO:0005737	2	SPU_015873	0.107598513
+"cytoplasm"	GO:0005737	2	SPU_016173	1.337743455
+"cytoplasm"	GO:0005737	2	SPU_016327	0.462385329
+"cytoplasm"	GO:0005737	2	SPU_016976	1.587733529
+"cytoplasm"	GO:0005737	2	SPU_017032	0.446722803
+"cytoplasm"	GO:0005737	2	SPU_017041	2.695198694
+"cytoplasm"	GO:0005737	2	SPU_017058	0.001430326
+"cytoplasm"	GO:0005737	2	SPU_017407	0.411155768
+"cytoplasm"	GO:0005737	2	SPU_017414	1.363661376
+"cytoplasm"	GO:0005737	2	SPU_017781	2.008372654
+"cytoplasm"	GO:0005737	2	SPU_018012	1.767561127
+"cytoplasm"	GO:0005737	2	SPU_018120	1.094613972
+"cytoplasm"	GO:0005737	2	SPU_018240	1.529195578
+"cytoplasm"	GO:0005737	2	SPU_018705	0.091652011
+"cytoplasm"	GO:0005737	2	SPU_018962	1.731869922
+"cytoplasm"	GO:0005737	2	SPU_019161	1.439640643
+"cytoplasm"	GO:0005737	2	SPU_019216	1.601684088
+"cytoplasm"	GO:0005737	2	SPU_019518	1.470526904
+"cytoplasm"	GO:0005737	2	SPU_020284	1.701730736
+"cytoplasm"	GO:0005737	2	SPU_020315	1.253282064
+"cytoplasm"	GO:0005737	2	SPU_020363	0.302507155
+"cytoplasm"	GO:0005737	2	SPU_020475	1.90562673
+"cytoplasm"	GO:0005737	2	SPU_020551	0.669458326
+"cytoplasm"	GO:0005737	2	SPU_021414	3.392121956
+"cytoplasm"	GO:0005737	2	SPU_021716	0.298678008
+"cytoplasm"	GO:0005737	2	SPU_022476	2.108048764
+"cytoplasm"	GO:0005737	2	SPU_022502	0.339183047
+"cytoplasm"	GO:0005737	2	SPU_023021	0.434925555
+"cytoplasm"	GO:0005737	2	SPU_023206	0.950820605
+"cytoplasm"	GO:0005737	2	SPU_023531	0.651579148
+"cytoplasm"	GO:0005737	2	SPU_023670	1.545667478
+"cytoplasm"	GO:0005737	2	SPU_023766	1.583378826
+"cytoplasm"	GO:0005737	2	SPU_023768	0.139241297
+"cytoplasm"	GO:0005737	2	SPU_023886	0.26345484
+"cytoplasm"	GO:0005737	2	SPU_023948	0.325583596
+"cytoplasm"	GO:0005737	2	SPU_023951	0.701560951
+"cytoplasm"	GO:0005737	2	SPU_023963	0.4692635
+"cytoplasm"	GO:0005737	2	SPU_024072	0.180578328
+"cytoplasm"	GO:0005737	2	SPU_024103	3.136300456
+"cytoplasm"	GO:0005737	2	SPU_024513	0.341620078
+"cytoplasm"	GO:0005737	2	SPU_024670	3.861945688
+"cytoplasm"	GO:0005737	2	SPU_024725	2.117025766
+"cytoplasm"	GO:0005737	2	SPU_025025	3.741650849
+"cytoplasm"	GO:0005737	2	SPU_025102	3.150527723
+"cytoplasm"	GO:0005737	2	SPU_025487	0.501989043
+"cytoplasm"	GO:0005737	2	SPU_025520	0.661996653
+"cytoplasm"	GO:0005737	2	SPU_025554	1.606662738
+"cytoplasm"	GO:0005737	2	SPU_025644	1.983283538
+"cytoplasm"	GO:0005737	2	SPU_025697	1.126527706
+"cytoplasm"	GO:0005737	2	SPU_025771	2.631849794
+"cytoplasm"	GO:0005737	2	SPU_025826	0.101384364
+"cytoplasm"	GO:0005737	2	SPU_026357	2.049323287
+"cytoplasm"	GO:0005737	2	SPU_026898	0.399203408
+"cytoplasm"	GO:0005737	2	SPU_026918	0.572223959
+"cytoplasm"	GO:0005737	2	SPU_027049	0.253210782
+"cytoplasm"	GO:0005737	2	SPU_027216	3.590346811
+"cytoplasm"	GO:0005737	2	SPU_027246	0.389300708
+"cytoplasm"	GO:0005737	2	SPU_027935	2.864823378
+"cytoplasm"	GO:0005737	2	SPU_028312	0.774262426
+"cytoplasm"	GO:0005737	2	SPU_028477	0.650053852
+"cytoplasm"	GO:0005737	2	SPU_028593	1.258781036
+"cytoplasm"	GO:0005737	2	SPU_028633	0.236736792
+"cytoplasm"	GO:0005737	2	SPU_028917	0.40210845
+"cytoplasm"	GO:0005737	2	SPU_028926	1.74463998
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_002197	4.236742006
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_002198	1.195103198
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_006119	0.831537405
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_009461	2.755251072
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_011567	0.586550069
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_013681	1.633607482
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_021308	0.640975064
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_024540	0.06673095
+"endoplasmic reticulum protein-containing complex"	GO:0140534	2	SPU_025450	0.199591959
+"cAMP-dependent protein kinase complex"	GO:0005952	3	SPU_002007	4.796218789
+"cAMP-dependent protein kinase complex"	GO:0005952	3	SPU_013040	0.638740183
+"cAMP-dependent protein kinase complex"	GO:0005952	3	SPU_013642	2.177996651
+"cAMP-dependent protein kinase complex"	GO:0005952	3	SPU_018419	0.440619924
+"cAMP-dependent protein kinase complex"	GO:0005952	3	SPU_022038	0.71017152
+"mediator complex"	GO:0016592	2	SPU_001146	0.026791302
+"mediator complex"	GO:0016592	2	SPU_007187	3.179351586
+"mediator complex"	GO:0016592	2	SPU_016017	0.340062288
+"mediator complex"	GO:0016592	2	SPU_017222	0.907538994
+"mediator complex"	GO:0016592	2	SPU_018944	1.38519721
+"mediator complex"	GO:0016592	2	SPU_019373	1.34038182
+"mediator complex"	GO:0016592	2	SPU_022847	0.116714395
+"mediator complex"	GO:0016592	2	SPU_024927	1.359475755
+"mediator complex"	GO:0016592	2	SPU_025580	3.332358187
+"transcription regulator complex"	GO:0005667	2	SPU_000129	1.797093607
+"transcription regulator complex"	GO:0005667	2	SPU_001308	2.122145755
+"transcription regulator complex"	GO:0005667	2	SPU_001512	0.050304966
+"transcription regulator complex"	GO:0005667	2	SPU_003868	1.597181545
+"transcription regulator complex"	GO:0005667	2	SPU_004287	0.22456209
+"transcription regulator complex"	GO:0005667	2	SPU_006312	1.375297366
+"transcription regulator complex"	GO:0005667	2	SPU_007799	0.632554739
+"transcription regulator complex"	GO:0005667	2	SPU_008516	0.619316087
+"transcription regulator complex"	GO:0005667	2	SPU_008517	0.127719897
+"transcription regulator complex"	GO:0005667	2	SPU_008840	0.027391253
+"transcription regulator complex"	GO:0005667	2	SPU_009345	0.610428875
+"transcription regulator complex"	GO:0005667	2	SPU_009348	0.542232278
+"transcription regulator complex"	GO:0005667	2	SPU_009651	0.943772785
+"transcription regulator complex"	GO:0005667	2	SPU_011091	0.056054336
+"transcription regulator complex"	GO:0005667	2	SPU_011658	0.337689677
+"transcription regulator complex"	GO:0005667	2	SPU_016687	0.485144214
+"transcription regulator complex"	GO:0005667	2	SPU_017407	0.411155768
+"transcription regulator complex"	GO:0005667	2	SPU_018246	2.092592449
+"transcription regulator complex"	GO:0005667	2	SPU_019518	1.470526904
+"transcription regulator complex"	GO:0005667	2	SPU_020284	1.701730736
+"transcription regulator complex"	GO:0005667	2	SPU_020924	0.817700789
+"transcription regulator complex"	GO:0005667	2	SPU_022626	0.586190148
+"transcription regulator complex"	GO:0005667	2	SPU_023346	0.123554663
+"transcription regulator complex"	GO:0005667	2	SPU_025671	1.957565893
+"transcription regulator complex"	GO:0005667	2	SPU_027935	2.864823378
+"transcription regulator complex"	GO:0005667	2	SPU_028430	1.215264275
+"spindle pole"	GO:0000922	2	SPU_000723	0.057067102
+"spindle pole"	GO:0000922	2	SPU_002534	0.578076262
+"spindle pole"	GO:0000922	2	SPU_009979	0.288973933
+"spindle pole"	GO:0000922	2	SPU_010158	1.920604106
+"spindle pole"	GO:0000922	2	SPU_010736	0.443454286
+"spindle pole"	GO:0000922	2	SPU_016509	5.239570187
+"spindle pole"	GO:0000922	2	SPU_024595	0.392322763
+"spindle pole"	GO:0000922	2	SPU_026892	1.575502116
+"integrator complex"	GO:0032039	2	SPU_005190	0.409078774
+"integrator complex"	GO:0032039	2	SPU_008533	0.280079951
+"integrator complex"	GO:0032039	2	SPU_009602	1.7979008
+"integrator complex"	GO:0032039	2	SPU_014946	0.346905992
+"integrator complex"	GO:0032039	2	SPU_028213	0.206940379
+"integrator complex"	GO:0032039	2	SPU_028371	0.243392335
+"small ribosomal subunit"	GO:0015935	4	SPU_008394	0.051395442
+"small ribosomal subunit"	GO:0015935	4	SPU_008852	2.262690505
+"small ribosomal subunit"	GO:0015935	4	SPU_011015	5.22426377
+"small ribosomal subunit"	GO:0015935	4	SPU_013452	0.005451575
+"small ribosomal subunit"	GO:0015935	4	SPU_013662	0.198398468
+"small ribosomal subunit"	GO:0015935	4	SPU_015827	0.792493906
+"small ribosomal subunit"	GO:0015935	4	SPU_019736	1.34408562
+"small ribosomal subunit"	GO:0015935	4	SPU_022957	1.915120103
+"small ribosomal subunit"	GO:0015935	4	SPU_026541	0.372955126
+"bounding membrane of organelle"	GO:0098588	2	SPU_001579	1.803069722
+"bounding membrane of organelle"	GO:0098588	2	SPU_003959	0.867629902
+"bounding membrane of organelle"	GO:0098588	2	SPU_005110	3.916982531
+"bounding membrane of organelle"	GO:0098588	2	SPU_007142	1.094742458
+"bounding membrane of organelle"	GO:0098588	2	SPU_008505	1.864647541
+"bounding membrane of organelle"	GO:0098588	2	SPU_008692	1.698523238
+"bounding membrane of organelle"	GO:0098588	2	SPU_009014	0.384140618
+"bounding membrane of organelle"	GO:0098588	2	SPU_009673	2.917460311
+"bounding membrane of organelle"	GO:0098588	2	SPU_009674	1.511663646
+"bounding membrane of organelle"	GO:0098588	2	SPU_009922	2.819879367
+"bounding membrane of organelle"	GO:0098588	2	SPU_010010	1.02104078
+"bounding membrane of organelle"	GO:0098588	2	SPU_015257	1.275644572
+"bounding membrane of organelle"	GO:0098588	2	SPU_015506	0.995123227
+"bounding membrane of organelle"	GO:0098588	2	SPU_015644	0.425775278
+"bounding membrane of organelle"	GO:0098588	2	SPU_016404	0.957447163
+"bounding membrane of organelle"	GO:0098588	2	SPU_018130	4.163091392
+"bounding membrane of organelle"	GO:0098588	2	SPU_019074	0.514420601
+"bounding membrane of organelle"	GO:0098588	2	SPU_019603	3.278949233
+"bounding membrane of organelle"	GO:0098588	2	SPU_019782	1.645481643
+"bounding membrane of organelle"	GO:0098588	2	SPU_023648	1.330963683
+"bounding membrane of organelle"	GO:0098588	2	SPU_025102	3.150527723
+"bounding membrane of organelle"	GO:0098588	2	SPU_025777	0.131449468
+"bounding membrane of organelle"	GO:0098588	2	SPU_025858	1.207797152
+"bounding membrane of organelle"	GO:0098588	2	SPU_027236	4.043722157
+"bounding membrane of organelle"	GO:0098588	2	SPU_027418	1.347424587
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_000600	0.576398408
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_002756	3.635307653
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_003596	0.370427648
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_008917	0.774434602
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_010975	0.410352792
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_011567	0.586550069
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_014287	2.001618597
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_015169	0.492926765
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_015373	0.409655734
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_016637	1.319291328
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_017896	1.597392525
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_022225	1.030960381
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_024405	0.558057902
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_025450	0.199591959
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_028002	1.871756059
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_000922	0.82572973
+"intrinsic component of organelle membrane"	GO:0031301;GO:0031300	2	SPU_002338	1.286364147
+"large ribosomal subunit"	GO:0015934	4	SPU_005252	0.064899077
+"large ribosomal subunit"	GO:0015934	4	SPU_006213	9.618631085
+"large ribosomal subunit"	GO:0015934	4	SPU_007057	7.916021231
+"large ribosomal subunit"	GO:0015934	4	SPU_014454	1.790689604
+"large ribosomal subunit"	GO:0015934	4	SPU_017142	2.611388913
+"dynactin complex"	GO:0005869	3	SPU_006163	1.543532791
+"dynactin complex"	GO:0005869	3	SPU_010290	2.204865256
+"dynactin complex"	GO:0005869	3	SPU_013935	1.239002953
+"dynactin complex"	GO:0005869	3	SPU_018500	4.413647505
+"dynactin complex"	GO:0005869	3	SPU_022756	0.21478723
+"ribonucleoprotein complex"	GO:1990904	2	SPU_000303	0.189377602
+"ribonucleoprotein complex"	GO:1990904	2	SPU_000405	5.080125303
+"ribonucleoprotein complex"	GO:1990904	2	SPU_001889	0.816783867
+"ribonucleoprotein complex"	GO:1990904	2	SPU_003197	0.181122121
+"ribonucleoprotein complex"	GO:1990904	2	SPU_004635	0.543461099
+"ribonucleoprotein complex"	GO:1990904	2	SPU_004782	2.672672174
+"ribonucleoprotein complex"	GO:1990904	2	SPU_005252	0.064899077
+"ribonucleoprotein complex"	GO:1990904	2	SPU_005528	1.052058706
+"ribonucleoprotein complex"	GO:1990904	2	SPU_005944	0.529296851
+"ribonucleoprotein complex"	GO:1990904	2	SPU_006213	9.618631085
+"ribonucleoprotein complex"	GO:1990904	2	SPU_007057	7.916021231
+"ribonucleoprotein complex"	GO:1990904	2	SPU_007265	1.001369384
+"ribonucleoprotein complex"	GO:1990904	2	SPU_008394	0.051395442
+"ribonucleoprotein complex"	GO:1990904	2	SPU_008852	2.262690505
+"ribonucleoprotein complex"	GO:1990904	2	SPU_009068	0.366802428
+"ribonucleoprotein complex"	GO:1990904	2	SPU_010312	1.149665369
+"ribonucleoprotein complex"	GO:1990904	2	SPU_011015	5.22426377
+"ribonucleoprotein complex"	GO:1990904	2	SPU_012930	5.183508907
+"ribonucleoprotein complex"	GO:1990904	2	SPU_013452	0.005451575
+"ribonucleoprotein complex"	GO:1990904	2	SPU_013662	0.198398468
+"ribonucleoprotein complex"	GO:1990904	2	SPU_014454	1.790689604
+"ribonucleoprotein complex"	GO:1990904	2	SPU_015342	0.914376174
+"ribonucleoprotein complex"	GO:1990904	2	SPU_015827	0.792493906
+"ribonucleoprotein complex"	GO:1990904	2	SPU_017142	2.611388913
+"ribonucleoprotein complex"	GO:1990904	2	SPU_017204	0.648015989
+"ribonucleoprotein complex"	GO:1990904	2	SPU_017205	0.490138206
+"ribonucleoprotein complex"	GO:1990904	2	SPU_018172	1.386122458
+"ribonucleoprotein complex"	GO:1990904	2	SPU_018995	0.073379906
+"ribonucleoprotein complex"	GO:1990904	2	SPU_019736	1.34408562
+"ribonucleoprotein complex"	GO:1990904	2	SPU_020329	0.733902853
+"ribonucleoprotein complex"	GO:1990904	2	SPU_020766	1.999549016
+"ribonucleoprotein complex"	GO:1990904	2	SPU_021168	1.927822569
+"ribonucleoprotein complex"	GO:1990904	2	SPU_022957	1.915120103
+"ribonucleoprotein complex"	GO:1990904	2	SPU_023529	0.929395183
+"ribonucleoprotein complex"	GO:1990904	2	SPU_023895	0.351758014
+"ribonucleoprotein complex"	GO:1990904	2	SPU_024348	1.243809299
+"ribonucleoprotein complex"	GO:1990904	2	SPU_024432	0.214958217
+"ribonucleoprotein complex"	GO:1990904	2	SPU_026500	0.069470376
+"ribonucleoprotein complex"	GO:1990904	2	SPU_026541	0.372955126
+"ribonucleoprotein complex"	GO:1990904	2	SPU_026620	0.346473997
+"ribonucleoprotein complex"	GO:1990904	2	SPU_028561	0.925437124
+"ribonucleoprotein complex"	GO:1990904	2	SPU_028771	2.267092267
+"endoplasmic reticulum"	GO:0005783	4	SPU_005689	0.242255444
+"endoplasmic reticulum"	GO:0005783	4	SPU_005691	0.381688677
+"endoplasmic reticulum"	GO:0005783	4	SPU_005959	0.765689875
+"endoplasmic reticulum"	GO:0005783	4	SPU_006672	0.777618322
+"endoplasmic reticulum"	GO:0005783	4	SPU_008575	0.008629676
+"endoplasmic reticulum"	GO:0005783	4	SPU_010434	3.129291175
+"endoplasmic reticulum"	GO:0005783	4	SPU_014011	1.115756925
+"endoplasmic reticulum"	GO:0005783	4	SPU_014693	0.09034595
+"endoplasmic reticulum"	GO:0005783	4	SPU_015472	2.825245958
+"endoplasmic reticulum"	GO:0005783	4	SPU_022879	0.031649615
+"endoplasmic reticulum"	GO:0005783	4	SPU_024561	0.634287164
+"endoplasmic reticulum"	GO:0005783	4	SPU_026096	1.160735253
+"endoplasmic reticulum"	GO:0005783	4	SPU_027669	2.404368554
+"endoplasmic reticulum"	GO:0005783	4	SPU_027827	2.330915126
+"intrinsic component of endoplasmic reticulum membrane"	GO:0031227	2	SPU_000600	0.576398408
+"intrinsic component of endoplasmic reticulum membrane"	GO:0031227	2	SPU_000922	0.82572973
+"intrinsic component of endoplasmic reticulum membrane"	GO:0031227	2	SPU_002338	1.286364147
+"intrinsic component of endoplasmic reticulum membrane"	GO:0031227	2	SPU_010975	0.410352792
+"intrinsic component of endoplasmic reticulum membrane"	GO:0031227	2	SPU_011567	0.586550069
+"intrinsic component of endoplasmic reticulum membrane"	GO:0031227	2	SPU_025450	0.199591959
+"kinesin complex"	GO:0005871	2	SPU_001284	1.264805692
+"kinesin complex"	GO:0005871	2	SPU_001890	0.360369732
+"kinesin complex"	GO:0005871	2	SPU_002985	4.134459255
+"kinesin complex"	GO:0005871	2	SPU_003717	3.136978603
+"kinesin complex"	GO:0005871	2	SPU_004224	1.220242841
+"kinesin complex"	GO:0005871	2	SPU_005509	5.747502276
+"kinesin complex"	GO:0005871	2	SPU_005741	1.449459225
+"kinesin complex"	GO:0005871	2	SPU_006237	0.603003927
+"kinesin complex"	GO:0005871	2	SPU_006260	2.550932457
+"kinesin complex"	GO:0005871	2	SPU_006602	2.512382262
+"kinesin complex"	GO:0005871	2	SPU_007505	1.508766266
+"kinesin complex"	GO:0005871	2	SPU_007560	1.869363452
+"kinesin complex"	GO:0005871	2	SPU_008162	0.95640453
+"kinesin complex"	GO:0005871	2	SPU_009783	1.605606976
+"kinesin complex"	GO:0005871	2	SPU_010770	0.249608553
+"kinesin complex"	GO:0005871	2	SPU_010954	1.201497289
+"kinesin complex"	GO:0005871	2	SPU_011353	2.254959122
+"kinesin complex"	GO:0005871	2	SPU_012158	0.903388273
+"kinesin complex"	GO:0005871	2	SPU_012757	2.087021221
+"kinesin complex"	GO:0005871	2	SPU_012877	4.194858265
+"kinesin complex"	GO:0005871	2	SPU_013236	1.879063928
+"kinesin complex"	GO:0005871	2	SPU_013729	0.324816436
+"kinesin complex"	GO:0005871	2	SPU_014451	0.302717214
+"kinesin complex"	GO:0005871	2	SPU_015809	0.106397977
+"kinesin complex"	GO:0005871	2	SPU_016655	0.69308685
+"kinesin complex"	GO:0005871	2	SPU_016664	2.9494637
+"kinesin complex"	GO:0005871	2	SPU_018077	1.281804615
+"kinesin complex"	GO:0005871	2	SPU_018388	1.318516386
+"kinesin complex"	GO:0005871	2	SPU_018764	1.938002921
+"kinesin complex"	GO:0005871	2	SPU_018898	4.848008401
+"kinesin complex"	GO:0005871	2	SPU_019066	1.579648875
+"kinesin complex"	GO:0005871	2	SPU_019165	3.712189347
+"kinesin complex"	GO:0005871	2	SPU_020414	1.355719286
+"kinesin complex"	GO:0005871	2	SPU_020634	3.014139919
+"kinesin complex"	GO:0005871	2	SPU_021317	2.883110125
+"kinesin complex"	GO:0005871	2	SPU_021656	0.103798152
+"kinesin complex"	GO:0005871	2	SPU_022160	1.882259119
+"kinesin complex"	GO:0005871	2	SPU_022840	0.016493289
+"kinesin complex"	GO:0005871	2	SPU_022982	5.278689645
+"kinesin complex"	GO:0005871	2	SPU_023126	1.516355199
+"kinesin complex"	GO:0005871	2	SPU_023560	0.14333966
+"kinesin complex"	GO:0005871	2	SPU_024588	2.713489921
+"kinesin complex"	GO:0005871	2	SPU_026237	0.716521729
+"kinesin complex"	GO:0005871	2	SPU_026280	0.11960318
+"kinesin complex"	GO:0005871	2	SPU_026281	1.5019473
+"kinesin complex"	GO:0005871	2	SPU_027552	5.49468805
+"kinesin complex"	GO:0005871	2	SPU_028826	3.404812876
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_000022	2.966106626
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_001183	1.544882074
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_002002	0.976487802
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_002518	1.021993721
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_003273	1.912919806
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_008073	0.405333361
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_008554	0.763506219
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_008852	2.262690505
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_009075	0.098216067
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_010964	0.783080096
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_013353	0.585959035
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_015827	0.792493906
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_019118	0.443329138
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_022612	3.424756978
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_024417	6.559563455
+"mitochondrial protein-containing complex"	GO:0098798	2	SPU_028880	1.213064254

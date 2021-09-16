@@ -47,8 +47,9 @@ This research was funded by a United States National Science Foundation award (I
                 iii. Output data: 
                         a. .Rdata file containing intermediate files that is perdiodically saved while running .R script
                         b. ATAC_summary_peakSummaryALL.Rdata - summarized ATAC-seq insert densities per gene by genomic feature
-                        c. .Rdata file containing annotations of ATAC-seq inserts
-                        d. EXPORTED BY USER DURING EXECUTION - combined .bed file of all ATAC-seq replicates
+                        c. ATAC_summary_annots_prism_cons.Rdata - summarized ATAC-seq data for consensus inserts only
+                        d. .Rdata file containing annotations of ATAC-seq inserts
+                        e. EXPORTED BY USER DURING EXECUTION - combined .bed file of all ATAC-seq replicates
                         
         2. B2_Integr_Sp_RRBS.Rmd (combinatorial integrations of ATAC-seq, RRBS, and RNA-seq data)
               i. Input data:
