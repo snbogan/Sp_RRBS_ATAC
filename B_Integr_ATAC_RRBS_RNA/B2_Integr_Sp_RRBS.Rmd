@@ -88,7 +88,7 @@ Spur_3.1_gff_gene_exon_len$intron_len <- Spur_3.1_gff_gene_exon_len$gene_len -
 peaks_summary_all_corr <- merge( peaks_summary_all, Spur_3.1_gff_gene_exon_len, by = "geneid" )
 
 # Normalize TSS, intron, and exon accessibility by length
-peaks_summary_all_corr$TSS_dens_norm <- peaks_summary_all_corr$peak_density_TSS
+peaks_summary_all_corr$TSS_dens_norm <- ( peaks_summary_all_corr$peak_density_TSS / 1000 )
 
 peaks_summary_all_corr$intron_dens_norm <- as.numeric( 
   ifelse( peaks_summary_all_corr$intron_len == "0", "0",
