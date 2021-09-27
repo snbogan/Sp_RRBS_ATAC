@@ -280,7 +280,7 @@ Genes exhibiting increased spurious expression or an increase in alternative TSS
 # First, exon info df for maternal treatment
 DSGs_Mat_exon_info <- data.frame( exon_id = Mat_dgelrt$exoncolname, 
                                   exon_coeff = Mat_dgelrt$coefficients, 
-                                  exon_pval = Mat_dgelrt$exon.F,
+                                  exon_pval = Mat_dgelrt$exon.p.value,
                                   Treat = "Maternal" )
 
 # Create exon number variable
@@ -297,7 +297,7 @@ DSGs_Mat_exon_info$geneid <- gsub( "-tr-E.*",
 # Then, exon info df for Devernal treatment
 DSGs_Dev_exon_info <- data.frame( exon_id = Dev_dgelrt$exoncolname, 
                                   exon_coeff = Dev_dgelrt$coefficients, 
-                                  exon_pval = Dev_dgelrt$exon.F,
+                                  exon_pval = Dev_dgelrt$exon.p.value,
                                   Treat = "Developmental" )
 
 # Create exon number variable

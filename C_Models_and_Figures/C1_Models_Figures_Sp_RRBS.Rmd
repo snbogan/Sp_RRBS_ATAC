@@ -1,4 +1,4 @@
----
+x---
 title: "C2_Figures_Sp_RRBS.Rmd"
 author: "Sam Bogan"
 date: "6/28/2021"
@@ -43,18 +43,20 @@ library( see )
 library( ggbreak )
 ```
 
+#Make Figure 1
 
-#Make Figure 2
-
-Create Fig. 2A
+Create Fig. 1A
 
 ```{r}
 
 ## Start with the top of Fig. 2A: baseline meth vs logCPM of expression
 # Read in integrated data w/ ATAC summaries, baseline meth per genewise feature, and logCPM of expression
-ex_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ex_meth_by_GE_ATAC.csv" )
-int_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_meth_by_GE_ATAC.csv" )
-pr_meth_by_GE_ATAC <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/pr_meth_by_GE_ATAC.csv" )
+ex_meth_by_GE_ATAC <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ex_meth_by_GE_ATAC.csv" )
+int_meth_by_GE_ATAC <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/int_meth_by_GE_ATAC.csv" )
+pr_meth_by_GE_ATAC <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/pr_meth_by_GE_ATAC.csv" )
 
 # Make df of exon, intron, and promoter meth x logCPM
 ex_meth_by_GE_ATAC$Feat <- "Exon"
@@ -80,7 +82,7 @@ avg_meth_by_GE$feat = factor( avg_meth_by_GE$feat,
                               levels = c( 'Promoter','Exon','Intron' ) )
 
 # Create facetted plot                                    
-Fig_2A_top <- ggplot( data = avg_meth_by_GE, 
+Fig_1A_top <- ggplot( data = avg_meth_by_GE, 
                   aes( x = meth, y = logCPM ) ) +
   geom_point( alpha = 0.5, size = 1 ) +
   geom_smooth( method = "lm", se = TRUE, size = 2 ) +
@@ -89,7 +91,7 @@ Fig_2A_top <- ggplot( data = avg_meth_by_GE,
   labs( y = "logCPM", x = "% CpG methylation" ) +
   facet_wrap( ~feat )
        
-Fig_2A_top
+Fig_1A_top
 
 ## Next, lower half of Fig. 2A: baseline meth vs. presence of transcript variants
 # Read in meth by splicing df's
@@ -130,8 +132,8 @@ names(all_meth_by_splice_sum)[names(all_meth_by_splice_sum) == "bins"] <- "meth"
 avg_meth_by_splice$feat = factor( avg_meth_by_splice$feat,
                               levels = c( 'Promoter','Exon','Intron' ) )
 
-# Create lower half of Fig. 2A
-Fig_2A_bot <- ggplot( data = avg_meth_by_splice, 
+# Create lower half of Fig. 1A
+Fig_1A_bot <- ggplot( data = avg_meth_by_splice, 
                       aes( x = meth, y = splice, width = 1 ) ) +
   geom_jitter( alpha = 0.5, size = 1, width = 0, height = 0.2 ) +
   geom_smooth( data = all_meth_by_splice_sum, method = "lm", size = 2, aes( group = feat ) ) +
@@ -145,7 +147,8 @@ Fig_2A_bot <- ggplot( data = avg_meth_by_splice,
   scale_x_continuous( breaks = c( 0, 25, 50, 75, 100 ) ) +
   facet_wrap( ~feat )
 
-Fig_2A_bot
+Fig_1A_bot
+
 ```
 
 Read in Fig. 2B, produced by B1_ATAC_summary_Sp_RRBS.Rmd
@@ -156,10 +159,10 @@ Read in Fig. 2B, produced by B1_ATAC_summary_Sp_RRBS.Rmd
 load( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_figures/TSS_plot.Rdata" )
 
 # Print
-Fig_2B <- TSS_plot +
+Fig_1B <- TSS_plot +
   theme( axis.text.y = element_text( size = 15 ) )
 
-Fig_2B
+Fig_1B
 
 ```
 
@@ -290,6 +293,7 @@ peak_ranges <- GRanges( peakannot_unq$seqnames, IRanges( start = peakannot_unq$s
 ```
 
 Plot CpG methylation depletion at ATAC peaks
+
 ```{r}
 
 # Pair methylated CpGs with nearest consensus Tn5 insert
@@ -359,8 +363,8 @@ updown_binned_TRUE_FALSE$sw100_perc_meth_ci <- slide_dbl( updown_binned_TRUE_FAL
 updown_binned_TRUE_FALSE$sw100_perc_meth_se <- updown_binned_TRUE_FALSE$sw100_perc_meth_ci /
   sqrt( updown_binned_TRUE_FALSE$Freq )
 
-# Create Fig. 2C
-Fig_2C <- ggplot( data = updown_binned_TRUE_FALSE, 
+# Create Fig. 1C
+Fig_1C <- ggplot( data = updown_binned_TRUE_FALSE, 
                   aes( x = bins, y = ( sw100_perc_meth * 100 ) ) ) +
   geom_smooth( method = "loess", aes (y = ( sw100_perc_meth * 100 ),
                                     ymin = ( ( sw100_perc_meth * 100 ) - ( sw100_perc_meth_se * 100 ) ),
@@ -368,65 +372,67 @@ Fig_2C <- ggplot( data = updown_binned_TRUE_FALSE,
               stat = "identity", alpha = 0.15, color = "black", fill = "black", lty = 0, se = TRUE ) +
   geom_line( size = .75 ) +
   scale_color_viridis_c() +
-  labs( y = "% methylation", x = "ATAC peak distance (bp)" ) +
+  labs( y = "% methylation", x = "ATAC read distance (bp)" ) +
   geom_vline( xintercept = 0, lty = "longdash", size = .5 ) +
   theme_classic( base_size = 20, base_rect_size = 0 ) +
   theme( legend.position = NULL, legend.text = element_text( size = 8 ) ) 
 
 # Print 2C to correct dimensions
-Fig_2C
+Fig_1C
 
 ```
 
-#Create Figure 2 panel
+#Create Figure 1 panel
 
 ```{r}
 
 # Stack Fig. 2A top and bottom
-Fig_2_left <- ggarrange( Fig_2A_top, Fig_2A_bot, 
+Fig_1_left <- ggarrange( Fig_1A_top, Fig_1A_bot, 
                     labels = c( "A", "B" ),
                     ncol = 1, nrow = 2,
                     align = "hv")
 
 
-Fig_2_right <- ggarrange( Fig_2B, Fig_2C, 
+Fig_1_right <- ggarrange( Fig_1B, Fig_1C, 
                     labels = c( "C", "D" ),
                     ncol = 1, nrow = 2,
                     align = "hv")
 
-Fig_2 <- ggarrange( Fig_2_left, Fig_2_right, 
+Fig_1 <- ggarrange( Fig_1_left, Fig_1_right, 
                     labels = c( "", "" ),
                     ncol = 2, nrow = 1,
                     align = "hv", widths = c( 0.6, 0.4 ) )
 
 
-# Export Fig 2 as tiff
-tiff( "Output_figures/Fig_2.tiff", units = "in", width = 12, 
+# Export Fig 1 as tiff
+tiff( "Output_figures/Fig_1.tiff", units = "in", width = 12, 
       height = 7, 
       res = 600 )
 
-Fig_2
+Fig_1
 
 dev.off()
 
-# Export Fig 2 as png
-png( "Output_figures/Fig_2.png", units = "in", width = 12, 
+# Export Fig 1 as png
+png( "Output_figures/Fig_1.png", units = "in", width = 12, 
       height = 7, 
       res = 600 )
 
-Fig_2
+Fig_1
 
 dev.off()
 
 ```
 
-#Create Fig3: Volcano plots of differential expression, splicing, and methylation
+#Create Fig 2: Volcano plots of differential expression, splicing, and methylation
 
 ```{r}
 
 # Read in maternal and developmental coefficients for DE, DS, and DM
-mat_DE <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv" )
-dev_DE <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_GE_table_filt.csv" )
+mat_DE <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_GE_table_filt.csv" )
+dev_DE <- read.csv( 
+  "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/dev_edgeR_GE_table_filt.csv" )
 mat_DS <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/Mat_DEU_df.csv" )
 dev_DS <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/Dev_DEU_df.csv" )
 mat_DM <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/A_Differential_Exp_Splicing_Meth/Output_data/mat_edgeR_CpG_DM_df.csv" )
@@ -579,6 +585,7 @@ const_ex_int_brm3 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + intron_den
                           prior = c( prior( normal( 0, 2 ), class = Intercept ),
                                      prior( normal( 0, 2 ), class = b ) ),
                           iter = 10000,
+                          save_pars = save_pars( all = TRUE ),
                           cores = 2 )
 
 const_ex_int_brm4 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z +
@@ -591,24 +598,15 @@ const_ex_int_brm4 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_
                           cores = 2,
                           save_pars = save_pars( all = TRUE ) )
 
-# Calc waic and loo
-waic_ex_int1 <- waic( const_ex_int_brm1 )
-loo_ex_int1 <- loo( const_ex_int_brm1 )
-waic_ex_int2 <- waic( const_ex_int_brm2 )
-loo_ex_int2 <- loo( const_ex_int_brm2 )
-waic_ex_int3 <- waic( const_ex_int_brm3 )
-loo_ex_int3 <- loo( const_ex_int_brm3 )
-waic_ex_int4 <- waic( const_ex_int_brm4 )
-loo_ex_int4 <- loo( const_ex_int_brm4 )
+const_ex_int_brm4 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z +
+                            exon_meth_Z : intron_meth_Z,
+                          data = int_ex_meth_GE_ATAC,
+                          family = gaussian(),
+                          prior = c( prior( normal( 0, 2 ), class = Intercept ),
+                                     prior( normal( 0, 2 ), class = b ) ),
+                          iter = 10000,
+                          cores = 2,
 
-# Model selection
-waic_ex_int1
-waic_ex_int2
-waic_ex_int3
-waic_ex_int4 #Selected model
-loo_compare( loo_ex_int1, loo_ex_int2, loo_ex_int3, loo_ex_int4 )
-
-# Now that we know exon accessibility aid model, let's add new variables again
 const_ex_int_brm5 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z + intron_dens_norm_Z +
                             exon_meth_Z : intron_meth_Z,
                           data = int_ex_meth_GE_ATAC,
@@ -616,6 +614,7 @@ const_ex_int_brm5 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_
                           prior = c( prior( normal( 0, 2 ), class = Intercept ),
                                      prior( normal( 0, 2 ), class = b ) ),
                           iter = 10000,
+                          save_pars = save_pars( all = TRUE ),
                           cores = 2 )
 
 const_ex_int_brm6 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z + TSS_dens_norm_Z +
@@ -625,7 +624,8 @@ const_ex_int_brm6 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_
                           prior = c( prior( normal( 0, 2 ), class = Intercept ),
                                      prior( normal( 0, 2 ), class = b ) ),
                           iter = 10000,
-                          cores = 2 )
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
 
 const_ex_int_brm7 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_norm_Z +
                             exon_dens_norm_Z : exon_meth_Z + exon_meth_Z : intron_meth_Z,
@@ -634,30 +634,36 @@ const_ex_int_brm7 <- brm( GE_logCPM_Z ~ exon_meth_Z + intron_meth_Z + exon_dens_
                           prior = c( prior( normal( 0, 2 ), class = Intercept ),
                                      prior( normal( 0, 2 ), class = b ) ),
                           iter = 10000,
-                          cores = 2 )
+                          cores = 2,
+                          save_pars = save_pars( all = TRUE ) )
 
-# WAIC and loo comparisons for models 4 vs 5, 6, 7
-waic( const_ex_int_brm5, const_ex_int_brm6, const_ex_int_brm7 )
-loo_ex_int5 <- loo( const_ex_int_brm5 )
-loo_ex_int6 <- loo( const_ex_int_brm6 )
-loo_ex_int7 <- loo( const_ex_int_brm7 )
+# Bayes factor model selection
+BF_mod_logCPM <- bayesfactor_models( const_ex_int_brm1, const_ex_int_brm3, const_ex_int_brm4,
+                                     const_ex_int_brm5, const_ex_int_brm6, const_ex_int_brm7,
+                                     denominator = const_ex_int_brm2 )
 
-loo_compare( loo_ex_int4, loo_ex_int5, loo_ex_int6, loo_ex_int7 ) # Additional terms no longer helping, go with const_ex_int_brm4
+# Print
+BF_mod_logCPM
+
+# Inclusion Bayes factors
+BF_incl_logCPM <- bayesfactor_inclusion( BF_mod_logCPM )
+
+# Print: accessibility does not aid model predictions
+BF_incl_logCPM
+
+# Posterior predictive check
+pp_check( const_ex_int_brm1 )
 
 # Diagnostic plots
-conditional_effects( const_ex_int_brm4 )
-plot( const_ex_int_brm4 )
-pp_check( const_ex_int_brm4 )
+conditional_effects( const_ex_int_brm1 )
+plot( const_ex_int_brm1 )
+pp_check( const_ex_int_brm1 )
 
-# Output 0.90 alpha posterior intervals: >95% of posterior for all effects except intron meth is below 0
-posterior_interval(
-  const_ex_int_brm4,
+# CV 
+posterior_interval( 
+  const_ex_int_brm1,
   prob = 0.90,
   type = "central" )
-
-# Use Bayes factor to test hypothesis that chromatin accessibility helps explain effects of methylation
-bayes_factor( const_ex_int_brm4,
-              const_ex_int_brm1 ) # No support for hypothesis
 
 ```
 
@@ -806,44 +812,179 @@ bayes_factor( const_pr_brm2,
 # Make splice variable factor
 avg_meth_by_splice$splice <- as.factor( avg_meth_by_splice$splice )
 
-# Scale meth variable 
-avg_meth_by_splice$meth_Z <- scale( avg_meth_by_splice$meth )
+# Scale meth variables
+pr_meth_by_splicing_ATAC$meth_Z <- scale( pr_meth_by_splicing_ATAC$median )
+ex_meth_by_splicing_ATAC$meth_Z <- scale( ex_meth_by_splicing_ATAC$median )
+int_meth_by_splicing_ATAC$meth_Z <- scale( int_meth_by_splicing_ATAC$median )
 
-# Fit bayesian logistic regression
-pr_splice_meth_glm <- stan_glm( splice ~ meth_Z, 
-                                family = binomial(),  
-                                data = filter( avg_meth_by_splice, feat == "Promoter" ),
-                                iter = 10000 )
-                               
-ex_splice_meth_glm <- stan_glm( splice ~ meth_Z, 
-                                family = binomial(),  
-                                data = filter( avg_meth_by_splice, feat == "Exon" ),
-                                iter = 10000 )
-                               
-int_splice_meth_glm <- stan_glm( splice ~ meth_Z, 
-                                 family = binomial(),  
-                                 data = filter( avg_meth_by_splice, feat == "Intron" ),
-                                 iter = 10000 )
+# Scale accessibility variables
+pr_meth_by_splicing_ATAC$TSS_dens_norm_Z <- scale( pr_meth_by_splicing_ATAC$TSS_dens_norm )
+ex_meth_by_splicing_ATAC$exon_dens_norm_Z <- scale( ex_meth_by_splicing_ATAC$exon_dens_norm )
+int_meth_by_splicing_ATAC$intron_dens_norm_Z <- scale( int_meth_by_splicing_ATAC$intron_dens_norm )
 
-# Plot posterior of exon_num effect using alpha = 0.89/95
-plot( pr_splice_meth_glm, pars = "meth_Z", prob = 0.89,  prob_outer = 0.95 )
-plot( ex_splice_meth_glm, pars = "meth_Z", prob = 0.89,  prob_outer = 0.95 )
-plot( int_splice_meth_glm, pars = "meth_Z", prob = 0.89,  prob_outer = 0.95 ) # Significant effect of intron meth
+## Fit bayesian binomial logistic regressions
+# Splicing ~ promoter meth and TSS access
+pr_splice_meth_glm1 <- brm( formula = splice ~ meth_Z,
+                   data = pr_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+                            
 
-# Pairs plots
-mcmc_pairs( pr_splice_meth_glm )
-mcmc_pairs( ex_splice_meth_glm )
-mcmc_pairs( int_splice_meth_glm )
+pr_splice_meth_glm2 <- brm( formula = splice ~ meth_Z + TSS_dens_norm_Z,
+                   data = pr_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
 
-# Posterior predictive checks
-pp_check( pr_splice_meth_glm )
-pp_check( ex_splice_meth_glm )
-pp_check( int_splice_meth_glm )
+pr_splice_meth_glm3 <- brm( formula = splice ~ meth_Z + TSS_dens_norm_Z + meth_Z : TSS_dens_norm_Z,
+                   data = pr_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
 
-# Plot chains
-mcmc_trace( pr_splice_meth_glm )
-mcmc_trace( ex_splice_meth_glm )
-mcmc_trace( int_splice_meth_glm )
+# Model selection for splicing ~ promoter meth and access
+pr_splice_meth_bf_incl <- bayesfactor_models( pr_splice_meth_glm1, pr_splice_meth_glm2,
+                                              denominator = pr_splice_meth_glm3 )
+
+# Print
+pr_splice_meth_bf_incl
+
+# Posterior predictive check of splicing ~ promoter meth
+pp_check( pr_splice_meth_glm1 )
+posterior_interval( pr_splice_meth_glm1,
+                    prob = 0.90,
+                    type = "central" )
+
+# Splicing ~ exon meth and exon access
+ex_splice_meth_glm1 <- brm( formula = splice ~ meth_Z,
+                   data = ex_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+                            
+
+ex_splice_meth_glm2 <- brm( formula = splice ~ meth_Z + exon_dens_norm_Z,
+                   data = ex_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+
+ex_splice_meth_glm3 <- brm( formula = splice ~ meth_Z + exon_dens_norm_Z + meth_Z : exon_dens_norm_Z,
+                   data = ex_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+
+# Model selection for splicing ~ exon meth and access
+ex_splice_meth_bf_incl <- bayesfactor_models( ex_splice_meth_glm1, ex_splice_meth_glm2,
+                                              denominator = ex_splice_meth_glm3 )
+
+# Print
+ex_splice_meth_bf_incl
+
+# Posterior predictive check of splicing ~ exon meth
+pp_check( ex_splice_meth_glm1 )
+posterior_interval( ex_splice_meth_glm1,
+                    prob = 0.90,
+                    type = "central" )
+
+# Splicing ~ intron meth and TSS access
+int_splice_meth_glm1 <- brm( formula = splice ~ meth_Z,
+                   data = int_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+                            
+
+int_splice_meth_glm2 <- brm( formula = splice ~ meth_Z + intron_dens_norm_Z,
+                   data = int_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+
+int_splice_meth_glm3 <- brm( formula = splice ~ meth_Z + intron_dens_norm_Z + meth_Z : intron_dens_norm_Z,
+                   data = int_meth_by_splicing_ATAC, 
+                   family = bernoulli( link = "logit" ),
+                   prior = c( prior(normal( 0, .5 ), class = Intercept ),
+                                     prior(normal( 0, .5 ), class = b ) ),
+                   warmup = 2000, 
+                   iter = 20000, 
+                   chains = 4, 
+                   inits = "0", 
+                   cores = 3,
+                   seed = 123,
+                   save_pars = save_pars( all = TRUE ) )
+
+# Model selection for splicing ~ intron meth and access
+int_splice_meth_bf_incl <- bayesfactor_models( int_splice_meth_glm1, int_splice_meth_glm2,
+                                              denominator = int_splice_meth_glm3 )
+
+# Print
+int_splice_meth_bf_incl
+
+# Posterior predictive check of splicing ~ intron meth
+pp_check( int_splice_meth_glm1 )
+posterior_interval( int_splice_meth_glm1,
+                    prob = 0.90,
+                    type = "central" )
+
 
 ```
 
@@ -1164,7 +1305,7 @@ DE_brm_ex_1 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z +
                              ex_meth_logFC_Z : ex_meth_Z + ex_meth_logFC_Z : GE_logCPM_Z + GE_logCPM_Z : ex_meth_Z +
                              ex_meth_logFC_Z : ex_meth_Z : GE_logCPM_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1175,7 +1316,7 @@ DE_brm_ex_2 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z + TSS
                              ex_meth_logFC_Z : exon_dens_norm_Z +
                              ex_meth_logFC_Z : ex_meth_Z + exon_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1186,7 +1327,7 @@ DE_brm_ex_3 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z + TSS
                              ex_meth_logFC_Z : TSS_dens_norm_Z +
                              ex_meth_logFC_Z : ex_meth_Z + TSS_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1196,7 +1337,7 @@ DE_brm_ex_3 <- brm( GE_logFC_Z ~ ex_meth_logFC_Z + ex_meth_Z + GE_logCPM_Z + TSS
 DE_brm_ex_4 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1207,7 +1348,7 @@ DE_brm_ex_5 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1218,7 +1359,7 @@ DE_brm_ex_6 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1229,7 +1370,7 @@ DE_brm_ex_7 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + TSS_dens_norm_
                       ex_meth_logFC_Z : GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1240,7 +1381,7 @@ DE_brm_ex_8 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + gene_body_acce
                       ex_meth_logFC_Z : GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1252,7 +1393,7 @@ DE_brm_ex_9 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + exon_len_Z +
                       ex_meth_logFC_Z : exon_len_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : exon_len_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1264,7 +1405,7 @@ DE_brm_ex_10 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + exon_len_Z + 
                       ex_meth_logFC_Z : exon_len_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : TSS_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1275,7 +1416,7 @@ DE_brm_ex_11 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : exon_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1285,7 +1426,7 @@ DE_brm_ex_11 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
 DE_brm_ex_12 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1296,7 +1437,7 @@ DE_brm_ex_13 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z +
                       ex_meth_logFC_Z : ex_meth_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1308,7 +1449,7 @@ DE_brm_ex_14 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
                       ex_meth_logFC_Z : ex_meth_Z +
                       ex_meth_logFC_Z : GE_logCPM_Z : exon_dens_norm_Z,
          data = dm_exon_by_DE_ATAC,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
@@ -1316,10 +1457,10 @@ DE_brm_ex_14 <- brm( GE_logFC_Z ~ exon_dens_norm_Z + GE_logCPM_Z + ex_meth_Z +
          save_pars = save_pars( all = TRUE ) )
 
 # Model selection w/ Bayes factors: DE_brm_ex_4
-exon_DE_BF_models <- bayesfactor_models( DE_brm_ex_1, DE_brm_ex_2, DE_brm_ex_3, DE_brm_ex_4, DE_brm_ex_5,
+exon_DE_BF_models <- bayesfactor_models( DE_brm_ex_1, DE_brm_ex_10, DE_brm_ex_3, DE_brm_ex_4, DE_brm_ex_5,
                                          DE_brm_ex_6, DE_brm_ex_7, DE_brm_ex_8, DE_brm_ex_9, DE_brm_ex_11,
                                          DE_brm_ex_12, DE_brm_ex_13, DE_brm_ex_14,
-                                         denominator = DE_brm_ex_10 )
+                                         denominator = DE_brm_ex_2 )
 
 # 4 or 11?
 bayesfactor_models( DE_brm_ex_4, denominator = DE_brm_ex_11 )
@@ -1343,7 +1484,7 @@ lmp_int_meth <- lmp( GE_logFC ~ exon_dens_norm + GE_logCPM +
 
 # Posterior interval of selected model
 posterior_interval(
-  DE_brm_ex_4,
+  DE_brm_ex_12,
   prob = 0.90,
   type = "central" )
 
@@ -1876,9 +2017,9 @@ df_3b <- data.frame( Effect = c( "methylation:\nchromatin:\nexpression",
                                         "methylation:\nchromatin",
                                         "methylation:\nexpression",
                                         "methylation" ),
-                           logBF = c( log( 3.85 ),
+                           logBF = c( log( 3.84 ),
                                       log( 0.001 ),
-                                      log( 11.09 ),
+                                      log( 11.08 ),
                                       log( 0.040 ) ) )
 
 # Re-order factors for 3b y axis
@@ -1995,9 +2136,6 @@ Fig_3c2 <- ggplot( data = p_ATAC_DE_Integr_err, aes( x = int_meth_logFC ) ) +
   scale_x_continuous( breaks = c( -2.5, 2.5 ) ) +
   labs( factor = "TSS peaks", y = "Fitted DE logFC", x = "Observed DM logFC" ) +
   facet_grid( logCPM_quant ~ peak_density_TSS_quant )
-
-# Print Fig 3c2
-Fig_3c2
 
 # Print Fig 3s
 Fig_3s
@@ -2350,11 +2488,23 @@ stDEU_dm_brm_11 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
                           iter = 20000,
                       save_pars = save_pars( all = TRUE ) )
 
+stDEU_dm_brm_12 <- brm( exon_coeff_Z ~ intron_dens_norm_Z + exon_DM_logFC_Z + exon_dens_norm_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z + exon_DM_logFC_Z : intron_dens_norm_Z +
+                          exon_dens_norm_Z : intron_len_Z +
+                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_dens_norm_Z,
+                          data = exon_DM_DEU_ATAC,
+                          family = student(),
+                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
+                                     prior( normal( 0, .5 ), class = b ) ),
+                          cores = 3,
+                          iter = 20000,
+                        save_pars = save_pars( all = TRUE ) )
+
 # Bayes factor analysis selects DE_brm_int_7 over cntrl w/ BF = 39.81 (strong evidence in support of hypothesis)
 DEU_brm_bf <- bayesfactor_models( stDEU_dm_brm_1, stDEU_dm_brm_2, stDEU_dm_brm_3, stDEU_dm_brm_5, 
                                   stDEU_dm_brm_6, stDEU_dm_brm_7, stDEU_dm_brm_7a, stDEU_dm_brm_8, 
                                   stDEU_dm_brm_9, stDEU_dm_brm_10, stDEU_dm_brm_10b, stDEU_dm_brm_10g,
-                                  stDEU_dm_brm_10h, stDEU_dm_brm_11,
+                                  stDEU_dm_brm_10h, stDEU_dm_brm_11, stDEU_dm_brm_12,
                                   denominator = stDEU_dm_brm_4 ) # Use lowest performing model as denominator
 
 # Print model Bayes factors
@@ -2430,10 +2580,10 @@ Fig_4b <- ggplot( data = data.frame( Effect = c( "methylation:\nchromatin:\narch
                                        "methylation:\nchromatin",
                                        "methylation:\narchitecture", 
                                        "methylation" ),
-                           logBF = c( log( 46.451 ), 
-                                         log( 0.153 ), 
+                           logBF = c( log( 13.03 ), 
+                                         log( 0.115 ), 
                                          log( 0.001 ), 
-                                         log( 0.016 ) ) ),
+                                         log( 0.077 ) ) ),
         aes( x = logBF, y = Effect ) ) +
   geom_rect( mapping = aes( xmin = -Inf, xmax = 0, ymin = -Inf, ymax = Inf ), 
     alpha = .1,
@@ -2481,7 +2631,7 @@ Fig_4c
 ```{r}
 # Output posterior intervals
 posterior_interval(
-  stDEU_dm_brm_10,
+  stDEU_dm_brm_10err2,
   prob = 0.90,
   type = "central" )
 
@@ -2897,9 +3047,9 @@ Genebody-level differential methylation bears insignificant effect on differenti
 gb_DM_by_GE_ATAC_df <- read.csv( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/gb_DM_by_GE_ATAC_df.csv" )
 
 # Create normalized genebody access variable
-dm_intron_by_DE_ATAC_gb$genebody_access <- ( dm_intron_by_DE_ATAC_gb$peak_density_Introns +
-                                           dm_intron_by_DE_ATAC_gb$peak_density_Exons ) / dm_intron_by_DE_ATAC_gb$gene_len
-dm_intron_by_DE_ATAC_gb$genebody_access[ is.na( dm_intron_by_DE_ATAC_gb$genebody_access ) ] <- 0
+gb_DM_by_GE_ATAC_df$genebody_access <- ( gb_DM_by_GE_ATAC_df$peak_density_Introns +
+                                           gb_DM_by_GE_ATAC_df$peak_density_Exons ) / gb_DM_by_GE_ATAC_df$gene_len
+gb_DM_by_GE_ATAC_df$genebody_access[ is.na( gb_DM_by_GE_ATAC_df$genebody_access ) ] <- 0
 
 # Scale data to improve model runtime and convergence
 gb_DM_by_GE_ATAC_df$gb_DM_logFC_Z <- scale( gb_DM_by_GE_ATAC_df$gb_DM_logFC )
@@ -2908,7 +3058,7 @@ gb_DM_by_GE_ATAC_df$GE_logCPM_Z <- scale( gb_DM_by_GE_ATAC_df$logCPM )
 gb_DM_by_GE_ATAC_df$TSS_dens_norm_Z <- scale( gb_DM_by_GE_ATAC_df$TSS_dens_norm )
 gb_DM_by_GE_ATAC_df$intron_dens_norm_Z <- scale( gb_DM_by_GE_ATAC_df$intron_dens_norm )
 gb_DM_by_GE_ATAC_df$exon_dens_norm_Z <- scale( gb_DM_by_GE_ATAC_df$exon_dens_norm )
-dm_intron_by_DE_ATAC_gb$genebody_access_Z <- scale( dm_intron_by_DE_ATAC_gb$genebody_access )
+gb_DM_by_GE_ATAC_df$genebody_access_Z <- scale( gb_DM_by_GE_ATAC_df$genebody_access )
 gb_DM_by_GE_ATAC_df$gene_len_Z <- scale( gb_DM_by_GE_ATAC_df$gene_len )
 gb_DM_by_GE_ATAC_df$intron_len_Z <- scale( gb_DM_by_GE_ATAC_df$intron_len )
 gb_DM_by_GE_ATAC_df$exon_len_Z <- scale( gb_DM_by_GE_ATAC_df$exon_len )
@@ -2916,150 +3066,144 @@ gb_DM_by_GE_ATAC_df$exon_len_Z <- scale( gb_DM_by_GE_ATAC_df$exon_len )
 # Create control model for more direct comparison to 7c
 DE_brm_gb1 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb2 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + genebody_access_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb3 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + GE_logCPM_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb4 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + TSS_dens_norm_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb5 <- brm( GE_logFC_Z ~ gb_DM_logFC_Z + gene_len_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb6 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
                      gb_DM_logFC_Z : GE_logCPM_Z +
                      gb_DM_logFC_Z : genebody_access_Z : GE_logCPM_Z ,
-         data = dm_intron_by_DE_ATAC_gb,
-         family = gaussian(),
+         data = gb_DM_by_GE_ATAC_df,
+         family = student(),
          prior = c( prior( normal( 0, .05 ), class = Intercept ), 
          prior( normal( 0, .05 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb7 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
                      gb_DM_logFC_Z : GE_logCPM_Z +
                      gb_DM_logFC_Z : intron_dens_norm_Z : GE_logCPM_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb8 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
                      gb_DM_logFC_Z : GE_logCPM_Z +
                      gb_DM_logFC_Z : exon_dens_norm_Z : GE_logCPM_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb9 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
                      gb_DM_logFC_Z : GE_logCPM_Z +
                      GE_logCPM_Z : TSS_dens_norm_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb10 <- brm( GE_logFC_Z ~ GE_logCPM_Z +
                      gb_DM_logFC_Z : GE_logCPM_Z +
                      gb_DM_logFC_Z : TSS_dens_norm_Z : gene_len_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
 DE_brm_gb11 <- brm(  GE_logFC_Z ~ GE_logCPM_Z +
                      gb_DM_logFC_Z : GE_logCPM_Z +
                      gb_DM_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
          data = gb_DM_by_GE_ATAC_df,
-         family = gaussian(),
+         family = student(),
          prior = c( prior( normal( 0, .5 ), class = Intercept ), 
          prior( normal( 0, .5 ), class = b ) ), 
          iter = 20000,
          chains = 4,
-         cores = 2,
+         cores = 3,
          save_pars = save_pars( all = TRUE ) )
 
-# Model selection w/ waic: DE_brm_gb6
-waic( DE_brm_gb1, DE_brm_gb2, DE_brm_gb3, DE_brm_gb4, DE_brm_gb5,
-      DE_brm_gb6, DE_brm_gb7, DE_brm_gb8, DE_brm_gb9, DE_brm_gb10,
-      cores = 2 )
+# Model selection w/ Bayes factors
+de_gbm_bf_mod <- bayesfactor_models( DE_brm_gb2, DE_brm_gb3, DE_brm_gb4, DE_brm_gb5,
+                                     DE_brm_gb6, DE_brm_gb7, DE_brm_gb8, DE_brm_gb1, 
+                                     DE_brm_gb10, denominator = DE_brm_gb9 )
 
-# Model selection w/ loo: DE_brm_gb6
-loo_gb1 <- loo( DE_brm_gb1, cores = 2 )
-loo_gb2 <- loo( DE_brm_gb2, cores = 2 )
-loo_gb3 <- loo( DE_brm_gb3, cores = 2 )
-loo_gb4 <- loo( DE_brm_gb4, cores = 2 )
-loo_gb5 <- loo( DE_brm_gb5, cores = 2 )
-loo_gb6 <- loo( DE_brm_gb6, cores = 2 )
-loo_gb7 <- loo( DE_brm_gb7, cores = 2 )
-loo_gb8 <- loo( DE_brm_gb8, cores = 2 )
-loo_gb9 <- loo( DE_brm_gb9, cores = 2 )
-loo_gb10 <- loo( DE_brm_gb10, cores = 2 )
+# Print
+de_gbm_bf_mod
 
-loo_compare( x = list( loo_gb1, loo_gb2, loo_gb3, loo_gb4, loo_gb5,
-                       loo_gb6, loo_gb7, loo_gb8, loo_gb9, loo_gb10 ) )
+# Inclusion Bayes factors
+de_gbm_bf_incl <- bayesfactor_inclusion( de_gbm_bf_mod )
 
-# Export posterior intervals for each effect of DE_brm_int_7c
+# Print
+de_gbm_bf_incl
+
+# Export posterior intervals: no significant interaction between gb dm, chromatin access, and GE despite inclusion BF
 posterior_interval(
-  DE_brm_gb9,
-  prob = 0.9,
+  DE_brm_gb6,
+  prob = 0.90,
   type = "central" )
 
 # Diagnostic plots
@@ -3315,7 +3459,6 @@ ATAC_dens_by_GE <- read.csv(
   "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Output_data/ATAC_dens_by_GE.csv" )
 
 ## Create gene body access variable for GE df
-
 ATAC_dens_by_GE$gene_body_access <-
   ( ATAC_dens_by_GE$peak_density_Introns +
              ATAC_dens_by_GE$peak_density_Exons ) / 
@@ -3366,6 +3509,10 @@ Fig_S1Bi <- ggplot( data = ATAC_dens_by_GE,
 # Print Fig_S1Bi
 Fig_S1Bi
 
+# ANOVA of lm GE ~ logTSS accessibilty to estimate slope: slope = 0.32277
+summary( lm( logCPM ~ log( TSS_dens_norm ),
+           data = filter( ATAC_dens_by_GE, TSS_dens_norm > 0 ) ) )
+
 # Plot Fig_S1Bii
 Fig_S1Bii <- ggplot( data = ATAC_dens_by_GE,
                   aes( x = log( gene_body_access ), y = logCPM ) ) +
@@ -3376,6 +3523,13 @@ Fig_S1Bii <- ggplot( data = ATAC_dens_by_GE,
 
 # Print Fig_S1Bii
 Fig_S1Bii
+
+# ANOVA of lm GE ~ log gb accessibilty to estimate slope: slope = 0.21631
+summary( lm( logCPM ~ log( gene_body_access ),
+           data = filter( ATAC_dens_by_GE, gene_body_access > 0 ) ) )
+
+# TSS accessibility is x % stronger in its effect on GE: 32.98% stronger
+1 - ( 0.21631 / 0.32277 )
 
 # Combine Fig_S1Bi and Fig_S1Bii
 Fig_S1B <- ggarrange( Fig_S1Bi, Fig_S1Bii, 
@@ -3479,502 +3633,6 @@ summary( lm( scale( log( TSS_dens_norm ) ) ~ scale( median ),
 
 anova( lm( scale( log( TSS_dens_norm ) ) ~ scale( median ), 
            data = filter( base_meth_int_by_ATAC, TSS_dens_norm > 0 ) ) )
-
-```
-
-#Studentized check of inclusion Bayes factors
-
-Model of DE
-
-```{r}
-
-stDE_BRM_int_0 <- brm( GE_logFC_Z ~ int_meth_logFC_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_1 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_2 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + gene_body_access_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_2a <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_3 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + intron_len_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_4 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z : gene_body_access_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_5 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z : intron_dens_norm_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_6 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + int_meth_Z + intron_len_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_7 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z +
-                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_8 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z +
-                      int_meth_logFC_Z : intron_len_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_9 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z +
-                      int_meth_Z : intron_len_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_10 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z + intron_len_Z +
-                        int_meth_logFC_Z : GE_logCPM_Z +
-                        GE_logCPM_Z : intron_len_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-# After selecting stDE_BRM_int_7, can we improve upon it by adding more terms?
-stDE_BRM_int_7b <- brm( GE_logFC_Z ~  GE_logCPM_Z + int_meth_Z + TSS_dens_norm_Z + int_meth_logFC_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z + TSS_dens_norm_Z : int_meth_logFC_Z + GE_logCPM_Z : GE_logCPM_Z +
-                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_7c <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_Z +
-                      int_meth_logFC_Z : GE_logCPM_Z +
-                      intron_len_Z : int_meth_logFC_Z +
-                      int_meth_logFC_Z : TSS_dens_norm_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_11 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z + gene_body_access_Z + intron_dens_norm_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_12 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + TSS_dens_norm_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_13 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + gene_body_access_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_14 <- brm( GE_logFC_Z ~ GE_logCPM_Z + int_meth_logFC_Z + intron_dens_norm_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_15 <- brm( GE_logFC_Z ~ GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_16 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
-                        GE_logCPM_Z : TSS_dens_norm_Z + 
-                        int_meth_logFC_Z : GE_logCPM_Z + 
-                        TSS_dens_norm_Z : int_meth_logFC_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_17 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
-                        int_meth_logFC_Z : TSS_dens_norm_Z + 
-                        int_meth_logFC_Z : GE_logCPM_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_18 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
-                        int_meth_logFC_Z : GE_logCPM_Z + 
-                        TSS_dens_norm_Z : int_meth_logFC_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-stDE_BRM_int_19 <- brm( GE_logFC_Z ~ TSS_dens_norm_Z + GE_logCPM_Z + int_meth_logFC_Z +
-                        GE_logCPM_Z : TSS_dens_norm_Z + 
-                        TSS_dens_norm_Z : int_meth_logFC_Z,
-         data = dm_intron_by_DE_ATAC,
-         family = student(),
-         prior = c( prior( normal( 0, .5 ), class = Intercept ), 
-         prior( normal( 0, .5 ), class = b ) ), 
-         iter = 20000,
-         chains = 4,
-         cores = 3,
-         save_pars = save_pars( all = TRUE ) )
-
-## Hypothesis testing using bayes factor: do additional variables help explain effect of DM on expression?
-
-# Model selection with Bayes factors
-stDE_BRM_int_bf <- bayesfactor_models( stDE_BRM_int_1, stDE_BRM_int_2, stDE_BRM_int_2a, stDE_BRM_int_3, stDE_BRM_int_4,
-                                     stDE_BRM_int_5, stDE_BRM_int_6, stDE_BRM_int_7, stDE_BRM_int_7b, 
-                                     stDE_BRM_int_7c, stDE_BRM_int_8, stDE_BRM_int_9, stDE_BRM_int_0,
-                                     stDE_BRM_int_10, stDE_BRM_int_12, stDE_BRM_int_13, stDE_BRM_int_14,
-                                     denominator = stDE_BRM_int_11 )
-
-# Print models Bayes factors
-stDE_BRM_int_bf
-
-# Further resolve models
-stDE_BRM_int_bf2 <- bayesfactor_models( stDE_BRM_int_4, stDE_BRM_int_5, stDE_BRM_int_7, 
-                                        denominator = stDE_BRM_int_7c )
-stDE_BRM_int_bf2
-
-# Top three models selected w/ Bayes factor include interactions between intron methylation and chromatin accessibility
-
-# Bayes factor averaging to test for inclusion of effects: data 3.1x - 3.4x more likely under effect of chromatin access interactions
-stDE_BRM_int_bf_incl <- bayesfactor_inclusion( stDE_BRM_int_bf, match_models = FALSE )
-
-# Print inclusion Bayes factors
-stDE_BRM_int_bf_incl
-
-```
-
-Studentize DEU by DM models
-
-```{r}
-
-# Fit and select models
-stDEU_dm_brm_0 <- brm( exon_coeff_Z ~ 1,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept )),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_1 <- brm( exon_coeff_Z ~ exon_num_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_2 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_3 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_4 <- brm( exon_coeff_Z ~ exon_num_Z + intron_len_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_5 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_6 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
-                       exon_dens_norm_Z : exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_7a <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
-                       logCPM_Z : exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                      save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_8 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
-                       intron_dens_norm_Z : exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_9 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
-                       exon_len_Z : exon_dens_norm_Z : exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_7 <- brm( exon_coeff_Z ~ exon_num_Z + exon_len_Z + logCPM_Z + exon_dens_norm_Z + exon_DM_logFC_Z +
-                       exon_num_Z : exon_DM_logFC_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                     save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10 <- brm( exon_coeff_Z ~ exon_num_Z + logCPM_Z + exon_len_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 3,
-                          iter = 20000,
-                      save_pars = save_pars( all = TRUE ) )
-
-# Can stDEU_dm_brm_10 be improved upon? Start by removing insignificant effects then add new interactions
-stDEU_dm_brm_10b <- brm( exon_coeff_Z ~ exon_DM_logFC_Z +
-                          exon_DM_logFC_Z : exon_num_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_dens_norm_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                          save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10c <- brm( exon_coeff_Z ~ logCPM_Z + 
-                          logCPM_Z : exon_DM_logFC_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                          save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10d <- brm( exon_coeff_Z ~ logCPM_Z + exon_dens_norm_Z + exon_num_Z +
-                          logCPM_Z : exon_DM_logFC_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                       save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10e <- brm( exon_coeff_Z ~ logCPM_Z + TSS_dens_norm_Z +
-                          logCPM_Z : exon_DM_logFC_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                       save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10f <- brm( exon_coeff_Z ~ logCPM_Z + TSS_dens_norm_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z : intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                       save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10g <- brm( exon_coeff_Z ~ exon_dens_norm_Z + exon_DM_logFC_Z + intron_len_Z +
-                          exon_dens_norm_Z : exon_DM_logFC_Z + exon_DM_logFC_Z : intron_len_Z + exon_dens_norm_Z : intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                       save_pars = save_pars( all = TRUE ) )
-
-stDEU_dm_brm_10h <- brm( exon_coeff_Z ~ exon_dens_norm_Z + exon_DM_logFC_Z + intron_len_Z,
-                          data = exon_DM_DEU_ATAC,
-                          family = student(),
-                          prior = c( prior( normal( 0, .5 ), class = Intercept ),
-                                     prior( normal( 0, .5 ), class = b ) ),
-                          cores = 2,
-                          iter = 20000,
-                       save_pars = save_pars( all = TRUE ) )
-
-# Bayes factor analysis selects DE_brm_int_7 over cntrl w/ BF = 39.81 (strong evidence in support of hypothesis)
-stDEU_brm_bf <- bayesfactor_models( stDEU_dm_brm_1, stDEU_dm_brm_2, stDEU_dm_brm_3, stDEU_dm_brm_5, stDEU_dm_brm_6, stDEU_dm_brm_7, 
-                                  stDEU_dm_brm_7a, stDEU_dm_brm_8, stDEU_dm_brm_9, stDEU_dm_brm_10, stDEU_dm_brm_10b,
-                                  stDEU_dm_brm_10c, stDEU_dm_brm_10d, stDEU_dm_brm_10e, stDEU_dm_brm_10f, stDEU_dm_brm_10g,
-                                  stDEU_dm_brm_10h, denominator = stDEU_dm_brm_4 ) # Use lowest performing model as denominator
-
-# Print model Bayes factors
-
-# Export inclusion Bayes factors: probability of observed data under effect relative to null
-stDEU_brm_bf_incl <- bayesfactor_inclusion( stDEU_brm_bf, match = FALSE )
-
-# Print inclusion Bayes factors
-stDEU_brm_bf_incl
-
-posterior_interval(
-  stDEU_dm_brm_10,
-  prob = 0.90,
-  type = "central" )
 
 ```
 

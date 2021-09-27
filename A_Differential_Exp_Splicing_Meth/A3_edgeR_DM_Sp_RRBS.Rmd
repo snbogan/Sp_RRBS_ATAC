@@ -39,7 +39,7 @@ library( plyr )
 library( strex )
 library( bedr )
 library( tidyverse )
-library (rtracklayer )
+library( rtracklayer )
 library( rstan )
 library( rstanarm )
 library( nnet )
@@ -123,7 +123,7 @@ TotalLibSize <-
 Me <- y$counts[ , Methylation == "Me" ]
 Un <- y$counts[ , Methylation == "Un" ]
 M <- log2( Me + 2 ) - log2( Un + 2 )
-colnames (M ) <- row.names( targets )
+colnames ( M ) <- row.names( targets )
 
 # Multidimensional scaling plot of log2 methylation levels
 plotMDS( M, col = rep( 1:4, each = 3 ), main = "M-values" ) # Samples predominantly cluster according to maternal treatment
@@ -221,6 +221,12 @@ write.csv( lrtD$table,
 
 # Read in percent/median meth .csv for CpGs within -1kb promoters of CDS
 meth_promoter_perc_meth <- read.csv( "Input_data/meth_promoter_perc_meth.csv" )
+
+# Percent meth of promoter CpGs
+pr_meth_FALSE <- filter( count( meth_promoter_perc_meth$meth ), x == FALSE )
+pr_meth_TRUE <- filter( count( meth_promoter_perc_meth$meth ), x == TRUE )
+pr_meth_percentage <- pr_meth_TRUE$freq / ( pr_meth_TRUE$freq + pr_meth_FALSE$freq )
+pr_meth_percentage 
 
 # Reformat CpG IDs
 meth_promoter_perc_meth$id <- gsub( "\\.", "-", meth_promoter_perc_meth$id )
@@ -320,6 +326,12 @@ exon_CpGs_geneID <- data.frame( id = meth_exon_perc_meth$id,
                                 geneid = meth_exon_perc_meth$V41 )
 exon_CpGs_geneID$id <- as.character( exon_CpGs_geneID$id )
 exon_CpGs_geneID$id <- str_before_nth( exon_CpGs_geneID$id, "-", 2 )
+
+# Percent meth of exon CpGs
+ex_meth_FALSE <- filter( count( meth_exon_perc_meth$meth ), x == FALSE )
+ex_meth_TRUE <- filter( count( meth_exon_perc_meth$meth ), x == TRUE )
+ex_meth_percentage <- ex_meth_TRUE$freq / ( ex_meth_TRUE$freq + ex_meth_FALSE$freq )
+ex_meth_percentage
 
 # Filter CpG methylation data for those values in exons
 yex_cpgs <- yall_cpgs[ ( yall_cpgs %in% exon_CpGs_geneID$id ) ]
@@ -573,7 +585,14 @@ plot( exon_DM_glm_log, pars = "log(exon_num)", prob = 0.89,  prob_outer = 0.95 )
 ```{r} 
 
 # Read in percent/median meth .csv for CpGs within exons of CDS
-meth_intron_perc_meth <- read.table( "Input_data/meth_CpGs_loaded_annotated_introns.tab" )
+meth_intron_perc_meth <- read.table( "Input_data/meth_intron_perc_meth.tab" )
+meth_intron_perc_meth_ <- read.csv( "Input_data/meth_intron_perc_meth.csv" )
+
+# Percent meth of intron CpGs
+int_meth_FALSE <- filter( count( meth_intron_perc_meth_$meth ), x == FALSE )
+int_meth_TRUE <- filter( count( meth_intron_perc_meth_$meth ), x == TRUE )
+int_meth_percentage <- int_meth_TRUE$freq / ( int_meth_TRUE$freq + int_meth_FALSE$freq )
+int_meth_percentage 
 
 # Create df associating CpGs w/ intron IDs
 CpGID_intronID <- data.frame( CpG_ID = paste( meth_intron_perc_meth$V1,
@@ -594,6 +613,7 @@ to_merge_w_yall_int <- data.frame( geneid = as.character( CpGID_intronID$CpG_ID 
 
 # Add intron ID to intron CpG meth df: 'geneid' variable becomes intron ID
 yall_int$genes$geneid = to_merge_w_yall_int$intron_id[ match( yall_int$genes$id, to_merge_w_yall_int$geneid ) ] 
+
 ```
 
 Before we move on to estimate differnetial methylation, let's look at the CpG coverage per intron
