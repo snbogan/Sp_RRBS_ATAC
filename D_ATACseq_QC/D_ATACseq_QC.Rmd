@@ -1,0 +1,1143 @@
+---
+title: "ATACseq_QC"
+author: "Sam Bogan"
+date: "4/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_knit$set( root.dir = '~/Documents/GitHub/Sp_RRBS_ATAC/D_ATACseq_QC/' )
+
+```
+
+```{r}
+library( tidyverse )
+library( GenomicRanges)
+library( rtracklayer )
+
+```
+
+```{r}
+# Set narrowpeak column id's
+extraCols_narrowPeak <- c( signalValue = "numeric", pValue = "numeric",
+                           qValue = "numeric", peak = "integer" )
+
+## Read in bed files
+# GSE160461 has 99587727 and 111643482 mapped reads
+GSE160461_npeak_2 <- gr_narrowPeak <- import(
+  "20_hpf/GSE160461/GSE160461_RAW/GSM4873706_H7LCCBGXY_n01_ve59.trim.nodup.no_chrM_MT.tn5.pval0.05.300K.narrowPeak", 
+  format = "BED",
+  extraCols = extraCols_narrowPeak )
+
+GSE160461_npeak_3 <- gr_narrowPeak <- import(
+  "20_hpf/GSE160461/GSE160461_RAW/GSM4873707_H7LCCBGXY_n01_ve49.trim.nodup.no_chrM_MT.tn5.pval0.05.300K.narrowPeak", 
+  format = "BED",
+  extraCols = extraCols_narrowPeak )
+
+# GSE96927 has 75936782 and 85653116 mapped reads, so more than 25 million fewer than GSE160461 but more identified peaks
+GSM2546188_bed_1 <- import.bed(
+  "20_hpf/GSE96927/GSM2546193_Other_Replicate1_AllPeaks.bed" )
+
+GSM2546188_bed_2 <- import.bed(
+  "20_hpf/GSE96927/GSM2546194_Other_Replicate2_AllPeaks.bed" )
+
+PMC_bed_1 <- import.bed(
+  "20_hpf/GSE96927/GSM2546191_PMC_Replicate1_AllPeaks.bed" )
+
+PMC_bed_2 <- import.bed(
+  "20_hpf/GSE96927/GSM2546192_PMC_Replicate2_AllPeaks.bed" )
+
+## Wrangle GRanges objects to make them comparable
+# First, convert to dataframes, filter, and convert back to GRanges
+df1b <- as.data.frame(GSE160461_npeak_2)
+df1c <- as.data.frame(GSE160461_npeak_3)
+
+df2a <- as.data.frame(GSM2546188_bed_1)
+df2b <- as.data.frame(GSM2546188_bed_2)
+
+df3a <- as.data.frame(PMC_bed_1)
+df3b <- as.data.frame(PMC_bed_2)
+
+# Find overlapping pairs between experiments
+overlap_pairs2 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2a$seqnames,
+                                      start = df2a$start,
+                                      end = df2a$end,
+                                      width = df2a$width,
+                                      strand = "*")), maxgap = 1000))
+
+overlap_pairs3 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2a$seqnames,
+                                      start = df2a$start,
+                                      end = df2a$end,
+                                      width = df2a$width,
+                                      strand = "*")), maxgap = 1000))
+
+overlap_pairs5 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2b$seqnames,
+                                      start = df2b$start,
+                                      end = df2b$end,
+                                      width = df2b$width,
+                                      strand = "*")), maxgap = 1000))
+
+overlap_pairs6 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2b$seqnames,
+                                      start = df2b$start,
+                                      end = df2b$end,
+                                      width = df2b$width,
+                                      strand = "*")), maxgap = 1000))
+
+
+## What about the PMC cells from GSE96927?
+
+overlap_pairs8 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3a$seqnames,
+                                      start = df3a$start,
+                                      end = df3a$end,
+                                      width = df3a$width,
+                                      strand = "*")), maxgap = 1000))
+
+overlap_pairs9 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3a$seqnames,
+                                      start = df3a$start,
+                                      end = df3a$end,
+                                      width = df3a$width,
+                                      strand = "*")), maxgap = 1000))
+
+
+overlap_pairs11 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3b$seqnames,
+                                      start = df3b$start,
+                                      end = df3b$end,
+                                      width = df3b$width,
+                                      strand = "*")), maxgap = 1000))
+
+overlap_pairs12 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3b$seqnames,
+                                      start = df3b$start,
+                                      end = df3b$end,
+                                      width = df3b$width,
+                                      strand = "*")), maxgap = 1000))
+
+# What percentage of peaks in GSE160461 had an overlap across experiments? mean = 72.16%
+mean(nrow(unique(subset(overlap_pairs2, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs3, select = -c(5,6,7,8,9,10)))) / nrow(df1c),
+nrow(unique(subset(overlap_pairs5, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs6, select = -c(5,6,7,8,9,10)))) / nrow(df1c),
+nrow(unique(subset(overlap_pairs8, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs9, select = -c(5,6,7,8,9,10)))) / nrow(df1c),
+nrow(unique(subset(overlap_pairs11, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs12, select = -c(5,6,7,8,9,10)))) / nrow(df1c))
+
+# sd = +/- 6.15%
+sd( c((nrow(unique(subset(overlap_pairs2, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs3, select = -c(5,6,7,8,9,10)))) / nrow(df1c)),
+    (nrow(unique(subset(overlap_pairs5, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs6, select = -c(5,6,7,8,9,10)))) / nrow(df1c)),
+    (nrow(unique(subset(overlap_pairs8, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs9, select = -c(5,6,7,8,9,10)))) / nrow(df1c)),
+    (nrow(unique(subset(overlap_pairs11, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs12, select = -c(5,6,7,8,9,10)))) / nrow(df1c))) 
+)
+
+```
+
+Repeat the calculation above using direct overlaps
+
+```{r}
+
+# Find overlapping pairs between experiments
+
+overlap_pairs2 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2a$seqnames,
+                                      start = df2a$start,
+                                      end = df2a$end,
+                                      width = df2a$width,
+                                      strand = "*")), maxgap = -1))
+
+overlap_pairs3 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2a$seqnames,
+                                      start = df2a$start,
+                                      end = df2a$end,
+                                      width = df2a$width,
+                                      strand = "*")), maxgap = -1))
+
+overlap_pairs5 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2b$seqnames,
+                                      start = df2b$start,
+                                      end = df2b$end,
+                                      width = df2b$width,
+                                      strand = "*")), maxgap = -1))
+
+overlap_pairs6 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df2b$seqnames,
+                                      start = df2b$start,
+                                      end = df2b$end,
+                                      width = df2b$width,
+                                      strand = "*")), maxgap = -1))
+
+
+## What about the PMC cells from GSE96927?
+
+overlap_pairs8 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3a$seqnames,
+                                      start = df3a$start,
+                                      end = df3a$end,
+                                      width = df3a$width,
+                                      strand = "*")), maxgap = -1))
+
+overlap_pairs9 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3a$seqnames,
+                                      start = df3a$start,
+                                      end = df3a$end,
+                                      width = df3a$width,
+                                      strand = "*")), maxgap = -1))
+
+overlap_pairs11 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1b$seqnames,
+                                      start = df1b$start,
+                                      end = df1b$end,
+                                      width = df1b$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3b$seqnames,
+                                      start = df3b$start,
+                                      end = df3b$end,
+                                      width = df3b$width,
+                                      strand = "*")), maxgap = -1))
+
+overlap_pairs12 <- as.data.frame(findOverlapPairs(
+  makeGRangesFromDataFrame(data.frame(seqnames = df1c$seqnames,
+                                      start = df1c$start,
+                                      end = df1c$end,
+                                      width = df1c$width,
+                                      strand = "*")),
+  makeGRangesFromDataFrame(data.frame(seqnames = df3b$seqnames,
+                                      start = df3b$start,
+                                      end = df3b$end,
+                                      width = df3b$width,
+                                      strand = "*")), maxgap = -1))
+
+# What percentage of peaks in GSE160461 had an overlap across experiments?  mean = 50.05%
+mean(nrow(unique(subset(overlap_pairs2, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs3, select = -c(5,6,7,8,9,10)))) / nrow(df1c),
+nrow(unique(subset(overlap_pairs5, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs6, select = -c(5,6,7,8,9,10)))) / nrow(df1c),
+nrow(unique(subset(overlap_pairs8, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs9, select = -c(5,6,7,8,9,10)))) / nrow(df1c),
+nrow(unique(subset(overlap_pairs11, select = -c(5,6,7,8,9,10)))) / nrow(df1b),
+nrow(unique(subset(overlap_pairs12, select = -c(5,6,7,8,9,10)))) / nrow(df1c))
+
+# sd = +/- 7.33%
+sd( c((nrow(unique(subset(overlap_pairs2, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs3, select = -c(5,6,7,8,9,10)))) / nrow(df1c)),
+    (nrow(unique(subset(overlap_pairs5, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs6, select = -c(5,6,7,8,9,10)))) / nrow(df1c)),
+    (nrow(unique(subset(overlap_pairs8, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs9, select = -c(5,6,7,8,9,10)))) / nrow(df1c)),
+    (nrow(unique(subset(overlap_pairs11, select = -c(5,6,7,8,9,10)))) / nrow(df1b)),
+    (nrow(unique(subset(overlap_pairs12, select = -c(5,6,7,8,9,10)))) / nrow(df1c))) 
+)
+```
+
+
+```{r}
+
+## Correlation between scores of narrowPeak files 
+# Overlap 2 R2
+overlap_pairs2_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1b, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df2a, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs2_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_2 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs2_raw))$r.squared
+
+overlap_pairs3_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1c, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df2a, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs3_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_3 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs3_raw))$r.squared
+
+# Overlap 5
+overlap_pairs5_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1b, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df2b, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs5_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_5 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs5_raw))$r.squared
+
+# Overlap 6
+overlap_pairs6_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1c, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df2b, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs6_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_6 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs6_raw))$r.squared
+
+# Overlap 8
+overlap_pairs8_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1b, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df3a, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs8_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_8 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs8_raw))$r.squared
+
+# Overlap 9
+overlap_pairs9_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1c, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df3a, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs9_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_9 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs9_raw))$r.squared
+
+# Overlap 11
+overlap_pairs11_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1b, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df3b, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs11_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_11 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs11_raw))$r.squared
+
+# Overlap 12
+overlap_pairs12_raw <- as.data.frame(mergeByOverlaps(
+  makeGRangesFromDataFrame(df1c, keep.extra.columns = TRUE),
+  makeGRangesFromDataFrame(df3b, keep.extra.columns = TRUE), maxgap = -1))
+
+ggplot(data = overlap_pairs12_raw,
+       aes(x = scale(log(score)), y = scale(score.1))) +
+  geom_point(alpha = 0.1, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_fill_viridis_c()
+
+r2_12 <- summary(lm(scale(score.1)~scale(log(score)), data = overlap_pairs12_raw))$r.squared
+
+# Average R2 estimates... 0.2413
+mean(c(r2_2, r2_3, r2_5, r2_6, r2_8, r2_9, r2_11, r2_12)) 
+
+# St dev of R2 estimates... +/- .1289
+sd(c(r2_2, r2_3, r2_5, r2_6, r2_8, r2_9, r2_11, r2_12)) 
+
+
+```
+
+```{r}
+
+# Load dependencies
+library( stringr )
+library( plyr )
+library( ChIPseeker )
+library( GenomicFeatures )
+library( GenomicRanges )
+library( Repitools )
+library(tidyverse)
+
+# Set path
+setwd( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Input_data/" )
+
+# Load S. purpuratus GFF
+spurp_txdb <- makeTxDbFromGFF( file = "Strongylocentrotus_purpuratus.Spur_3.1.42.gff3" ,
+                               organism = "Strongylocentrotus purpuratus" )
+
+#Partition S. purpuratus genomic features
+promoter <- getPromoters( TxDb = spurp_txdb,
+                          upstream = 3000,
+                          downstream = 3000 )
+introns <- getBioRegion( TxDb = spurp_txdb, by = "intron" )
+exons <- getBioRegion( TxDb = spurp_txdb, by = "exon" )
+genes <- getBioRegion( TxDb = spurp_txdb, by = "gene" )
+
+```
+
+
+### Annotate ATAC-seq peaks from replicate from experiment A
+
+```{r}
+# Read in concatenated .bed file
+all_ATAC_reps_A <- readPeakFile( 
+  "20_hpf/GSE160461/GSE160461_RAW/GSE160461_comb_peaks.bed" 
+  )
+all_ATAC_reps_df_A <- data.frame( all_ATAC_reps_A )
+
+# Create matrix of off tags relative to TSS
+tagMatrixPM_all_reps_A <- getTagMatrix( all_ATAC_reps_A, windows = promoter )
+
+# Annotate peaks
+peakAnnoM_all_reps_A <- annotatePeak( all_ATAC_reps_A, tssRegion = c( -3000, 3000 ),
+                                    TxDb = spurp_txdb )
+
+peakAnnoGR_all_reps_A <-as.GRanges( peakAnnoM_all_reps_A )
+
+```
+
+```{r}
+
+# Make peak annotation file into df for easier use
+peakannotdf_A = data.frame( peakAnnoGR_all_reps_A )
+
+# Get peaks for TSS, +/-500 from the TSS
+TSS_Anno_A <- peakAnnoGR_all_reps_A[ abs( peakannotdf_A$distanceToTSS ) < 500 ]
+TSS_Annodf_A = data.frame( TSS_Anno_A )
+
+# Filter for unique 
+TSSpeakGenes_A <- unique( TSS_Anno_A$transcriptId )
+dim( TSSpeakGenes_A ) # How many genes with TSS Tn5 inserts?
+
+# Sum counts per TSS by geneID
+peakCovTSS_A <- count( TSS_Annodf_A, geneId )
+
+## Need to fix geneIDs by converting common names to SPU_IDs
+# Read in index of geneID types
+annot = read.table( "~/Documents/GitHub/Sp_RRBS_ATAC/D_ATACseq_QC/gene_info_table_header.txt", 
+                    header = T, sep = "\t", quote = NULL )
+annot = as.data.frame( annot[ c( 2, 7) ], )
+annot = as.data.frame( sapply( annot, toupper ) )
+
+# Adjust column names of genewise TSS counts
+names( peakCovTSS_A ) = c( "common_name", "peak_density_TSS" )
+
+# Add spu_ids to TSS peak counts
+TSS_Annodf2_A = merge( peakCovTSS_A, annot, by = "common_name", all.x = TRUE )
+
+# Create intron1 and all introns peak summaries
+peakannotdf_A$annotation <- sub( " ", "", peakannotdf_A$annotation )
+peakannotdf_A$annotation <- as.factor( peakannotdf_A$annotation )
+peakannotdf_A$feature <- as.factor( str_sub( peakannotdf_A$annotation, 1, 1 ) )
+
+# Partition out peaks annotated within introns
+peakIntron_A <- peakannotdf_A[ peakannotdf_A$feature == "I", ]
+peakIntron_A$annotation <-sub ( " ","", peakIntron_A$annotation )
+
+# Partition out peaks annotated within first introns
+peakIntron1_A = peakIntron_A[ grep("intron 1 of", peakIntron_A$annotation ), ]
+
+# How many genes have intron or first intron peaks?
+length( unique( peakIntron1_A$geneId ) ) #X genes with peaks in intron 1
+length( unique(peakIntron_A$geneId ) ) #X genes with peaks in introns
+
+# Wrangle geneID variable and column IDs for first introns
+peakIntron1_A$geneID = as.factor( peakIntron1_A$geneId )
+peakCovIntron1_A = count( peakIntron1_A, geneId )
+names( peakCovIntron1_A ) = c( "common_name", "peak_density_Intron1" )
+
+# Wrangle geneID variable for introns
+peakIntron_A$geneID = as.factor( peakIntron_A$geneId )
+
+# Count intron peaks per gene
+peakCovIntron_A = count( peakIntron_A, geneId )
+names( peakCovIntron_A ) = c( "common_name", "peak_density_Introns" )
+
+# Merge all intron count types into one count file w/ diff columsn for all and 1st introns
+peakCovIntrons_A = merge( peakCovIntron_A, peakCovIntron1_A, by = "common_name", all = TRUE )
+
+# Create exon peak summary
+peakExon_A = peakannotdf_A[ peakannotdf_A$feature == "E", ]
+peakExon_A$annotation <- sub( " ", "", peakExon_A$annotation )
+
+# Wrangle geneID and column info
+peakExon_A$geneID = as.factor( peakExon_A$geneId )
+
+# Create genewise counts of peaks in exons
+peakCovExon_A = count( peakExon_A, geneId )
+names( peakCovExon_A ) = c( "common_name", "peak_density_Exons" )
+
+# Save peak annotations and summaries
+# Save peak annotations and summaries
+peaks_summary_A = rbind( data.frame(common_name = TSS_Annodf2_A$common_name,
+                                    feature = "TSS",
+                                    peaks = TSS_Annodf2_A$peak_density_TSS),
+                         data.frame(common_name = peakCovIntrons_A$common_name,
+                                    feature = "Introns",
+                                    peaks = peakCovIntrons_A$peak_density_Introns),
+                         data.frame(common_name = peakCovExon_A$common_name,
+                                    feature = "Exons",
+                                    peaks = peakCovExon_A$peak_density_Exons))
+
+```
+
+### Annotate ATAC-seq peaks from replicate from experiment B
+
+```{r}
+# Read in concatenated .bed file
+all_BTAC_reps_B <- readPeakFile( 
+  "20_hpf/GSE96927/GSE96927_other_peaks_comb.bed" 
+  )
+all_BTAC_reps_df_B <- data.frame( all_BTAC_reps_B )
+
+# Create matrix of off tags relative to TSS
+tagMatrixPM_Bll_reps_B <- getTagMatrix( all_BTAC_reps_B, windows = promoter )
+
+# Heatmap of Tn5 inserts
+tagHeatmap( tagMatrixPM_Bll_reps_B, xlim = c( -3000, 3000 ), color = "red" )
+
+####Save this tag count plot and upload to Box####
+plotAvgProf( tagMatrixPM_Bll_reps_B, xlim = c( -3000, 3000 ),
+             xlab = "Genomic Region (5'->3')",
+             ylab = "Read Count Frequency", conf = TRUE )
+
+# Annotate peaks
+peakAnnoM_Bll_reps_B <- annotatePeak( all_BTAC_reps_B, tssRegion = c( -3000, 3000 ),
+                                    TxDb = spurp_txdb )
+
+peakAnnoGR_Bll_reps_B <-as.GRanges( peakAnnoM_Bll_reps_B )
+
+```
+
+```{r}
+
+# Make peak annotation file into df for easier use
+peakannotdf_B = data.frame( peakAnnoGR_Bll_reps_B )
+
+# Get peaks for TSS, +/-500 from the TSS
+TSS_Bnno_B <- peakAnnoGR_Bll_reps_B[ abs( peakannotdf_B$distanceToTSS ) < 500 ]
+TSS_Bnnodf_B = data.frame( TSS_Bnno_B )
+
+# Filter for unique 
+TSSpeakGenes_B <- unique( TSS_Bnno_B$transcriptId )
+dim( TSSpeakGenes_B ) # How many genes with TSS Tn5 inserts?
+
+# Sum counts per TSS by geneID
+peakCovTSS_B <- count( TSS_Bnnodf_B, geneId )
+
+## Need to fix geneIDs by converting common names to SPU_IDs
+# Read in index of geneID types
+
+# Adjust column names of genewise TSS counts
+names( peakCovTSS_B ) = c( "common_name", "peak_density_TSS" )
+
+# Add spu_ids to TSS peak counts
+TSS_Bnnodf2_B = merge( peakCovTSS_B, annot, by = "common_name", all.x = TRUE )
+
+# Create intron1 and all introns peak summaries
+peakannotdf_B$annotation <- sub( " ", "", peakannotdf_B$annotation )
+peakannotdf_B$annotation <- as.factor( peakannotdf_B$annotation )
+peakannotdf_B$feature <- as.factor( str_sub( peakannotdf_B$annotation, 1, 1 ) )
+
+# Partition out peaks annotated within introns
+peakIntron_B <- peakannotdf_B[ peakannotdf_B$feature == "I", ]
+peakIntron_B$annotation <-sub ( " ","", peakIntron_B$annotation )
+
+# Partition out peaks annotated within first introns
+peakIntron1_B = peakIntron_B[ grep("intron 1 of", peakIntron_B$annotation ), ]
+
+# How many genes have intron or first intron peaks?
+length( unique( peakIntron1_B$geneId ) ) #X genes with peaks in intron 1
+length( unique(peakIntron_B$geneId ) ) #X genes with peaks in introns
+
+# Wrangle geneID variable and column IDs for first introns
+peakIntron1_B$geneID = as.factor( peakIntron1_B$geneId )
+peakCovIntron1_B = count( peakIntron1_B, geneId )
+names( peakCovIntron1_B ) = c( "common_name", "peak_density_Intron1" )
+
+# Wrangle geneID variable for introns
+peakIntron_B$geneID = as.factor( peakIntron_B$geneId )
+
+# Count intron peaks per gene
+peakCovIntron_B = count( peakIntron_B, geneId )
+names( peakCovIntron_B ) = c( "common_name", "peak_density_Introns" )
+
+# Merge all intron count types into one count file w/ diff columsn for all and 1st introns
+peakCovIntrons_B = merge( peakCovIntron_B, peakCovIntron1_B, by = "common_name", all = TRUE )
+
+# Create exon peak summary
+peakExon_B = peakannotdf_B[ peakannotdf_B$feature == "E", ]
+peakExon_B$annotation <- sub( " ", "", peakExon_B$annotation )
+
+# Wrangle geneID and column info
+peakExon_B$geneID = as.factor( peakExon_B$geneId )
+
+# Create genewise counts of peaks in exons
+peakCovExon_B = count( peakExon_B, geneId )
+names( peakCovExon_B ) = c( "common_name", "peak_density_Exons" )
+
+# Save peak annotations and summaries
+peaks_summary_B = rbind( data.frame(common_name = TSS_Bnnodf2_B$common_name,
+                                    feature = "TSS",
+                                    peaks = TSS_Bnnodf2_B$peak_density_TSS),
+                         data.frame(common_name = peakCovIntrons_B$common_name,
+                                    feature = "Introns",
+                                    peaks = peakCovIntrons_B$peak_density_Introns),
+                         data.frame(common_name = peakCovExon_B$common_name,
+                                    feature = "Exons",
+                                    peaks = peakCovExon_B$peak_density_Exons))
+                         
+```
+
+# Plot and fit regression of peak counts by feature type
+
+```{r}
+
+# First, merge peaks
+peaks_summary_A$name_feat <- paste(peaks_summary_A$common_name,
+                                   peaks_summary_A$feature,
+                                   sep = "_")
+
+peaks_summary_B$name_feat <- paste(peaks_summary_B$common_name,
+                                   peaks_summary_B$feature,
+                                   sep = "_")
+
+all_peaks_summary <- merge(peaks_summary_A, peaks_summary_B, by = "name_feat")
+
+all_peaks_summary[is.na(all_peaks_summary)] <- 0
+
+ggplot(data = all_peaks_summary,
+       aes(x = scale(peaks.x), y = scale(peaks.y))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_classic(base_size = 10) +
+  labs(title = expression(paste("Interexperimental reproducibility of ATAC-seq in early-stage ", italic("S. purpuratus"))),
+       x = "Exp. A: scaled per-feature peak counts (20 hpf blastula)",
+       y = "Exp. B: scaled per-feature peak counts (24 hpf blastula)") +
+  scale_color_viridis_c() +
+  geom_abline(slope=1, intercept = 0, color = "red", lty = 2)
+
+summary(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary))
+anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary))
+
+
+```
+
+#Correlations between intraexperimental replicates
+
+```{r}
+
+# Read in concatenated .bed file
+all_B1TAC_reps_B1 <- readPeakFile( 
+  "20_hpf/GSE96927/GSM2546193_Other_Replicate1_AllPeaks.bed" 
+  )
+all_B1TAC_reps_df_B1 <- data.frame( all_B1TAC_reps_B1 )
+
+# Create matrix of off tags relative to TSS
+tagMatrixPM_B1ll_reps_B1 <- getTagMatrix( all_B1TAC_reps_B1, windows = promoter )
+
+
+# Annotate peaks
+peakAnnoM_B1ll_reps_B1 <- annotatePeak( all_B1TAC_reps_B1, tssRegion = c( -3000, 3000 ),
+                                    TxDb = spurp_txdb )
+
+peakAnnoGR_B1ll_reps_B1 <-as.GRanges( peakAnnoM_B1ll_reps_B1 )
+
+# Make peak annotation file into df for easier use
+peakannotdf_B1 = data.frame( peakAnnoGR_B1ll_reps_B1 )
+
+# Get peaks for TSS, +/-500 from the TSS
+TSS_B1nno_B1 <- peakAnnoGR_B1ll_reps_B1[ abs( peakannotdf_B1$distanceToTSS ) < 500 ]
+TSS_B1nnodf_B1 = data.frame( TSS_B1nno_B1 )
+
+# Filter for unique 
+TSSpeakGenes_B1 <- unique( TSS_B1nno_B1$transcriptId )
+dim( TSSpeakGenes_B1 ) # How many genes with TSS Tn5 inserts?
+
+# Sum counts per TSS by geneID
+peakCovTSS_B1 <- count( TSS_B1nnodf_B1, geneId )
+
+## Need to fix geneIDs by converting common names to SPU_IDs
+# Read in index of geneID types
+
+# Adjust column names of genewise TSS counts
+names( peakCovTSS_B1 ) = c( "common_name", "peak_density_TSS" )
+
+# Add spu_ids to TSS peak counts
+TSS_B1nnodf2_B1 = merge( peakCovTSS_B1, annot, by = "common_name", all.x = TRUE )
+
+# Create intron1 and all introns peak summaries
+peakannotdf_B1$annotation <- sub( " ", "", peakannotdf_B1$annotation )
+peakannotdf_B1$annotation <- as.factor( peakannotdf_B1$annotation )
+peakannotdf_B1$feature <- as.factor( str_sub( peakannotdf_B1$annotation, 1, 1 ) )
+
+# Partition out peaks annotated within introns
+peakIntron_B1 <- peakannotdf_B1[ peakannotdf_B1$feature == "I", ]
+peakIntron_B1$annotation <-sub ( " ","", peakIntron_B1$annotation )
+
+# Partition out peaks annotated within first introns
+peakIntron1_B1 = peakIntron_B1[ grep("intron 1 of", peakIntron_B1$annotation ), ]
+
+# How many genes have intron or first intron peaks?
+length( unique( peakIntron1_B1$geneId ) ) #X genes with peaks in intron 1
+length( unique(peakIntron_B1$geneId ) ) #X genes with peaks in introns
+
+# Wrangle geneID variable and column IDs for first introns
+peakIntron1_B1$geneID = as.factor( peakIntron1_B1$geneId )
+peakCovIntron1_B1 = count( peakIntron1_B1, geneId )
+names( peakCovIntron1_B1 ) = c( "common_name", "peak_density_Intron1" )
+
+# Wrangle geneID variable for introns
+peakIntron_B1$geneID = as.factor( peakIntron_B1$geneId )
+
+# Count intron peaks per gene
+peakCovIntron_B1 = count( peakIntron_B1, geneId )
+names( peakCovIntron_B1 ) = c( "common_name", "peak_density_Introns" )
+
+# Merge all intron count types into one count file w/ diff columsn for all and 1st introns
+peakCovIntrons_B1 = merge( peakCovIntron_B1, peakCovIntron1_B1, by = "common_name", all = TRUE )
+
+# Create exon peak summary
+peakExon_B1 = peakannotdf_B1[ peakannotdf_B1$feature == "E", ]
+peakExon_B1$annotation <- sub( " ", "", peakExon_B1$annotation )
+
+# Wrangle geneID and column info
+peakExon_B1$geneID = as.factor( peakExon_B1$geneId )
+
+# Create genewise counts of peaks in exons
+peakCovExon_B1 = count( peakExon_B1, geneId )
+names( peakCovExon_B1 ) = c( "common_name", "peak_density_Exons" )
+
+peaks_summary_B1 = rbind( data.frame(common_name = TSS_B1nnodf2_B1$common_name,
+                                    feature = "TSS",
+                                    peaks = TSS_B1nnodf2_B1$peak_density_TSS),
+                         data.frame(common_name = peakCovIntrons_B1$common_name,
+                                    feature = "Introns",
+                                    peaks = peakCovIntrons_B1$peak_density_Introns),
+                         data.frame(common_name = peakCovExon_B1$common_name,
+                                    feature = "Exons",
+                                    peaks = peakCovExon_B1$peak_density_Exons))
+
+```
+
+```{r}
+
+# Read in concatenated .bed file
+all_B2TAC_reps_B2 <- readPeakFile( 
+  "20_hpf/GSE96927/GSM2546194_Other_Replicate2_AllPeaks.bed" 
+  )
+all_B2TAC_reps_df_B2 <- data.frame( all_B2TAC_reps_B2 )
+
+# Create matrix of off tags relative to TSS
+tagMatrixPM_B2ll_reps_B2 <- getTagMatrix( all_B2TAC_reps_B2, windows = promoter )
+
+
+# Annotate peaks
+peakAnnoM_B2ll_reps_B2 <- annotatePeak( all_B2TAC_reps_B2, tssRegion = c( -3000, 3000 ),
+                                    TxDb = spurp_txdb )
+
+peakAnnoGR_B2ll_reps_B2 <-as.GRanges( peakAnnoM_B2ll_reps_B2 )
+
+# Make peak annotation file into df for easier use
+peakannotdf_B2 = data.frame( peakAnnoGR_B2ll_reps_B2 )
+
+# Get peaks for TSS, +/-500 from the TSS
+TSS_B2nno_B2 <- peakAnnoGR_B2ll_reps_B2[ abs( peakannotdf_B2$distanceToTSS ) < 500 ]
+TSS_B2nnodf_B2 = data.frame( TSS_B2nno_B2 )
+
+# Filter for unique 
+TSSpeakGenes_B2 <- unique( TSS_B2nno_B2$transcriptId )
+dim( TSSpeakGenes_B2 ) # How many genes with TSS Tn5 inserts?
+
+# Sum counts per TSS by geneID
+peakCovTSS_B2 <- count( TSS_B2nnodf_B2, geneId )
+
+## Need to fix geneIDs by converting common names to SPU_IDs
+# Read in index of geneID types
+
+# Adjust column names of genewise TSS counts
+names( peakCovTSS_B2 ) = c( "common_name", "peak_density_TSS" )
+
+# Add spu_ids to TSS peak counts
+TSS_B2nnodf2_B2 = merge( peakCovTSS_B2, annot, by = "common_name", all.x = TRUE )
+
+# Create intron1 and all introns peak summaries
+peakannotdf_B2$annotation <- sub( " ", "", peakannotdf_B2$annotation )
+peakannotdf_B2$annotation <- as.factor( peakannotdf_B2$annotation )
+peakannotdf_B2$feature <- as.factor( str_sub( peakannotdf_B2$annotation, 1, 1 ) )
+
+# Partition out peaks annotated within introns
+peakIntron_B2 <- peakannotdf_B2[ peakannotdf_B2$feature == "I", ]
+peakIntron_B2$annotation <-sub ( " ","", peakIntron_B2$annotation )
+
+# Partition out peaks annotated within first introns
+peakIntron1_B2 = peakIntron_B2[ grep("intron 1 of", peakIntron_B2$annotation ), ]
+
+# How many genes have intron or first intron peaks?
+length( unique( peakIntron1_B2$geneId ) ) #X genes with peaks in intron 1
+length( unique(peakIntron_B2$geneId ) ) #X genes with peaks in introns
+
+# Wrangle geneID variable and column IDs for first introns
+peakIntron1_B2$geneID = as.factor( peakIntron1_B2$geneId )
+peakCovIntron1_B2 = count( peakIntron1_B2, geneId )
+names( peakCovIntron1_B2 ) = c( "common_name", "peak_density_Intron1" )
+
+# Wrangle geneID variable for introns
+peakIntron_B2$geneID = as.factor( peakIntron_B2$geneId )
+
+# Count intron peaks per gene
+peakCovIntron_B2 = count( peakIntron_B2, geneId )
+names( peakCovIntron_B2 ) = c( "common_name", "peak_density_Introns" )
+
+# Merge all intron count types into one count file w/ diff columsn for all and 1st introns
+peakCovIntrons_B2 = merge( peakCovIntron_B2, peakCovIntron1_B2, by = "common_name", all = TRUE )
+
+# Create exon peak summary
+peakExon_B2 = peakannotdf_B2[ peakannotdf_B2$feature == "E", ]
+peakExon_B2$annotation <- sub( " ", "", peakExon_B2$annotation )
+
+# Wrangle geneID and column info
+peakExon_B2$geneID = as.factor( peakExon_B2$geneId )
+
+# Create genewise counts of peaks in exons
+peakCovExon_B2 = count( peakExon_B2, geneId )
+names( peakCovExon_B2 ) = c( "common_name", "peak_density_Exons" )
+
+# Save peak annotations and summaries
+peaks_summary_B2 = rbind( data.frame(common_name = TSS_B2nnodf2_B2$common_name,
+                                    feature = "TSS",
+                                    peaks = TSS_B2nnodf2_B2$peak_density_TSS),
+                         data.frame(common_name = peakCovIntrons_B2$common_name,
+                                    feature = "Introns",
+                                    peaks = peakCovIntrons_B2$peak_density_Introns),
+                         data.frame(common_name = peakCovExon_B2$common_name,
+                                    feature = "Exons",
+                                    peaks = peakCovExon_B2$peak_density_Exons))
+
+```
+
+```{r}
+
+# First, merge peaks
+peaks_summary_B1$name_feat <- paste(peaks_summary_B1$common_name,
+                                   peaks_summary_B1$feature,
+                                   sep = "_")
+
+peaks_summary_B2$name_feat <- paste(peaks_summary_B2$common_name,
+                                   peaks_summary_B2$feature,
+                                   sep = "_")
+
+all_peaks_summary_B <- merge(peaks_summary_B1, peaks_summary_B2, by = "name_feat")
+
+all_peaks_summary_B[is.na(all_peaks_summary_B)] <- 0
+
+ggplot(data = all_peaks_summary_B,
+       aes(x = scale(peaks.x), y = scale(peaks.y))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_classic() +
+  scale_color_viridis_c()
+
+summary(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_B))
+anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_B))
+
+
+```
+
+```{r}
+
+# Read in concatenated .bed file
+all_A1TAC_reps_A1 <- readPeakFile( 
+  "20_hpf/GSE160461/GSE160461_RAW/GSM4873706_H7LCCBGXY_n01_ve59.trim.nodup.no_chrM_MT.tn5.pval0.05.300K.narrowPeak" 
+  )
+all_A1TAC_reps_df_A1 <- data.frame( all_A1TAC_reps_A1 )
+
+# Create matrix of off tags relative to TSS
+tagMatrixPM_A1ll_reps_A1 <- getTagMatrix( all_A1TAC_reps_A1, windows = promoter )
+
+
+# Annotate peaks
+peakAnnoM_A1ll_reps_A1 <- annotatePeak( all_A1TAC_reps_A1, tssRegion = c( -3000, 3000 ),
+                                    TxDb = spurp_txdb )
+
+peakAnnoGR_A1ll_reps_A1 <-as.GRanges( peakAnnoM_A1ll_reps_A1 )
+
+# Make peak annotation file into df for easier use
+peakannotdf_A1 = data.frame( peakAnnoGR_A1ll_reps_A1 )
+
+# Get peaks for TSS, +/-500 from the TSS
+TSS_A1nno_A1 <- peakAnnoGR_A1ll_reps_A1[ abs( peakannotdf_A1$distanceToTSS ) < 500 ]
+TSS_A1nnodf_A1 = data.frame( TSS_A1nno_A1 )
+
+# Filter for unique 
+TSSpeakGenes_A1 <- unique( TSS_A1nno_A1$transcriptId )
+dim( TSSpeakGenes_A1 ) # How many genes with TSS Tn5 inserts?
+
+# Sum counts per TSS by geneID
+peakCovTSS_A1 <- count( TSS_A1nnodf_A1, geneId )
+
+## Need to fix geneIDs by converting common names to SPU_IDs
+# Read in index of geneID types
+
+# Adjust column names of genewise TSS counts
+names( peakCovTSS_A1 ) = c( "common_name", "peak_density_TSS" )
+
+# Add spu_ids to TSS peak counts
+TSS_A1nnodf2_A1 = merge( peakCovTSS_A1, annot, by = "common_name", all.x = TRUE )
+
+# Create intron1 and all introns peak summaries
+peakannotdf_A1$annotation <- sub( " ", "", peakannotdf_A1$annotation )
+peakannotdf_A1$annotation <- as.factor( peakannotdf_A1$annotation )
+peakannotdf_A1$feature <- as.factor( str_sub( peakannotdf_A1$annotation, 1, 1 ) )
+
+# Partition out peaks annotated within introns
+peakIntron_A1 <- peakannotdf_A1[ peakannotdf_A1$feature == "I", ]
+peakIntron_A1$annotation <-sub ( " ","", peakIntron_A1$annotation )
+
+# Partition out peaks annotated within first introns
+peakIntron1_A1 = peakIntron_A1[ grep("intron 1 of", peakIntron_A1$annotation ), ]
+
+# How many genes have intron or first intron peaks?
+length( unique( peakIntron1_A1$geneId ) ) #X genes with peaks in intron 1
+length( unique(peakIntron_A1$geneId ) ) #X genes with peaks in introns
+
+# Wrangle geneID variable and column IDs for first introns
+peakIntron1_A1$geneID = as.factor( peakIntron1_A1$geneId )
+peakCovIntron1_A1 = count( peakIntron1_A1, geneId )
+names( peakCovIntron1_A1 ) = c( "common_name", "peak_density_Intron1" )
+
+# Wrangle geneID variable for introns
+peakIntron_A1$geneID = as.factor( peakIntron_A1$geneId )
+
+# Count intron peaks per gene
+peakCovIntron_A1 = count( peakIntron_A1, geneId )
+names( peakCovIntron_A1 ) = c( "common_name", "peak_density_Introns" )
+
+# Merge all intron count types into one count file w/ diff columsn for all and 1st introns
+peakCovIntrons_A1 = merge( peakCovIntron_A1, peakCovIntron1_A1, by = "common_name", all = TRUE )
+
+# Create exon peak summary
+peakExon_A1 = peakannotdf_A1[ peakannotdf_A1$feature == "E", ]
+peakExon_A1$annotation <- sub( " ", "", peakExon_A1$annotation )
+
+# Wrangle geneID and column info
+peakExon_A1$geneID = as.factor( peakExon_A1$geneId )
+
+# Create genewise counts of peaks in exons
+peakCovExon_A1 = count( peakExon_A1, geneId )
+names( peakCovExon_A1 ) = c( "common_name", "peak_density_Exons" )
+
+peaks_summary_A1 = rbind( data.frame(common_name = TSS_A1nnodf2_A1$common_name,
+                                    feature = "TSS",
+                                    peaks = TSS_A1nnodf2_A1$peak_density_TSS),
+                         data.frame(common_name = peakCovIntrons_A1$common_name,
+                                    feature = "Introns",
+                                    peaks = peakCovIntrons_A1$peak_density_Introns),
+                         data.frame(common_name = peakCovExon_A1$common_name,
+                                    feature = "Exons",
+                                    peaks = peakCovExon_A1$peak_density_Exons))
+
+```
+
+```{r}
+
+# Read in concatenated .bed file
+all_A2TAC_reps_A2 <- readPeakFile( 
+  "20_hpf/GSE160461/GSE160461_RAW/GSM4873707_H7LCCBGXY_n01_ve49.trim.nodup.no_chrM_MT.tn5.pval0.05.300K.narrowPeak" 
+  )
+all_A2TAC_reps_df_A2 <- data.frame( all_A2TAC_reps_A2 )
+
+# Create matrix of off tags relative to TSS
+tagMatrixPM_A2ll_reps_A2 <- getTagMatrix( all_A2TAC_reps_A2, windows = promoter )
+
+
+# Annotate peaks
+peakAnnoM_A2ll_reps_A2 <- annotatePeak( all_A2TAC_reps_A2, tssRegion = c( -3000, 3000 ),
+                                    TxDb = spurp_txdb )
+
+peakAnnoGR_A2ll_reps_A2 <-as.GRanges( peakAnnoM_A2ll_reps_A2 )
+
+# Make peak annotation file into df for easier use
+peakannotdf_A2 = data.frame( peakAnnoGR_A2ll_reps_A2 )
+
+# Get peaks for TSS, +/-500 from the TSS
+TSS_A2nno_A2 <- peakAnnoGR_A2ll_reps_A2[ abs( peakannotdf_A2$distanceToTSS ) < 500 ]
+TSS_A2nnodf_A2 = data.frame( TSS_A2nno_A2 )
+
+# Filter for unique 
+TSSpeakGenes_A2 <- unique( TSS_A2nno_A2$transcriptId )
+dim( TSSpeakGenes_A2 ) # How many genes with TSS Tn5 inserts?
+
+# Sum counts per TSS by geneID
+peakCovTSS_A2 <- count( TSS_A2nnodf_A2, geneId )
+
+## Need to fix geneIDs by converting common names to SPU_IDs
+# Read in index of geneID types
+
+# Adjust column names of genewise TSS counts
+names( peakCovTSS_A2 ) = c( "common_name", "peak_density_TSS" )
+
+# Add spu_ids to TSS peak counts
+TSS_A2nnodf2_A2 = merge( peakCovTSS_A2, annot, by = "common_name", all.x = TRUE )
+
+# Create intron1 and all introns peak summaries
+peakannotdf_A2$annotation <- sub( " ", "", peakannotdf_A2$annotation )
+peakannotdf_A2$annotation <- as.factor( peakannotdf_A2$annotation )
+peakannotdf_A2$feature <- as.factor( str_sub( peakannotdf_A2$annotation, 1, 1 ) )
+
+# Partition out peaks annotated within introns
+peakIntron_A2 <- peakannotdf_A2[ peakannotdf_A2$feature == "I", ]
+peakIntron_A2$annotation <-sub ( " ","", peakIntron_A2$annotation )
+
+# Partition out peaks annotated within first introns
+peakIntron1_A2 = peakIntron_A2[ grep("intron 1 of", peakIntron_A2$annotation ), ]
+
+# How many genes have intron or first intron peaks?
+length( unique( peakIntron1_A2$geneId ) ) #X genes with peaks in intron 1
+length( unique(peakIntron_A2$geneId ) ) #X genes with peaks in introns
+
+# Wrangle geneID variable and column IDs for first introns
+peakIntron1_A2$geneID = as.factor( peakIntron1_A2$geneId )
+peakCovIntron1_A2 = count( peakIntron1_A2, geneId )
+names( peakCovIntron1_A2 ) = c( "common_name", "peak_density_Intron1" )
+
+# Wrangle geneID variable for introns
+peakIntron_A2$geneID = as.factor( peakIntron_A2$geneId )
+
+# Count intron peaks per gene
+peakCovIntron_A2 = count( peakIntron_A2, geneId )
+names( peakCovIntron_A2 ) = c( "common_name", "peak_density_Introns" )
+
+# Merge all intron count types into one count file w/ diff columsn for all and 1st introns
+peakCovIntrons_A2 = merge( peakCovIntron_A2, peakCovIntron1_A2, by = "common_name", all = TRUE )
+
+# Create exon peak summary
+peakExon_A2 = peakannotdf_A2[ peakannotdf_A2$feature == "E", ]
+peakExon_A2$annotation <- sub( " ", "", peakExon_A2$annotation )
+
+# Wrangle geneID and column info
+peakExon_A2$geneID = as.factor( peakExon_A2$geneId )
+
+# Create genewise counts of peaks in exons
+peakCovExon_A2 = count( peakExon_A2, geneId )
+names( peakCovExon_A2 ) = c( "common_name", "peak_density_Exons" )
+
+# Save peak annotations and summaries
+peaks_summary_A2 = rbind( data.frame(common_name = TSS_A2nnodf2_A2$common_name,
+                                    feature = "TSS",
+                                    peaks = TSS_A2nnodf2_A2$peak_density_TSS),
+                         data.frame(common_name = peakCovIntrons_A2$common_name,
+                                    feature = "Introns",
+                                    peaks = peakCovIntrons_A2$peak_density_Introns),
+                         data.frame(common_name = peakCovExon_A2$common_name,
+                                    feature = "Exons",
+                                    peaks = peakCovExon_A2$peak_density_Exons))
+
+```
+
+```{r}
+
+# First, merge peaks
+peaks_summary_A1$name_feat <- paste(peaks_summary_A1$common_name,
+                                   peaks_summary_A1$feature,
+                                   sep = "_")
+
+peaks_summary_A2$name_feat <- paste(peaks_summary_A2$common_name,
+                                   peaks_summary_A2$feature,
+                                   sep = "_")
+
+all_peaks_summary_A <- merge(peaks_summary_A1, peaks_summary_A2, by = "name_feat")
+
+all_peaks_summary_A[is.na(all_peaks_summary_A)] <- 0
+
+ggplot(data = all_peaks_summary_A,
+       aes(x = scale(peaks.x), y = scale(peaks.y))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_classic() +
+  scale_color_viridis_c()
+
+summary(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_A))
+anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_A))
+
+
+```
