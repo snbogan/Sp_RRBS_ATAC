@@ -1,9 +1,14 @@
 ---
-title: "ATACseq_QC"
+title: "D_ATACseq_QC"
 author: "Sam Bogan"
 date: "4/18/2022"
-output: html_document
+output:
+  html_document: default
 ---
+
+This is an R markdown detailing a test of inter- and intraexperimental variation in chromatin accessibility in early stage *Strongylocentrotus purpuratus* to quality check the robustness of integrating ATAC-seq reads from SRA archive GSE95651 with RNAseq and RRBS data from Strader et al. 2020 (PRJNA548926). This markdown is part of the Sp_RRBS_ATAC repo by Sam Bogan, Marie Strader, and Gretchen Hofmann. This project aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in an invertebrate, and how these effects are regulated by other epigenomic and genomic states.
+
+The code below reads in bed files containing genomic positions of ATACseq peaks of *S. purpuratus* blastula identified in two different experiments before (i) performing a linear regressions to measure inter- and intra-experimental correlation in ATAC-seq reads per genomic feature and (ii) measuring positional overlap of peaks between experiments.
 
 ```{r setup, include=FALSE}
 
@@ -435,7 +440,7 @@ library( ChIPseeker )
 library( GenomicFeatures )
 library( GenomicRanges )
 library( Repitools )
-library(tidyverse)
+library( tidyverse )
 
 # Set path
 setwd( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Input_data/" )
@@ -453,7 +458,6 @@ exons <- getBioRegion( TxDb = spurp_txdb, by = "exon" )
 genes <- getBioRegion( TxDb = spurp_txdb, by = "gene" )
 
 ```
-
 
 ### Annotate ATAC-seq peaks from replicate from experiment A
 
@@ -672,32 +676,36 @@ peaks_summary_B = rbind( data.frame(common_name = TSS_Bnnodf2_B$common_name,
 
 ```{r}
 
-# First, merge peaks
-peaks_summary_A$name_feat <- paste(peaks_summary_A$common_name,
-                                   peaks_summary_A$feature,
-                                   sep = "_")
+# First, merge peaks from the two different experiments
+peaks_summary_A$name_feat <- paste( peaks_summary_A$common_name,
+                                    peaks_summary_A$feature,
+                                    sep = "_" )
 
-peaks_summary_B$name_feat <- paste(peaks_summary_B$common_name,
-                                   peaks_summary_B$feature,
-                                   sep = "_")
+peaks_summary_B$name_feat <- paste( peaks_summary_B$common_name,
+                                    peaks_summary_B$feature,
+                                    sep = "_" )
 
-all_peaks_summary <- merge(peaks_summary_A, peaks_summary_B, by = "name_feat")
 
-all_peaks_summary[is.na(all_peaks_summary)] <- 0
+all_peaks_summary <- merge( peaks_summary_A, peaks_summary_B, by = "name_feat" )
 
-ggplot(data = all_peaks_summary,
-       aes(x = scale(peaks.x), y = scale(peaks.y))) +
+# Change NA to 0 for genomic regions that did not contain and ATACseq peak
+all_peaks_summary[ is.na( all_peaks_summary ) ] <- 0
+
+# Plot linear regression of ATACseq peaks per feature between the two experiments
+ggplot( data = all_peaks_summary,
+       aes( x = scale(peaks.x), y = scale( peaks.y ))) +
   geom_point() +
-  geom_smooth(method = "lm", se = TRUE) +
-  theme_classic(base_size = 10) +
-  labs(title = expression(paste("Interexperimental reproducibility of ATAC-seq in early-stage ", italic("S. purpuratus"))),
+  geom_smooth( method = "lm", se = TRUE ) +
+  theme_classic( base_size = 10 ) +
+  labs( title = expression( paste( "Interexperimental reproducibility of ATAC-seq in early-stage ", italic( "S. purpuratus" ) ) ),
        x = "Exp. A: scaled per-feature peak counts (20 hpf blastula)",
-       y = "Exp. B: scaled per-feature peak counts (24 hpf blastula)") +
+       y = "Exp. B: scaled per-feature peak counts (24 hpf blastula)" ) +
   scale_color_viridis_c() +
-  geom_abline(slope=1, intercept = 0, color = "red", lty = 2)
+  geom_abline( slope=1, intercept = 0, color = "red", lty = 2 )
 
-summary(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary))
-anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary))
+# Quantify interexperimental correlation in ATACseq peaks per feature between the two experiments
+summary( lm( scale( peaks.x ) ~ scale( peaks.y ), data = all_peaks_summary ))
+anova( lm( scale( peaks.x ) ~ scale( peaks.y ), data = all_peaks_summary ))
 
 
 ```
@@ -706,7 +714,7 @@ anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary))
 
 ```{r}
 
-# Read in concatenated .bed file
+# Read in .bed file for first GSE96927 replicate
 all_B1TAC_reps_B1 <- readPeakFile( 
   "20_hpf/GSE96927/GSM2546193_Other_Replicate1_AllPeaks.bed" 
   )
@@ -801,7 +809,7 @@ peaks_summary_B1 = rbind( data.frame(common_name = TSS_B1nnodf2_B1$common_name,
 
 ```{r}
 
-# Read in concatenated .bed file
+# Read in .bed file for second GSE96927 replicate
 all_B2TAC_reps_B2 <- readPeakFile( 
   "20_hpf/GSE96927/GSM2546194_Other_Replicate2_AllPeaks.bed" 
   )
@@ -898,34 +906,37 @@ peaks_summary_B2 = rbind( data.frame(common_name = TSS_B2nnodf2_B2$common_name,
 ```{r}
 
 # First, merge peaks
-peaks_summary_B1$name_feat <- paste(peaks_summary_B1$common_name,
-                                   peaks_summary_B1$feature,
-                                   sep = "_")
+peaks_summary_B1$name_feat <- paste( peaks_summary_B1$common_name,
+                                     peaks_summary_B1$feature,
+                                     sep = "_")
 
-peaks_summary_B2$name_feat <- paste(peaks_summary_B2$common_name,
-                                   peaks_summary_B2$feature,
-                                   sep = "_")
+peaks_summary_B2$name_feat <- paste( peaks_summary_B2$common_name,
+                                     peaks_summary_B2$feature,
+                                     sep = "_")
 
-all_peaks_summary_B <- merge(peaks_summary_B1, peaks_summary_B2, by = "name_feat")
+all_peaks_summary_B <- merge( peaks_summary_B1, peaks_summary_B2, by = "name_feat" )
 
-all_peaks_summary_B[is.na(all_peaks_summary_B)] <- 0
+# Add 0 ATACseq read counts where count = NA
+all_peaks_summary_B[ is.na( all_peaks_summary_B ) ] <- 0
 
-ggplot(data = all_peaks_summary_B,
-       aes(x = scale(peaks.x), y = scale(peaks.y))) +
+# plot regression of ATACseq peak counts per genomic feature between GSE96927 replicates
+ggplot( data = all_peaks_summary_B,
+        aes(x = scale( peaks.x ), y = scale( peaks.y ))) +
   geom_point() +
-  geom_smooth(method = "lm", se = TRUE) +
+  geom_smooth( method = "lm", se = TRUE ) +
   theme_classic() +
   scale_color_viridis_c()
 
-summary(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_B))
-anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_B))
+# Perform linear regression quantifying intraexperimental correlations of ATACseq peaks per feature in GSE96927
+summary( lm( scale( peaks.x ) ~ scale( peaks.y ), data = all_peaks_summary_B ))
+anova( lm( scale( peaks.x ) ~ scale(peaks.y ), data = all_peaks_summary_B ))
 
 
 ```
 
 ```{r}
 
-# Read in concatenated .bed file
+# Read in .bed file for first GSE160461 replicate
 all_A1TAC_reps_A1 <- readPeakFile( 
   "20_hpf/GSE160461/GSE160461_RAW/GSM4873706_H7LCCBGXY_n01_ve59.trim.nodup.no_chrM_MT.tn5.pval0.05.300K.narrowPeak" 
   )
@@ -1020,7 +1031,7 @@ peaks_summary_A1 = rbind( data.frame(common_name = TSS_A1nnodf2_A1$common_name,
 
 ```{r}
 
-# Read in concatenated .bed file
+# Read in .bed file for second GSE160461 replicate
 all_A2TAC_reps_A2 <- readPeakFile( 
   "20_hpf/GSE160461/GSE160461_RAW/GSM4873707_H7LCCBGXY_n01_ve49.trim.nodup.no_chrM_MT.tn5.pval0.05.300K.narrowPeak" 
   )
@@ -1117,27 +1128,30 @@ peaks_summary_A2 = rbind( data.frame(common_name = TSS_A2nnodf2_A2$common_name,
 ```{r}
 
 # First, merge peaks
-peaks_summary_A1$name_feat <- paste(peaks_summary_A1$common_name,
-                                   peaks_summary_A1$feature,
-                                   sep = "_")
+peaks_summary_A1$name_feat <- paste( peaks_summary_A1$common_name,
+                                     peaks_summary_A1$feature,
+                                     sep = "_")
 
-peaks_summary_A2$name_feat <- paste(peaks_summary_A2$common_name,
-                                   peaks_summary_A2$feature,
-                                   sep = "_")
+peaks_summary_A2$name_feat <- paste( peaks_summary_A2$common_name,
+                                     peaks_summary_A2$feature,
+                                     sep = "_")
 
-all_peaks_summary_A <- merge(peaks_summary_A1, peaks_summary_A2, by = "name_feat")
+all_peaks_summary_A <- merge( peaks_summary_A1, peaks_summary_A2, by = "name_feat" )
 
-all_peaks_summary_A[is.na(all_peaks_summary_A)] <- 0
+# Add 0 ATACseq read counts where count = NA
+all_peaks_summary_A[ is.na( all_peaks_summary_A ) ] <- 0
 
+# plot regression of ATACseq peak counts per genomic feature between GSE160461 replicates
 ggplot(data = all_peaks_summary_A,
-       aes(x = scale(peaks.x), y = scale(peaks.y))) +
+       aes( x = scale( peaks.x ), y = scale( peaks.y ))) +
   geom_point() +
-  geom_smooth(method = "lm", se = TRUE) +
+  geom_smooth( method = "lm", se = TRUE ) +
   theme_classic() +
   scale_color_viridis_c()
 
-summary(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_A))
-anova(lm(scale(peaks.x) ~ scale(peaks.y), data = all_peaks_summary_A))
+# Perform linear regression quantifying intraexperimental correlations of ATACseq peaks per feature in GSE160461
+summary( lm( scale( peaks.x ) ~ scale( peaks.y ), data = all_peaks_summary_A ))
+anova( lm( scale( peaks.x ) ~ scale( peaks.y ), data = all_peaks_summary_A ))
 
 
 ```
