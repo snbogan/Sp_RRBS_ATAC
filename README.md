@@ -74,3 +74,13 @@ This research was funded by a United States National Science Foundation award (I
               iii. Output_data: Results of Fisher's exact and Mann Whitney U tests of GO-term enrichment among gene groups
               iv. Output_figures: Main-text and supplemental figures
 
+    D. D_ATACseq_QC (measurement of interexprimental variation in ATACseq peaks to QC integration of ATAC data)
+
+        1. D_ATACseq_QC.Rmd (linear regressions of ATACseq peak counts per genomic feature between experiments; calculation of     
+           positional overlap in peaks between experiments)
+              i. Input data ('20_hpf'): this folder contains bed files of ATACseq peak locations from two experiments studying 
+                 blastula-stage *S. purpuratus* (SRA accession: GSE96927 and GSE160461)
+              ii. Code: D_ATACseq_QC.Rmd
+              iii. gene_info_table_header.txt: a datasheet used to resolve SPU_ID gene names and common gene names
+              iv. Strongylocentrotus_purpuratus.Spur_3.1.42.gff3: an annotation file for the Spur_3.1 genome
+
