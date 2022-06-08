@@ -20,7 +20,6 @@ knitr::opts_knit$set( root.dir = '~/Documents/GitHub/Sp_RRBS_ATAC/D_ATACseq_QC/'
 library( tidyverse )
 library( GenomicRanges)
 library( rtracklayer )
-
 ```
 
 ```{r}
@@ -442,11 +441,8 @@ library( GenomicRanges )
 library( Repitools )
 library( tidyverse )
 
-# Set path
-setwd( "~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/Input_data/" )
-
 # Load S. purpuratus GFF
-spurp_txdb <- makeTxDbFromGFF( file = "Strongylocentrotus_purpuratus.Spur_3.1.42.gff3" ,
+spurp_txdb <- makeTxDbFromGFF( file = "Strongylocentrotus_purpuratus.Spur_3.1.42.gff3",
                                organism = "Strongylocentrotus purpuratus" )
 
 #Partition S. purpuratus genomic features
@@ -462,14 +458,12 @@ genes <- getBioRegion( TxDb = spurp_txdb, by = "gene" )
 ### Annotate ATAC-seq peaks from replicate from experiment A
 
 ```{r}
+
 # Read in concatenated .bed file
 all_ATAC_reps_A <- readPeakFile( 
   "20_hpf/GSE160461/GSE160461_RAW/GSE160461_comb_peaks.bed" 
   )
 all_ATAC_reps_df_A <- data.frame( all_ATAC_reps_A )
-
-# Create matrix of off tags relative to TSS
-tagMatrixPM_all_reps_A <- getTagMatrix( all_ATAC_reps_A, windows = promoter )
 
 # Annotate peaks
 peakAnnoM_all_reps_A <- annotatePeak( all_ATAC_reps_A, tssRegion = c( -3000, 3000 ),
@@ -572,17 +566,6 @@ all_BTAC_reps_B <- readPeakFile(
   "20_hpf/GSE96927/GSE96927_other_peaks_comb.bed" 
   )
 all_BTAC_reps_df_B <- data.frame( all_BTAC_reps_B )
-
-# Create matrix of off tags relative to TSS
-tagMatrixPM_Bll_reps_B <- getTagMatrix( all_BTAC_reps_B, windows = promoter )
-
-# Heatmap of Tn5 inserts
-tagHeatmap( tagMatrixPM_Bll_reps_B, xlim = c( -3000, 3000 ), color = "red" )
-
-####Save this tag count plot and upload to Box####
-plotAvgProf( tagMatrixPM_Bll_reps_B, xlim = c( -3000, 3000 ),
-             xlab = "Genomic Region (5'->3')",
-             ylab = "Read Count Frequency", conf = TRUE )
 
 # Annotate peaks
 peakAnnoM_Bll_reps_B <- annotatePeak( all_BTAC_reps_B, tssRegion = c( -3000, 3000 ),
