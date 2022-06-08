@@ -5,6 +5,12 @@ date: "6/27/2021"
 output: github_document
 ---
 
+This is an R markdown detailing the integration of datasets measuring baseline DNA methylation, chromatin accessibility, gene expression, and transcript variant occurence in the purple urchin *Strongylocentrotus purpuratus*, as well as differential expression, methylation, exon use (e.g. alternative splicing). This markdown is part of the Sp_RRBS_ATAC repo by Sam Bogan, Marie Strader, and Gretchen Hofmann. This project aimed to understand the gene regulatory effects of DNA methylation during transgenerational plasticity in an invertebrate, and how these effects are regulated by other epigenomic and genomic states.
+
+The code below merges baseline and differential functional genomic data for genes and genomic features that were quantified and exported in section A of the Sp_RRBS_ATAC. The integrated datasets are then modeled and plotted in section C of Sp_RRBS_ATAC.
+
+Prior to this analysis, reads were mapped to the Spur_3.1.42 assembly and annotation using HiSat2 and counted using featureCounts in the subread package as detailed in Strader et al. 2020: https://www.frontiersin.org/articles/10.3389/fmars.2020.00205/full. Relevant scripts for alignment and read counting can be found at: https://github.com/mariestrader/S.purp_RRBS_RNAseq_2019.
+
 ```{r setup, include=FALSE}
 
 knitr::opts_knit$set( root.dir = '~/Documents/GitHub/Sp_RRBS_ATAC/B_Integr_ATAC_RRBS_RNA/' )
